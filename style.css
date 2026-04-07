@@ -200,30 +200,36 @@ html, body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 28px 24px 20px 36px;
+    padding: 16px 12px 12px 20px;
     overflow: hidden;
+    min-width: 0;
 }
 
 .char-grid-title {
     font-family: 'CHMedia', sans-serif;
-    font-size: 22px;
+    font-size: 20px;
     color: #ff0090;
     letter-spacing: 3px;
     text-shadow: 0 0 10px #ff009066;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    flex-shrink: 0;
 }
 .char-grid-subtitle {
-    font-size: 12px;
+    font-size: 11px;
     color: #ffffff44;
     letter-spacing: 2px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .char-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    align-content: start;
     scrollbar-width: thin;
     scrollbar-color: #ff009044 transparent;
 }
@@ -231,42 +237,50 @@ html, body {
 .char-grid::-webkit-scrollbar-thumb { background: #ff009044; border-radius: 2px; }
 
 .char-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 4px 6px;
+    position: relative;
+    overflow: hidden;
     border: 2px solid #ffffff15;
-    background: #ffffff05;
+    background: #111;
     cursor: pointer;
-    transition: border-color 0.12s, background 0.12s, transform 0.08s;
+    transition: border-color 0.12s, transform 0.08s;
+    aspect-ratio: 3 / 4;
 }
-.char-card:hover    { border-color: #ffffff44; transform: translateY(-2px); }
-.char-card.selected { border-color: #ff0090; background: #ff009020; }
+.char-card:hover    { border-color: #ffffff66; transform: scale(1.03); z-index: 2; }
+.char-card.selected { border-color: #ff0090; box-shadow: 0 0 16px #ff009066; }
 
+/* Photo fills the entire card */
 .char-avatar {
-    width: 72px;
-    height: 72px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    object-position: center 15%;
+    object-position: center 10%;
     display: block;
-    filter: contrast(1.2) saturate(1.15);
+    filter: contrast(1.1) saturate(1.2);
+    transition: filter 0.12s;
+}
+.char-card:hover .char-avatar,
+.char-card.selected .char-avatar {
+    filter: contrast(1.2) saturate(1.4) brightness(1.05);
 }
 
+/* Name overlay at bottom of photo */
 .char-card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
     font-family: 'Zuume', monospace;
-    font-size: 10px;
-    color: #ffffffcc;
+    font-size: 11px;
+    color: #fff;
     letter-spacing: 1px;
     text-align: center;
     text-transform: uppercase;
+    padding: 14px 4px 5px;
 }
-.char-card-origin {
-    font-size: 8px;
-    color: #ffffff44;
-    text-align: center;
-    line-height: 1.2;
-}
+.char-card.selected .char-card-name { color: #ff0090; }
+
+/* Remove origin text — too small, info panel has it */
+.char-card-origin { display: none; }
 
 /* Right panel: selected character info */
 .char-info-panel {

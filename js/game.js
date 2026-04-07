@@ -129,7 +129,7 @@ class Game {
             originEl.className = 'char-card-origin';
             originEl.textContent = `${c.age}J \u2022 ${c.origin}`;
 
-            card.append(av, nameEl, originEl);
+            card.append(av, nameEl);
 
             card.onclick = () => {
                 grid.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
