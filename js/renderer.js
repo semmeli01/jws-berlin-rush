@@ -725,94 +725,98 @@ class Renderer {
     drawHUD(score, lives, multiplier, levelId, accentColor, vipStickers, hasBoss) {
         const ctx = this.ctx;
 
-        // HUD bar
-        ctx.fillStyle = 'rgba(0,0,0,0.75)';
-        ctx.fillRect(0, 0, this.W, 52);
+        // HUD bar — full width, taller for desktop
+        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillRect(0, 0, this.W, 48);
 
-        // Score
+        // Score (left)
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 18px "Zuume", monospace';
+        ctx.font = 'bold 22px "Zuume", monospace';
         ctx.textAlign = 'left';
-        ctx.fillText(`SCORE ${score.toLocaleString()}`, 10, 28);
+        ctx.fillText(`SCORE  ${score.toLocaleString()}`, 16, 31);
 
-        // Multiplier
+        // Multiplier next to score
         if (multiplier > 1) {
             ctx.fillStyle = accentColor;
-            ctx.font = '13px "Zuume", monospace';
-            ctx.fillText(`x${multiplier.toFixed(1)}`, 10, 44);
+            ctx.font = 'bold 18px "Zuume", monospace';
+            ctx.fillText(`×${multiplier.toFixed(1)}`, 200, 31);
         }
 
-        // Lives
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#e74c3c';
-        ctx.font = '20px sans-serif';
-        let livesStr = '';
-        for (let i = 0; i < lives; i++) livesStr += '\u2665 ';
-        ctx.fillText(livesStr.trim(), this.W - 10, 30);
-
-        // Level
+        // Level (center)
         ctx.textAlign = 'center';
         ctx.fillStyle = accentColor;
-        ctx.font = '12px "Zuume", monospace';
-        ctx.fillText(`LEVEL ${levelId}`, this.W / 2, 20);
+        ctx.font = 'bold 16px "Zuume", monospace';
+        ctx.fillText(`— LEVEL ${levelId} —`, this.W / 2, 20);
 
-        // VIP stickers
+        // VIP stickers (center below level)
         if (hasBoss) {
-            ctx.font = '11px monospace';
+            ctx.font = '14px monospace';
             ctx.fillStyle = '#ffd700';
             const filled = Math.min(vipStickers || 0, 3);
             const empty = 3 - filled;
-            ctx.fillText('\u2B50'.repeat(filled) + '\u25CB'.repeat(empty), this.W / 2, 42);
+            ctx.fillText('VIP  ' + '\u2B50'.repeat(filled) + '\u25CB'.repeat(empty), this.W / 2, 40);
         }
+
+        // Lives (right)
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#e74c3c';
+        ctx.font = '22px sans-serif';
+        let livesStr = '';
+        for (let i = 0; i < lives; i++) livesStr += '\u2665 ';
+        ctx.fillText(livesStr.trim(), this.W - 16, 32);
     }
 
     drawProgressBar(progress, accentColor) {
         const ctx = this.ctx;
-        const barY = 52;
+        const barY = 48;
 
-        ctx.fillStyle = '#222';
-        ctx.fillRect(0, barY, this.W, 3);
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, barY, this.W, 4);
 
         ctx.fillStyle = accentColor;
-        ctx.fillRect(0, barY, this.W * Math.min(progress, 1), 3);
+        ctx.fillRect(0, barY, this.W * Math.min(progress, 1), 4);
 
-        // Finish marker
+        // Finish flag
         ctx.fillStyle = '#ffd700';
-        ctx.fillRect(this.W - 4, barY, 4, 3);
+        ctx.fillRect(this.W - 6, barY - 2, 6, 8);
     }
 
-    drawTouchHints(alpha) {
+    drawKeyboardHints(alpha) {
         if (alpha <= 0) return;
         const ctx = this.ctx;
         ctx.save();
-        ctx.globalAlpha = alpha * 0.4;
+        ctx.globalAlpha = alpha * 0.65;
 
-        // Left = jump
-        ctx.fillStyle = '#00d4ff15';
-        ctx.fillRect(0, this.H - 120, this.W / 2, 120);
-        ctx.fillStyle = '#00d4ff';
-        ctx.font = '16px "Zuume", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('TAP = JUMP', this.W / 4, this.H - 55);
-        ctx.font = '22px monospace';
-        ctx.fillText('\u2191', this.W / 4, this.H - 80);
+        const gy = this.getGroundY();
+        const boxY = gy + 10;
+        const boxH = this.H - gy - 10;
 
-        // Right = duck
-        ctx.fillStyle = '#ff009015';
-        ctx.fillRect(this.W / 2, this.H - 120, this.W / 2, 120);
-        ctx.fillStyle = '#ff0090';
-        ctx.font = '16px "Zuume", monospace';
-        ctx.fillText('HOLD = DUCK', this.W * 3 / 4, this.H - 55);
-        ctx.font = '22px monospace';
-        ctx.fillText('\u2193', this.W * 3 / 4, this.H - 80);
+        // Key hint boxes centered at bottom
+        const hints = [
+            { key: 'SPACE', label: 'JUMP', color: '#00d4ff' },
+            { key: '↑  /  W', label: 'JUMP', color: '#00d4ff' },
+            { key: '↓  /  S', label: 'DUCK', color: '#ff0090' },
+            { key: 'P  /  ESC', label: 'PAUSE', color: '#ffd700' },
+        ];
 
-        // Divider
-        ctx.strokeStyle = '#ffffff22';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(this.W / 2, this.H - 120);
-        ctx.lineTo(this.W / 2, this.H);
-        ctx.stroke();
+        const bw = 130, bh = 36, gap = 12;
+        const totalW = hints.length * bw + (hints.length - 1) * gap;
+        let bx = (this.W - totalW) / 2;
+
+        hints.forEach(h => {
+            ctx.fillStyle = h.color + '22';
+            ctx.fillRect(bx, boxY, bw, bh);
+            ctx.strokeStyle = h.color + '88';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(bx, boxY, bw, bh);
+
+            ctx.fillStyle = h.color;
+            ctx.font = 'bold 12px "Zuume", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`[${h.key}]  ${h.label}`, bx + bw / 2, boxY + 14);
+
+            bx += bw + gap;
+        });
 
         ctx.restore();
     }
@@ -823,6 +827,7 @@ class Renderer {
     }
 
     getGroundY() {
-        return this.H - 140;
+        // Desktop: ground at 76% of height (leaves room for ground + keyboard hints below)
+        return Math.floor(this.H * 0.76);
     }
 }

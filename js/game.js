@@ -3,9 +3,9 @@
 // =============================================
 
 
-// Canvas logical size (portrait, mobile-first)
-const W = 390;
-const H = 760;
+// Canvas logical size (landscape, desktop-first 16:9)
+const W = 960;
+const H = 540;
 
 // Physics
 const GRAVITY = 2000;
@@ -135,10 +135,24 @@ class Game {
                 grid.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
                 card.classList.add('selected');
                 this.char = c;
-                document.getElementById('selectedCharName').textContent = c.name.toUpperCase();
-                document.getElementById('selectedCharAbility').textContent =
-                    `\u2726 ${c.abilityName}: ${c.abilityDesc}`;
-                document.getElementById('charInfo').classList.remove('hidden');
+
+                // Desktop info panel (right side)
+                const panel = document.getElementById('charInfoPanel');
+                if (panel) {
+                    panel.querySelector('.panel-placeholder').style.display = 'none';
+                    const photo = panel.querySelector('.panel-photo');
+                    photo.src = c.photoSrc;
+                    photo.style.display = 'block';
+                    panel.querySelector('.panel-name').textContent = c.name.toUpperCase();
+                    panel.querySelector('.panel-name').style.display = 'block';
+                    panel.querySelector('.panel-origin').textContent = `${c.age} Jahre \u2022 ${c.origin}`;
+                    panel.querySelector('.panel-origin').style.display = 'block';
+                    panel.querySelector('.panel-ability').textContent = `\u2726 ${c.abilityName}\n${c.abilityDesc}`;
+                    panel.querySelector('.panel-ability').style.display = 'block';
+                    const btn = document.getElementById('confirmCharBtn');
+                    btn.style.display = 'block';
+                }
+
                 this.audio.resume();
                 this.audio.playCollectShot();
             };
@@ -158,8 +172,17 @@ class Game {
 
         if (s === S.CHAR_SELECT) {
             this.char = null;
-            document.getElementById('charInfo').classList.add('hidden');
             document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+            // Reset desktop info panel
+            const panel = document.getElementById('charInfoPanel');
+            if (panel) {
+                panel.querySelector('.panel-placeholder').style.display = '';
+                panel.querySelector('.panel-photo').style.display = 'none';
+                panel.querySelector('.panel-name').style.display = 'none';
+                panel.querySelector('.panel-origin').style.display = 'none';
+                panel.querySelector('.panel-ability').style.display = 'none';
+                document.getElementById('confirmCharBtn').style.display = 'none';
+            }
         }
         if (s === S.GAME_OVER) {
             document.getElementById('finalScore').textContent = this.score.toLocaleString();
@@ -558,9 +581,9 @@ class Game {
                 lvl.id, lvl.accentColor, this.vipStickers, lvl.hasBoss);
             r.drawProgressBar(this.levelDist / lvl.levelGoalDistance, lvl.accentColor);
 
-            // Touch hints (fade out)
-            const hintAlpha = Math.max(0, 1 - this.levelDist / 400);
-            r.drawTouchHints(hintAlpha);
+            // Keyboard hints (fade out after start)
+            const hintAlpha = Math.max(0, 1 - this.levelDist / 600);
+            r.drawKeyboardHints(hintAlpha);
         } else {
             r.drawDarkBg();
         }

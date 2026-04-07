@@ -2,9 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JWS: Berlin Rush</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -29,16 +27,26 @@
 
         <!-- Character Select Screen -->
         <div id="charSelectScreen" class="screen hidden">
-            <div class="char-select-header">
-                <div class="screen-title">CHARAKTER WÄHLEN</div>
-                <div class="screen-subtitle">Wähle dein JWS-Alter-Ego</div>
+            <!-- Left: grid -->
+            <div class="char-grid-panel">
+                <div class="char-grid-title">CHARAKTER WÄHLEN</div>
+                <div class="char-grid-subtitle">Wähle dein JWS-Alter-Ego — alle 14 Charaktere mit einzigartigen Fähigkeiten</div>
+                <div id="charGrid" class="char-grid"></div>
             </div>
-            <div id="charGrid" class="char-grid"></div>
-            <div id="charInfo" class="char-info hidden">
+            <!-- Right: info panel -->
+            <div class="char-info-panel" id="charInfoPanel">
+                <p class="panel-placeholder">← Wähle einen<br>Charakter</p>
+                <img class="panel-photo" id="panelPhoto" src="" alt="">
+                <div class="panel-name" id="panelName"></div>
+                <div class="panel-origin" id="panelOrigin"></div>
+                <div class="panel-ability" id="panelAbility"></div>
+                <button id="confirmCharBtn" class="btn-primary" style="display:none">LOS GEHT'S!</button>
+            </div>
+            <!-- Keep old ids for JS compatibility -->
+            <div class="char-info hidden" id="charInfo">
                 <div class="char-info-inner">
-                    <div class="char-info-name" id="selectedCharName"></div>
-                    <div class="char-info-ability" id="selectedCharAbility"></div>
-                    <button id="confirmCharBtn" class="btn-primary">LOS GEHT'S!</button>
+                    <div id="selectedCharName"></div>
+                    <div id="selectedCharAbility"></div>
                 </div>
             </div>
         </div>
