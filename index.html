@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>JWS: Berlin Rush</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen">
+            <div class="screen-content">
+                <div class="logo-area">
+                    <div class="jws-logo">JWS</div>
+                    <div class="logo-sub">BERLIN RUSH</div>
+                    <div class="logo-tagline">Jung. Wild. Sexy. Run.</div>
+                </div>
+                <button id="startBtn" class="btn-primary">SPIELEN</button>
+                <div class="oneplus-badge">Ein oneplus Original</div>
+            </div>
+        </div>
+
+        <!-- Character Select Screen -->
+        <div id="charSelectScreen" class="screen hidden">
+            <div class="char-select-header">
+                <div class="screen-title">CHARAKTER WÄHLEN</div>
+                <div class="screen-subtitle">Wähle dein JWS-Alter-Ego</div>
+            </div>
+            <div id="charGrid" class="char-grid"></div>
+            <div id="charInfo" class="char-info hidden">
+                <div class="char-info-inner">
+                    <div class="char-info-name" id="selectedCharName"></div>
+                    <div class="char-info-ability" id="selectedCharAbility"></div>
+                    <button id="confirmCharBtn" class="btn-primary">LOS GEHT'S!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Intro Screen -->
+        <div id="levelIntroScreen" class="screen hidden">
+            <div class="level-intro-wrap">
+                <div class="level-intro-number" id="levelIntroNumber"></div>
+                <div class="level-intro-name" id="levelIntroName"></div>
+                <div class="level-intro-desc" id="levelIntroDesc"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="over-title">GAME OVER</div>
+                <div class="over-score">Score: <span id="finalScore">0</span></div>
+                <div class="over-buttons">
+                    <button id="retryBtn" class="btn-secondary">NOCHMAL</button>
+                    <button id="charSelectBtn" class="btn-secondary">CHARAKTER</button>
+                </div>
+                <a href="https://www.oneplus.ch" target="_blank" rel="noopener" class="oneplus-cta">
+                    JETZT AUF ONEPLUS ANSEHEN →
+                </a>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="winScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="win-title">GESCHAFFT!</div>
+                <div class="win-sub">Du hast den Club erreicht!</div>
+                <div class="win-score">Score: <span id="winScore">0</span></div>
+                <button id="playAgainBtn" class="btn-primary">NOCHMAL</button>
+                <a href="https://www.oneplus.ch" target="_blank" rel="noopener" class="oneplus-cta">
+                    JETZT AUF ONEPLUS ANSEHEN →
+                </a>
+            </div>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="pauseScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="pause-title">PAUSE</div>
+                <button id="resumeBtn" class="btn-primary">WEITER</button>
+                <button id="quitBtn" class="btn-secondary">BEENDEN</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/game.js"></script>
+</body>
+</html>
