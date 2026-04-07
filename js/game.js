@@ -2,11 +2,6 @@
 // JWS: BERLIN RUSH — Main Game Engine
 // =============================================
 
-import { CHARACTERS } from './characters.js';
-import { LEVELS, OBSTACLE_DEFS, COLLECTIBLE_DEFS } from './levels.js';
-import { AudioEngine } from './audio.js';
-import { InputManager } from './input.js';
-import { Renderer } from './renderer.js';
 
 // Canvas logical size (portrait, mobile-first)
 const W = 390;

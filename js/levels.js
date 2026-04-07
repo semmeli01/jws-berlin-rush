@@ -2,7 +2,7 @@
 // JWS: BERLIN RUSH — Level Configurations
 // =============================================
 
-export const LEVELS = [
+const LEVELS = [
     {
         id: 1,
         name: 'BERLINER\nHAUPTBAHNHOF',
@@ -102,7 +102,7 @@ export const LEVELS = [
 ];
 
 // Obstacle definitions: geometry + visual config
-export const OBSTACLE_DEFS = {
+const OBSTACLE_DEFS = {
     suitcase: {
         w: 44, h: 38,
         groundOffset: 0,   // sits on ground
@@ -178,7 +178,7 @@ export const OBSTACLE_DEFS = {
 };
 
 // Collectible definitions
-export const COLLECTIBLE_DEFS = {
+const COLLECTIBLE_DEFS = {
     shot: {
         w: 24, h: 30,
         heightRange: [20, 50],  // px above ground

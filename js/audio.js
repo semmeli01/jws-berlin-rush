@@ -3,7 +3,7 @@
 // Web Audio API chiptune + SFX
 // =============================================
 
-export class AudioEngine {
+class AudioEngine {
     constructor() {
         this.ctx = null;
         this.masterGain = null;

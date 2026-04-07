@@ -2,7 +2,7 @@
 // JWS: BERLIN RUSH — Cast Characters (Staffel 8)
 // =============================================
 
-export const CHARACTERS = [
+const CHARACTERS = [
     {
         id: 'diego',
         name: 'Diego',

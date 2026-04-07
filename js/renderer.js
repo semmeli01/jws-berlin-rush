@@ -5,7 +5,7 @@
 
 const PX = 4; // base pixel size for 8-bit look
 
-export class Renderer {
+class Renderer {
     constructor(ctx, W, H) {
         this.ctx = ctx;
         this.W = W;

@@ -3,7 +3,7 @@
 // Keyboard + Touch (Mobile-First)
 // =============================================
 
-export class InputManager {
+class InputManager {
     constructor(canvas) {
         this.canvas = canvas;
         this._keys = new Set();
