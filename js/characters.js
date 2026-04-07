@@ -16,7 +16,7 @@ export const CHARACTERS = [
         abilityDesc: 'Dreierkuss-Modus: Dreifach-Sprung möglich',
         maxJumps: 3,
         // Photo asset path (upload from BILDMATERIAL)
-        photoSrc: 'assets/sprites/diego.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Diego_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'nils',
@@ -30,7 +30,7 @@ export const CHARACTERS = [
         abilityName: 'KOMMENTAR-SCHILD',
         abilityDesc: 'Nils\' Aussage schützt vor einem Treffer',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/nils.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Nils_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'anastasia',
@@ -44,21 +44,21 @@ export const CHARACTERS = [
         abilityName: 'DOPPEL-COLLECT',
         abilityDesc: 'Alle Collectibles zählen doppelt',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/anastasia.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Ana_by F Stropek_(16_9) large.jpg'
     },
     {
-        id: 'eric',
-        name: 'Eric',
+        id: 'sven',
+        name: 'Sven',
         age: 22,
         origin: 'Kriens LU',
         bodyColor: '#2980b9',
         hairColor: '#5c4033',
         skinColor: '#d4a574',
         ability: 'speed_boost',
-        abilityName: 'KRANKENWAGEN-SPEED',
+        abilityName: 'TURBO-SPRINT',
         abilityDesc: 'Permanenter Speed-Boost dank Adrenalinstoß',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/eric.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Sven_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'timmo',
@@ -72,7 +72,7 @@ export const CHARACTERS = [
         abilityName: '50-EURO-TROST',
         abilityDesc: 'Startet mit einem Extra-Leben',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/timmo.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Timmo_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'alexander',
@@ -86,7 +86,7 @@ export const CHARACTERS = [
         abilityName: 'CHARME-MAGNET',
         abilityDesc: 'Collectibles werden magnetisch angezogen',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/alexander.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Alex_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'martha',
@@ -100,7 +100,7 @@ export const CHARACTERS = [
         abilityName: 'DOPPELSPRUNG',
         abilityDesc: 'Kann einmal in der Luft nochmal springen',
         maxJumps: 2,
-        photoSrc: 'assets/sprites/martha.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Martha_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'lia',
@@ -114,7 +114,7 @@ export const CHARACTERS = [
         abilityName: 'DRAMA-CHILL',
         abilityDesc: 'Obstacles bewegen sich 15% langsamer',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/lia.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Lia_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'jamie',
@@ -128,7 +128,7 @@ export const CHARACTERS = [
         abilityName: 'CLUB-HOP',
         abilityDesc: 'Doppelsprung für maximale Bewegungsfreiheit',
         maxJumps: 2,
-        photoSrc: 'assets/sprites/jamie.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Jamie_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'shinara',
@@ -142,7 +142,7 @@ export const CHARACTERS = [
         abilityName: 'STAR-POWER',
         abilityDesc: 'Score-Multiplikator startet bei ×2',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/shinara.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Shinara_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'alina',
@@ -156,7 +156,7 @@ export const CHARACTERS = [
         abilityName: 'GEHEIMES LÄCHELN',
         abilityDesc: 'Schützt vor dem ersten Treffer',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/alina.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Alina_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'erica',
@@ -170,7 +170,7 @@ export const CHARACTERS = [
         abilityName: 'FLIRT-POWER',
         abilityDesc: 'Herzen geben dreifache Punkte',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/erica.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Erica_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'sandro',
@@ -184,7 +184,7 @@ export const CHARACTERS = [
         abilityName: 'FLIRT-SPRINT',
         abilityDesc: 'Erhöhte Startgeschwindigkeit',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/sandro.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Sandro_by F Stropek_(16_9) large.jpg'
     },
     {
         id: 'ermioni',
@@ -198,6 +198,6 @@ export const CHARACTERS = [
         abilityName: 'PARTY-BOOST',
         abilityDesc: 'Shot-Gläser geben doppelte Punkte',
         maxJumps: 1,
-        photoSrc: 'assets/sprites/ermioni.png'
+        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Ermioni_by F Stropek_(16_9) large.jpg'
     }
 ];

@@ -110,12 +110,21 @@ class Game {
             const card = document.createElement('div');
             card.className = 'char-card';
 
-            // Avatar canvas
-            const av = document.createElement('canvas');
-            av.width = 52; av.height = 60; av.className = 'char-avatar';
-            const actx = av.getContext('2d');
-            const r = new Renderer(actx, 52, 60);
-            r.drawCharAvatar(3, 2, c, 2);
+            // Photo avatar (real cast photo with pixelation)
+            const av = document.createElement('img');
+            av.src = c.photoSrc;
+            av.alt = c.name;
+            av.className = 'char-avatar';
+            av.loading = 'lazy';
+            // Fallback: draw pixel avatar if photo fails
+            av.onerror = () => {
+                const cvs = document.createElement('canvas');
+                cvs.width = 52; cvs.height = 60; cvs.className = 'char-avatar';
+                const actx = cvs.getContext('2d');
+                const r = new Renderer(actx, 52, 60);
+                r.drawCharAvatar(3, 2, c, 2);
+                card.replaceChild(cvs, av);
+            };
 
             const nameEl = document.createElement('div');
             nameEl.className = 'char-card-name';
