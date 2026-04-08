@@ -72,14 +72,14 @@ const LEVELS = [
         obstacleMaxGap: 2.5,
         collectibleMinGap: 0.7,
         collectibleMaxGap: 1.8,
-        hasBoss: true,
+        hasBoss: false,
         vipStickersNeeded: 3,
         bgElements: ['neon_signs', 'crowd', 'red_ropes']
     },
     {
         id: 4,
         name: 'CLUB\nFLOOR',
-        description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht!',
+        description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht! Sammle 3 VIP-Sticker für den Boss-Fight!',
         scrollSpeed: 370,
         speedIncreaseRate: 15,
         levelGoalDistance: 8000,
@@ -96,7 +96,8 @@ const LEVELS = [
         obstacleMaxGap: 2.2,
         collectibleMinGap: 0.6,
         collectibleMaxGap: 1.5,
-        hasBoss: false,
+        hasBoss: true,
+        vipStickersNeeded: 3,
         bgElements: ['strobe', 'lasers', 'dj_booth']
     }
 ];
