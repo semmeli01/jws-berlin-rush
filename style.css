@@ -227,8 +227,8 @@ html, body {
 .char-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(2, 1fr);
     gap: 6px;
+    align-content: center;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -245,6 +245,7 @@ html, body {
     background: #111;
     cursor: pointer;
     transition: border-color 0.12s, transform 0.08s;
+    aspect-ratio: 1 / 1;
 }
 .char-card:hover    { border-color: #ffffff66; transform: scale(1.03); z-index: 2; }
 .char-card.selected { border-color: #ff0090; box-shadow: 0 0 16px #ff009066; }
