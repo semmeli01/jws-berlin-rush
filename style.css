@@ -52,6 +52,24 @@ html, body {
     image-rendering: crisp-edges;
 }
 
+/* ---- Mute Button ---- */
+.mute-btn {
+    position: absolute;
+    top: 8px; right: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 18px;
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    line-height: 1;
+    padding: 0;
+}
+.mute-btn.visible { display: block; }
+
 /* ---- Screens (overlay over canvas area) ---- */
 .screen {
     position: absolute;
@@ -153,6 +171,32 @@ html, body {
     color: #ffffff33;
     letter-spacing: 3px;
 }
+
+/* ---- Highscore ---- */
+.highscore-wrap {
+    margin-top: 14px;
+    text-align: center;
+}
+.hs-title {
+    font-family: 'Zuume', monospace;
+    color: #ffd700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+.hs-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    font-family: 'Zuume', monospace;
+    font-size: 14px;
+    color: #fff;
+    line-height: 1.7;
+}
+.hs-rank { color: #ffd700; min-width: 24px; }
+.hs-char { min-width: 110px; text-align: left; }
+.hs-score { color: #ff0090; min-width: 60px; text-align: right; }
+.hs-empty { font-family: 'Zuume', monospace; color: #ffffff44; font-size: 12px; }
 
 /* ---- BUTTONS ---- */
 .btn-primary {

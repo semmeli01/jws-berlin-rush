@@ -11,6 +11,7 @@ class AudioEngine {
         this.musicPlaying = false;
         this._musicScheduler = null;
         this._nextBeatTime = 0;
+        this._currentLevelId = null;
     }
 
     /** Must be called after a user gesture (browser autoplay policy) */
@@ -131,7 +132,20 @@ class AudioEngine {
 
     // ---- Background Music ----
 
+    toggle() {
+        this.enabled = !this.enabled;
+        if (this.masterGain) {
+            this.masterGain.gain.setValueAtTime(this.enabled ? 0.6 : 0, this.ctx.currentTime);
+        }
+        if (!this.enabled) {
+            this.stopMusic();
+        } else if (this._currentLevelId !== null) {
+            this.startMusic(this._currentLevelId);
+        }
+    }
+
     startMusic(levelId) {
+        this._currentLevelId = levelId;
         if (!this.enabled || !this.ctx) return;
         this.stopMusic();
         this.musicPlaying = true;

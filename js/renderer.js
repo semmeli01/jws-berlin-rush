@@ -647,6 +647,47 @@ class Renderer {
         ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
     }
 
+    // ---- BOSS ----
+
+    drawBoss(boss, accentColor) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.shadowColor = accentColor;
+        ctx.shadowBlur = 20 + Math.sin(Date.now() * 0.006) * 8;
+
+        // Body
+        ctx.fillStyle = '#05050f';
+        ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
+
+        // Pulsing accent border
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(boss.x + 2, boss.y + 2, boss.w - 4, boss.h - 4);
+
+        // Inner glow fill
+        ctx.fillStyle = accentColor + '18';
+        ctx.fillRect(boss.x + 4, boss.y + 4, boss.w - 8, boss.h - 8);
+
+        ctx.restore();
+
+        // Emoji label
+        ctx.font = `${Math.floor(boss.h * 0.28)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🚫', boss.x + boss.w / 2, boss.y + boss.h / 2);
+
+        // BOSS label above
+        ctx.fillStyle = accentColor;
+        ctx.font = 'bold 14px "Zuume", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('★ BOSS ★', boss.x + boss.w / 2, boss.y - 10);
+
+        // Drop shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.fillRect(boss.x + 8, boss.y + boss.h, boss.w - 6, 7);
+    }
+
     // ---- COLLECTIBLES ----
 
     drawCollectible(col) {
