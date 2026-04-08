@@ -28,7 +28,10 @@ class Game {
         this.renderer = new Renderer(this.ctx, W, H);
 
         this._resizeCanvas();
-        window.addEventListener('resize', () => this._resizeCanvas());
+        window.addEventListener('resize', () => {
+            this._resizeCanvas();
+            if (this.state === S.CHAR_SELECT) this._resizeCharGrid();
+        });
 
         this.audio = new AudioEngine();
         this.input = new InputManager(this.canvas);
@@ -161,6 +164,18 @@ class Game {
         }
     }
 
+    _resizeCharGrid() {
+        const grid = document.getElementById('charGrid');
+        if (!grid) return;
+        const { width: availW, height: availH } = grid.getBoundingClientRect();
+        if (availW <= 0 || availH <= 0) return;
+        const COLS = 7, ROWS = 2, GAP = 6;
+        const tileByW = (availW - (COLS - 1) * GAP) / COLS;
+        const tileByH = (availH - (ROWS - 1) * GAP) / ROWS;
+        const tile = Math.floor(Math.min(tileByW, tileByH));
+        grid.style.setProperty('--tile', tile + 'px');
+    }
+
     _setState(s) {
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
@@ -173,6 +188,7 @@ class Game {
         if (s === S.CHAR_SELECT) {
             this.char = null;
             document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+            requestAnimationFrame(() => this._resizeCharGrid());
             // Reset desktop info panel
             const panel = document.getElementById('charInfoPanel');
             if (panel) {
