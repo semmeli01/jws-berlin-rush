@@ -1,0 +1,451 @@
+/* =============================================
+   JWS: BERLIN RUSH — Stylesheet (Desktop)
+   ============================================= */
+
+@font-face {
+    font-family: 'Zuume';
+    src: url('fonts/Zuume_Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'ZuumeLight';
+    src: url('fonts/Zuume_Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'CHMedia';
+    src: url('fonts/CHMedia-Black.otf') format('opentype');
+    font-weight: 900;
+    font-display: swap;
+}
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after {
+    margin: 0; padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #050010;
+    font-family: 'Zuume', 'Courier New', monospace;
+    color: #fff;
+    cursor: default;
+}
+
+#app {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050010;
+}
+
+#gameCanvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* ---- Screens (overlay over canvas area) ---- */
+.screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    background: rgba(5, 0, 16, 0.96);
+    overflow: hidden;
+}
+
+.screen.hidden { display: none !important; }
+
+.screen-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 48px;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+}
+
+/* ---- START SCREEN ---- */
+.start-screen { background: #050010; }
+
+.start-keyvisual {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    opacity: 0.55;
+    filter: saturate(1.4) contrast(1.1);
+    z-index: 0;
+}
+
+.start-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to right,
+        rgba(5, 0, 16, 0.72) 0%,
+        rgba(5, 0, 16, 0.35) 50%,
+        rgba(5, 0, 16, 0.72) 100%
+    );
+    z-index: 1;
+}
+
+.start-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.logo-area { text-align: center; }
+
+.jws-logo {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 100px;
+    line-height: 1;
+    color: #ff0090;
+    text-shadow: 0 0 10px #ff0090, 0 0 30px #ff009088, 0 0 60px #ff009044;
+    letter-spacing: 14px;
+    animation: neonPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+    from { text-shadow: 0 0 10px #ff0090, 0 0 30px #ff009088; }
+    to   { text-shadow: 0 0 24px #ff0090, 0 0 60px #ff0090aa, 0 0 100px #ff009066; }
+}
+
+.logo-sub {
+    font-family: 'Zuume', monospace;
+    font-size: 32px;
+    color: #00d4ff;
+    letter-spacing: 7px;
+    text-shadow: 0 0 14px #00d4ff;
+    margin-top: 6px;
+}
+
+.logo-tagline {
+    font-family: 'ZuumeLight', monospace;
+    font-size: 15px;
+    color: #ffffffaa;
+    letter-spacing: 4px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.oneplus-badge {
+    font-size: 12px;
+    color: #ffffff33;
+    letter-spacing: 3px;
+}
+
+/* ---- BUTTONS ---- */
+.btn-primary {
+    background: linear-gradient(135deg, #ff0090, #cc0070);
+    color: #fff;
+    border: none;
+    padding: 18px 64px;
+    font-family: 'Zuume', monospace;
+    font-size: 26px;
+    letter-spacing: 5px;
+    cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    box-shadow: 0 0 22px #ff009066, 0 5px 0 #880040;
+    transition: transform 0.08s, box-shadow 0.08s;
+    text-transform: uppercase;
+}
+.btn-primary:hover  { box-shadow: 0 0 36px #ff0090aa, 0 5px 0 #880040; }
+.btn-primary:active { transform: translateY(4px); box-shadow: 0 0 10px #ff009044, 0 1px 0 #880040; }
+
+.btn-secondary {
+    background: transparent;
+    color: #00d4ff;
+    border: 2px solid #00d4ff;
+    padding: 14px 40px;
+    font-family: 'Zuume', monospace;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+.btn-secondary:hover  { background: #00d4ff22; }
+.btn-secondary:active { background: #00d4ff44; }
+
+/* ---- CHARACTER SELECT (desktop: side-by-side) ---- */
+#charSelectScreen {
+    flex-direction: row;
+    align-items: stretch;
+    padding: 0;
+}
+
+.char-select-header {
+    display: none; /* incorporated into layout */
+}
+
+/* Left panel: character grid */
+.char-grid-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px 12px 20px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.char-grid-title {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 26px;
+    color: #ff0090;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #ff009066;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+}
+.char-grid-subtitle {
+    font-size: 17px;
+    color: #ffffffaa;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(7, var(--tile, 1fr));
+    grid-auto-rows: var(--tile, auto);
+    gap: 6px;
+    place-content: center;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #ff009044 transparent;
+}
+.char-grid::-webkit-scrollbar { width: 4px; }
+.char-grid::-webkit-scrollbar-thumb { background: #ff009044; border-radius: 2px; }
+
+.char-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #ffffff15;
+    background: #111;
+    cursor: pointer;
+    transition: border-color 0.12s, transform 0.08s;
+}
+.char-card:hover    { border-color: #ffffff66; transform: scale(1.03); z-index: 2; }
+.char-card.selected { border-color: #ff0090; box-shadow: 0 0 16px #ff009066; }
+
+/* Photo fills the entire card */
+.char-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    filter: contrast(1.1) saturate(1.2);
+    transition: filter 0.12s;
+}
+.char-card:hover .char-avatar,
+.char-card.selected .char-avatar {
+    filter: contrast(1.2) saturate(1.4) brightness(1.05);
+}
+
+/* Name overlay at bottom of photo */
+.char-card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    font-family: 'Zuume', monospace;
+    font-size: clamp(16px, 1.6vw, 22px);
+    color: #fff;
+    letter-spacing: 1px;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 18px 4px 6px;
+}
+.char-card.selected .char-card-name { color: #ff0090; }
+
+/* Remove origin text — too small, info panel has it */
+.char-card-origin { display: none; }
+
+/* Right panel: selected character info */
+.char-info-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: rgba(255, 0, 144, 0.06);
+    border-left: 1px solid #ff009033;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 28px;
+    gap: 16px;
+}
+
+/* Hide the old char-info element positioning */
+.char-info { display: none !important; }
+
+.char-info-panel .panel-placeholder {
+    font-size: 16px;
+    color: #ffffffaa;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 1.8;
+}
+
+.char-info-panel .panel-photo {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    object-position: center 15%;
+    border: 3px solid #ff009066;
+    display: none;
+    filter: contrast(1.1) saturate(1.2);
+}
+
+.char-info-panel .panel-name {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 38px;
+    color: #ff0090;
+    text-shadow: 0 0 14px #ff009066;
+    letter-spacing: 2px;
+    text-align: center;
+    display: none;
+}
+.char-info-panel .panel-ability {
+    font-size: 17px;
+    color: #00d4ff;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    display: none;
+}
+.char-info-panel .panel-origin {
+    font-size: 14px;
+    color: #ffffffaa;
+    letter-spacing: 2px;
+    text-align: center;
+    display: none;
+}
+
+/* ---- LEVEL INTRO ---- */
+.level-intro-wrap {
+    text-align: center;
+    padding: 60px 40px;
+    animation: slideIn 0.4s ease-out;
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.level-intro-number {
+    font-size: 14px;
+    color: #ffffffaa;
+    letter-spacing: 6px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+.level-intro-name {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 72px;
+    color: #ff0090;
+    text-shadow: 0 0 24px #ff0090;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    white-space: pre-line;
+}
+.level-intro-desc {
+    font-size: 18px;
+    color: #ffffffaa;
+    line-height: 1.7;
+    max-width: 480px;
+}
+
+/* ---- GAME OVER ---- */
+.over-title {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 80px;
+    color: #ff3300;
+    text-shadow: 0 0 24px #ff330088;
+    letter-spacing: 6px;
+    text-align: center;
+    animation: glitch 0.3s infinite;
+}
+@keyframes glitch {
+    0%, 90%, 100% { transform: translate(0); }
+    92% { transform: translate(-3px, 1px); color: #ff0090; }
+    94% { transform: translate(3px, -1px); color: #00d4ff; }
+    96% { transform: translate(0); }
+}
+.over-score { font-size: 26px; color: #fff; letter-spacing: 3px; text-align: center; }
+.over-buttons { display: flex; gap: 16px; justify-content: center; }
+
+/* ---- WIN ---- */
+.win-title {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 70px;
+    color: #ffd700;
+    text-shadow: 0 0 24px #ffd70088;
+    letter-spacing: 4px;
+    text-align: center;
+}
+.win-sub  { font-size: 18px; color: #ffffffaa; letter-spacing: 2px; text-align: center; }
+.win-score { font-size: 28px; color: #fff; letter-spacing: 3px; text-align: center; }
+
+/* ---- PAUSE ---- */
+.pause-title {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 80px;
+    color: #00d4ff;
+    text-shadow: 0 0 24px #00d4ff88;
+    letter-spacing: 10px;
+    text-align: center;
+}
+
+/* ---- CTA ---- */
+.oneplus-cta {
+    display: block;
+    background: linear-gradient(135deg, #ff3300, #cc2200);
+    color: #fff;
+    text-decoration: none;
+    padding: 16px 36px;
+    font-family: 'Zuume', monospace;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-align: center;
+    box-shadow: 0 0 18px #ff330055;
+    width: 100%;
+    transition: box-shadow 0.1s;
+}
+.oneplus-cta:hover { box-shadow: 0 0 30px #ff3300aa; }
+
+/* ---- SCREEN TITLE (generic) ---- */
+.screen-title {
+    font-family: 'CHMedia', sans-serif;
+    font-size: 28px;
+    color: #ff0090;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px #ff009066;
+}
+.screen-subtitle {
+    font-size: 13px;
+    color: #ffffff55;
+    letter-spacing: 2px;
+    margin-top: 4px;
+}

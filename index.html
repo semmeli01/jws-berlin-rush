@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWS: Berlin Rush</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen start-screen">
+            <img class="start-keyvisual" src="JWS-BILDMATERIAL/KEYVISUAL/©CH Media_JWS08-group_by F Stropek_(16_9) large.jpg" alt="JWS Cast">
+            <div class="start-overlay"></div>
+            <div class="screen-content start-content">
+                <div class="logo-area">
+                    <div class="jws-logo">JWS</div>
+                    <div class="logo-sub">BERLIN RUSH</div>
+                    <div class="logo-tagline">Jung. Wild. Sexy. Run.</div>
+                </div>
+                <button id="startBtn" class="btn-primary">SPIELEN</button>
+                <div class="oneplus-badge">Ein oneplus Original</div>
+            </div>
+        </div>
+
+        <!-- Character Select Screen -->
+        <div id="charSelectScreen" class="screen hidden">
+            <!-- Left: grid -->
+            <div class="char-grid-panel">
+                <div class="char-grid-title">CHARAKTER WÄHLEN</div>
+                <div class="char-grid-subtitle">Wähle dein JWS-Alter-Ego — alle 14 Charaktere mit einzigartigen Fähigkeiten</div>
+                <div id="charGrid" class="char-grid"></div>
+            </div>
+            <!-- Right: info panel -->
+            <div class="char-info-panel" id="charInfoPanel">
+                <p class="panel-placeholder">← Wähle einen<br>Charakter</p>
+                <img class="panel-photo" id="panelPhoto" src="" alt="">
+                <div class="panel-name" id="panelName"></div>
+                <div class="panel-origin" id="panelOrigin"></div>
+                <div class="panel-ability" id="panelAbility"></div>
+                <button id="confirmCharBtn" class="btn-primary" style="display:none">LOS GEHT'S!</button>
+            </div>
+            <!-- Keep old ids for JS compatibility -->
+            <div class="char-info hidden" id="charInfo">
+                <div class="char-info-inner">
+                    <div id="selectedCharName"></div>
+                    <div id="selectedCharAbility"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Intro Screen -->
+        <div id="levelIntroScreen" class="screen hidden">
+            <div class="level-intro-wrap">
+                <div class="level-intro-number" id="levelIntroNumber"></div>
+                <div class="level-intro-name" id="levelIntroName"></div>
+                <div class="level-intro-desc" id="levelIntroDesc"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="over-title">GAME OVER</div>
+                <div class="over-score">Score: <span id="finalScore">0</span></div>
+                <div class="over-buttons">
+                    <button id="retryBtn" class="btn-secondary">NOCHMAL</button>
+                    <button id="charSelectBtn" class="btn-secondary">CHARAKTER</button>
+                </div>
+                <a href="https://www.oneplus.ch/detail/1649428" target="_blank" rel="noopener" class="oneplus-cta">
+                    JETZT AUF ONEPLUS ANSEHEN →
+                </a>
+            </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="winScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="win-title">GESCHAFFT!</div>
+                <div class="win-sub">Du hast den Club erreicht!</div>
+                <div class="win-score">Score: <span id="winScore">0</span></div>
+                <button id="playAgainBtn" class="btn-primary">NOCHMAL</button>
+                <a href="https://www.oneplus.ch/detail/1649428" target="_blank" rel="noopener" class="oneplus-cta">
+                    JETZT AUF ONEPLUS ANSEHEN →
+                </a>
+            </div>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="pauseScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="pause-title">PAUSE</div>
+                <button id="resumeBtn" class="btn-primary">WEITER</button>
+                <button id="quitBtn" class="btn-secondary">BEENDEN</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/characters.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
