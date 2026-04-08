@@ -13,7 +13,7 @@ const CHARACTERS = [
         abilityName: '3-WAY JUMP',
         abilityDesc: 'Dreierkuss-Modus: Dreifach-Sprung möglich',
         maxJumps: 3,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Diego_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/diego.jpg',
         sprite: {
             skinColor: '#c8956c',
             hairColor: '#111111',
@@ -37,7 +37,7 @@ const CHARACTERS = [
         abilityName: 'KOMMENTAR-SCHILD',
         abilityDesc: 'Nils\' Aussage schützt vor einem Treffer',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Nils_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/nils.jpg',
         sprite: {
             skinColor: '#f5cba7',
             hairColor: '#2c1810',
@@ -62,7 +62,7 @@ const CHARACTERS = [
         abilityName: 'DOPPEL-COLLECT',
         abilityDesc: 'Alle Collectibles zählen doppelt',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Ana_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/ana.jpg',
         sprite: {
             skinColor: '#d4a574',
             hairColor: '#5c3317',
@@ -86,7 +86,7 @@ const CHARACTERS = [
         abilityName: 'TURBO-SPRINT',
         abilityDesc: 'Permanenter Speed-Boost dank Adrenalinstoß',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Sven_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/sven.jpg',
         sprite: {
             skinColor: '#f5cba7',
             hairColor: '#c8a060',     // light blonde
@@ -110,7 +110,7 @@ const CHARACTERS = [
         abilityName: '50-EURO-TROST',
         abilityDesc: 'Startet mit einem Extra-Leben',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Timmo_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/timmo.jpg',
         sprite: {
             skinColor: '#d4a574',
             hairColor: '#2c1810',
@@ -134,7 +134,7 @@ const CHARACTERS = [
         abilityName: 'CHARME-MAGNET',
         abilityDesc: 'Collectibles werden magnetisch angezogen',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Alex_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/alex.jpg',
         sprite: {
             skinColor: '#f5cba7',
             hairColor: '#c8a060',     // light/blonde, spiked up
@@ -158,7 +158,7 @@ const CHARACTERS = [
         abilityName: 'DOPPELSPRUNG',
         abilityDesc: 'Kann einmal in der Luft nochmal springen',
         maxJumps: 2,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Martha_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/martha.jpg',
         sprite: {
             skinColor: '#f5cba7',
             hairColor: '#0a0a0a',     // jet black
@@ -182,7 +182,7 @@ const CHARACTERS = [
         abilityName: 'DRAMA-CHILL',
         abilityDesc: 'Obstacles bewegen sich 15% langsamer',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Lia_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/lia.jpg',
         sprite: {
             skinColor: '#fce5d0',
             hairColor: '#d4b86a',     // blonde/honey
@@ -207,7 +207,7 @@ const CHARACTERS = [
         abilityName: 'CLUB-HOP',
         abilityDesc: 'Doppelsprung für maximale Bewegungsfreiheit',
         maxJumps: 2,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Jamie_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/jamie.jpg',
         sprite: {
             skinColor: '#c8956c',
             hairColor: '#2c1810',     // dark brown, short textured
@@ -231,7 +231,7 @@ const CHARACTERS = [
         abilityName: 'STAR-POWER',
         abilityDesc: 'Score-Multiplikator startet bei ×2',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Shinara_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/shinara.jpg',
         sprite: {
             skinColor: '#fce5d0',
             hairColor: '#d4b86a',     // blonde/light, long wavy — hangs below cap
@@ -255,7 +255,7 @@ const CHARACTERS = [
         abilityName: 'GEHEIMES LÄCHELN',
         abilityDesc: 'Schützt vor dem ersten Treffer',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Alina_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/alina.jpg',
         sprite: {
             skinColor: '#fce5d0',
             hairColor: '#8b6330',     // caramel/warm brown
@@ -279,7 +279,7 @@ const CHARACTERS = [
         abilityName: 'FLIRT-POWER',
         abilityDesc: 'Herzen geben dreifache Punkte',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Erica_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/erica.jpg',
         sprite: {
             skinColor: '#d4a574',
             hairColor: '#6b3a2a',     // brown, wavy, long
@@ -303,7 +303,7 @@ const CHARACTERS = [
         abilityName: 'FLIRT-SPRINT',
         abilityDesc: 'Erhöhte Startgeschwindigkeit',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Sandro_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/sandro.jpg',
         sprite: {
             skinColor: '#c8956c',
             hairColor: '#2c1810',     // dark, short
@@ -327,7 +327,7 @@ const CHARACTERS = [
         abilityName: 'PARTY-BOOST',
         abilityDesc: 'Shot-Gläser geben doppelte Punkte',
         maxJumps: 1,
-        photoSrc: 'JWS-BILDMATERIAL/EINZELBILDER/©CH Media_JWS08-Ermioni_by F Stropek_(16_9) large.jpg',
+        photoSrc: 'img/chars/ermioni.jpg',
         sprite: {
             skinColor: '#fce5d0',
             hairColor: '#d4b86a',     // blonde, wavy, long
