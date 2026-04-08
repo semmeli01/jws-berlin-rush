@@ -512,7 +512,7 @@ class Game {
             b.oscillateT += dt;
 
             // Slide in from right, then oscillate in place
-            const targetX = PLAYER_X + 220;
+            const targetX = PLAYER_X + PLAYER_W + 5; // boss touches player right edge
             if (b.x > targetX + 20) {
                 b.x -= b.baseSpeed * dt;
             } else {
