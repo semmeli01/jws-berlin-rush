@@ -106,11 +106,11 @@ const LEVELS = [
 const OBSTACLE_DEFS = {
     suitcase: {
         w: 62, h: 68,
-        groundOffset: 0,   // sits on ground
+        groundOffset: 48,  // floats — requires duck (between duck-height 42 and stand-height 74)
         color: '#D4A44A',
         accentColor: '#C05828',
-        needsJump: true,
-        needsDuck: false,
+        needsJump: false,
+        needsDuck: true,
         label: '🌯'
     },
     tourist: {
@@ -159,7 +159,7 @@ const OBSTACLE_DEFS = {
         label: '💔'
     },
     drama_bubble: {
-        w: 220, h: 58,
+        w: 220, h: 66,
         groundOffset: 48,  // requires duck (between duck-height 42 and stand-height 74)
         color: '#55106a',
         accentColor: '#aa40cc',

@@ -1014,12 +1014,21 @@ class Renderer {
                 ctx.fill();
             }
 
-            // ── "DÖNER" label ──
+            // ── Floating shadow below (döner hovers) ──
+            ctx.fillStyle = 'rgba(0,0,0,0.28)';
+            ctx.beginPath();
+            ctx.ellipse(cx, y + h + 34, w * 0.38, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // ── "DÖNER" label + duck hint ──
             ctx.fillStyle = '#FFD070';
             ctx.font = 'bold 9px "Zuume", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'alphabetic';
-            ctx.fillText('DÖNER', cx, y - 4);
+            ctx.fillText('DÖNER', cx, y - 14);
+            ctx.fillStyle = '#ffffff88';
+            ctx.font = '8px monospace';
+            ctx.fillText('↓ duck', cx, y - 4);
             return;
         }
 
@@ -1267,7 +1276,7 @@ class Renderer {
         if (obs.type === 'drama_bubble') {
             const bubbleText = 'säg mir nöd meitli! 🙄';
             ctx.save();
-            ctx.font = 'bold 26px "Zuume", monospace';
+            ctx.font = 'bold 30px "Zuume", monospace';
             const textW = ctx.measureText(bubbleText).width;
             const bw = textW + 30;
             ctx.fillStyle = '#55106a';
@@ -1288,7 +1297,7 @@ class Renderer {
             ctx.stroke();
             // Text
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 26px "Zuume", monospace';
+            ctx.font = 'bold 30px "Zuume", monospace';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(bubbleText, obs.x + 14, obs.y + obs.h / 2);

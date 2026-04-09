@@ -40,7 +40,7 @@ obstacles.forEach(def => {
   // For drama_bubble, pre-measure text width
   const tmpC = document.createElement('canvas');
   const tmpCtx = tmpC.getContext('2d');
-  tmpCtx.font = 'bold 26px "Zuume", monospace';
+  tmpCtx.font = 'bold 30px "Zuume", monospace';
   const bw = def.type === 'drama_bubble'
     ? tmpCtx.measureText('säg mir nöd meitli! 🙄').width + 30
     : def.w;
