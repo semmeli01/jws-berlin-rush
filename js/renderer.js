@@ -88,6 +88,81 @@ const JEREMY_GRID = [
     '..........',
 ];
 
+// ---- 8-bit Pixel Art: Biggie (bouncer obstacle, 3 dance frames) ----
+// 12-wide × 22-tall, scaled to obs.w × obs.h; cycle at ~380ms/frame
+const BIGGIE_PAL = {
+    'H': '#F0D0A8', // skin / bald head
+    's': '#C8A878', // skin shadow
+    'G': '#D8D8D8', // glasses frame
+    'g': '#909098', // glasses lens
+    'B': '#1A40CC', // blue jersey
+    'b': '#1028A0', // jersey shadow
+    'R': '#CC2020', // red #8 on jersey
+    'D': '#1C1C3C', // dark shorts
+    'd': '#0C0C22', // shorts shadow
+    'W': '#F2F2F2', // white sneakers/socks
+    'w': '#D0D0D0', // socks shadow
+    'N': '#DDB890', // neck
+};
+// Shared static rows (0-6 head/neck, 12-21 lower body) + 3 arm variants for rows 7-11
+const _BIGGIE_STATIC_TOP = [
+    '...HHHHHH...',  // 0  bald head
+    '..HHHHHHHH..',  // 1
+    '.HHHHHHHHHH.',  // 2
+    '.HHGgHHGgHH.',  // 3  glasses
+    '.HHHsssHHHH.',  // 4  face
+    '..HHHsHHHH..',  // 5  chin
+    '..NNNNNNNN..',  // 6  neck
+];
+const _BIGGIE_STATIC_BOT = [
+    '.BBBBBBBBBB.',  // 12 jersey bottom
+    '.DDDDDDDDDD.',  // 13 shorts
+    '.DDdDDDDdDD.',  // 14
+    '.DWDDDDDDDW.',  // 15 white side stripe
+    '.DDDDDDDDDD.',  // 16
+    '..WWWWWWWW..',  // 17 socks
+    '.WWWWWWWWWW.',  // 18 sneakers
+    'WWWWWWWWWWWW',  // 19
+    '.WWWWWWWWWW.',  // 20
+    '............',  // 21
+];
+const _BIGGIE_ARMS = [
+    // Frame 0 — right arm forward (like the pointing photo pose)
+    [
+        '.BBBBBBBBBBB',  // 7  right arm extends
+        '.BBBBBBBBBbB',  // 8
+        '.BBbBRBBBbBB',  // 9  blue jersey + red #8
+        '.BBBBBBBBBBB',  // 10
+        'BBBBBBBBBBB.',  // 11 left arm out
+    ],
+    // Frame 1 — left arm raised high (+ bounce -3px applied in draw)
+    [
+        'BBBBBBBBBBBB',  // 7  full width
+        '.BBBBBBBBbBB',  // 8
+        '.BBbBRBBBbBB',  // 9
+        '.BBBBBBBBBBB',  // 10
+        '.BBBBBBBBBB.',  // 11
+    ],
+    // Frame 2 — right arm raised high
+    [
+        'BBBBBBBBBBBB',  // 7
+        'BBBBBBBBBbBB',  // 8
+        'BBbBRBBBBbBB',  // 9
+        'BBBBBBBBBBBB',  // 10
+        '.BBBBBBBBBB.',  // 11
+    ],
+];
+// Pre-assemble the 3 complete frames, patching in arm rows for frames 1+2
+const BIGGIE_FRAMES = _BIGGIE_ARMS.map((arms, fi) => {
+    const top = [..._BIGGIE_STATIC_TOP];
+    // Frames 1 & 2: arm pixel shows above shoulder line
+    if (fi === 1) top[5] = 'B.HHHsHHHH..'; // left arm at face-level
+    if (fi === 1) top[6] = 'BBNNNNNNNN..'; // arm connecting to body
+    if (fi === 2) top[5] = '..HHHsHHHH.B'; // right arm at face-level
+    if (fi === 2) top[6] = '..NNNNNNNNBB'; // arm connecting to body
+    return [...top, ...arms, ..._BIGGIE_STATIC_BOT];
+});
+
 // Utility: darken a hex color by 30%
 function _darken(hex) {
     let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
@@ -703,6 +778,23 @@ class Renderer {
 
     drawObstacle(obs) {
         const ctx = this.ctx;
+
+        // bouncer → 8-bit Biggie with dance animation
+        if (obs.type === 'bouncer') {
+            const frame = Math.floor(Date.now() / 380) % 3;
+            const yBounce = frame === 1 ? -3 : 0;
+            this._drawPixelArt(obs.x, obs.y + yBounce, obs.w, obs.h, BIGGIE_FRAMES[frame], BIGGIE_PAL);
+            // "BIGGIE" label above
+            ctx.fillStyle = '#4466EE';
+            ctx.font = 'bold 9px "Zuume", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText('BIGGIE', obs.x + obs.w / 2, obs.y - 5);
+            // drop shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
+            return;
+        }
 
         // ex_char → 8-bit Jeremy
         if (obs.type === 'ex_char') {
