@@ -99,35 +99,38 @@ const ISABELLE_PAL = {
     'P': '#E02898', // pink dress
     'p': '#A01860', // dress shadow / leopard spot
     'K': '#181818', // black heels
-    'B': '#0840B0', // blue suitcase
-    'b': '#0428A0', // suitcase shadow
+    'B': '#0840B0', // blue suitcase body
+    'b': '#0428A0', // suitcase shadow/edge
     'L': '#88AACE', // suitcase city lights
+    'l': '#5080AA', // city lights shadow
+    'W': '#D0D8E0', // suitcase wheel
     'E': '#201000', // eye
     'N': '#E8C890', // neck
 };
+// 16-wide × 22-tall: Isabelle (cols 0-8) + clearly visible blue suitcase (cols 9-15)
 const ISABELLE_GRID = [
-    '.HHHHHH......',  //  0  head (trimmed to 12)
-    'HHHHHHHH.....',  //  1
-    'HHGGhGGHH....',  //  2  glasses
-    'HHHHsHHHH....',  //  3  face
-    '.HHHssHH.B...',  //  4  chin + suitcase handle
-    '..NNNNNNBBb..',  //  5  neck + suitcase top
-    '.sPPPPPsBBb..',  //  6  one-shoulder dress + suitcase
-    '.PPpPPPsBBL..',  //  7
-    '.PPpPPP.BbL..',  //  8
-    '.PPPpPP.BbL..',  //  9
-    '..PPPpP.BbL..',  // 10
-    '..PPpPP.Bbb..',  // 11
-    '..SSPpP.Bb...',  // 12  legs
-    '..SSSsP.Bb...',  // 13
-    '..SSSSs.Bb...',  // 14
-    '..SSSs..b....',  // 15
-    '...Sss.......',  // 16
-    '..KKs........',  // 17  heels
-    '..KKK........',  // 18
-    '..KKK........',  // 19
-    '...KK........',  // 20
-    '.............',  // 21
+    '..HHHHHH........',  //  0  head
+    '.HHHHHHH........',  //  1
+    '.HHGGhGGH.......',  //  2  glasses
+    '.HHHHsHHH.......',  //  3  face
+    '..HHHssHHBBBBb..',  //  4  chin + suitcase handle (top)
+    '...NNNNNBBBBBb..',  //  5  neck + suitcase top
+    '..sPPPPsBBLLBb..',  //  6  dress + suitcase with city lights
+    '..PPpPPsBBLlBb..',  //  7
+    '..PPpPP.BbLlBb..',  //  8
+    '..PPPpP.BbLLBb..',  //  9
+    '..PPpPP.BbLlBb..',  // 10
+    '..PPPpP.BbLLBb..',  // 11
+    '...SSPp.BbLlBb..',  // 12  legs
+    '...SSSs.BbBBBb..',  // 13  suitcase lower
+    '...SSSSsBBBBbb..',  // 14
+    '...SSs..BBWWBB..',  // 15  suitcase wheels
+    '....Ss..........',  // 16
+    '...KKs..........',  // 17  heels
+    '...KKK..........',  // 18
+    '...KKK..........',  // 19
+    '....KK..........',  // 20
+    '................',  // 21
 ];
 
 // ---- 8-bit Pixel Art: Biggie (bouncer obstacle, 3 dance frames) ----
@@ -1037,13 +1040,19 @@ class Renderer {
         } else if (col.type === 'star') {
             this._drawStar(col.x + col.w / 2, col.y + col.h / 2, col.w / 2, col.color);
         } else if (col.type === 'oneplus') {
-            ctx.fillStyle = '#ff3300';
+            ctx.fillStyle = '#cc0000';
             ctx.fillRect(col.x, col.y, col.w, col.h);
-            ctx.fillStyle = '#fff';
-            ctx.font = `bold ${col.w * 0.55}px "Zuume", monospace`;
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(col.x + 1, col.y + 1, col.w - 2, col.h - 2);
+            const lineH = col.h * 0.32;
+            ctx.font = `bold ${Math.floor(col.w * 0.32)}px "Zuume", monospace`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('1+', col.x + col.w / 2, col.y + col.h / 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('JWS', col.x + col.w / 2, col.y + lineH);
+            ctx.fillStyle = '#ffd700';
+            ctx.fillText('VIP', col.x + col.w / 2, col.y + col.h - lineH);
         } else {
             // Shot glass
             ctx.fillStyle = col.color;

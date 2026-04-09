@@ -20,7 +20,7 @@ const LEVELS = [
         buildingColorFar: '#0d1f3c',
         buildingColorNear: '#0a1628',
         // Obstacle types available in this level
-        obstacleTypes: ['suitcase', 'tourist', 'stairs', 'bouncer'],
+        obstacleTypes: ['suitcase', 'tourist', 'stairs', 'bouncer', 'drama_bubble'],
         obstacleMinGap: 1.6,      // min seconds between obstacles
         obstacleMaxGap: 3.2,
         collectibleMinGap: 0.9,
@@ -44,7 +44,7 @@ const LEVELS = [
         accentColor: '#ff0090',
         buildingColorFar: '#12003a',
         buildingColorNear: '#0a0020',
-        obstacleTypes: ['bouncer', 'paparazzi', 'ex_char', 'tourist', 'stairs'],
+        obstacleTypes: ['bouncer', 'paparazzi', 'ex_char', 'tourist', 'stairs', 'drama_bubble'],
         obstacleMinGap: 1.4,
         obstacleMaxGap: 2.8,
         collectibleMinGap: 0.8,
@@ -114,7 +114,7 @@ const OBSTACLE_DEFS = {
         label: '🧳'
     },
     tourist: {
-        w: 52, h: 76,
+        w: 76, h: 76,
         groundOffset: 0,
         color: '#4a90d9',
         accentColor: '#7ab8f8',
