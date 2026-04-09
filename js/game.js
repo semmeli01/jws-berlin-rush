@@ -575,8 +575,7 @@ class Game {
             h: 270,
             lvlId: lvl.id
         };
-        // Clear upcoming obstacles so path is open
-        this.obstacles = this.obstacles.filter(o => o.x < PLAYER_X);
+        // Stop spawning new obstacles (existing ones stay)
         this.obsTimer = 99;
         this.audio.playPowerUp();
     }
