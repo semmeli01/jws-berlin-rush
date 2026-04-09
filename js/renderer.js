@@ -894,14 +894,18 @@ class Renderer {
             return;
         }
 
-        // drama_bubble → speech bubble with custom text
+        // drama_bubble → speech bubble with custom text, auto-width
         if (obs.type === 'drama_bubble') {
+            const bubbleText = 'säg mir nöd meitli! 🙄';
             ctx.save();
+            ctx.font = 'bold 15px "Zuume", monospace';
+            const textW = ctx.measureText(bubbleText).width;
+            const bw = Math.max(obs.w, textW + 26);
             ctx.fillStyle = '#55106a';
-            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            ctx.fillRect(obs.x, obs.y, bw, obs.h);
             ctx.strokeStyle = '#aa40cc';
             ctx.lineWidth = 2.5;
-            ctx.strokeRect(obs.x + 1, obs.y + 1, obs.w - 2, obs.h - 2);
+            ctx.strokeRect(obs.x + 1, obs.y + 1, bw - 2, obs.h - 2);
             // Bubble tail pointing downward
             ctx.fillStyle = '#55106a';
             ctx.beginPath();
@@ -918,7 +922,7 @@ class Renderer {
             ctx.font = 'bold 15px "Zuume", monospace';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
-            ctx.fillText('säg mir nöd meitli! 🙄', obs.x + 12, obs.y + obs.h / 2);
+            ctx.fillText(bubbleText, obs.x + 12, obs.y + obs.h / 2);
             ctx.restore();
             return;
         }
@@ -940,18 +944,95 @@ class Renderer {
             return;
         }
 
-        // ex_char → 8-bit Jeremy
+        // ex_char → 8-bit Jeremy with ascending broken hearts
         if (obs.type === 'ex_char') {
             this._drawPixelArt(obs.x, obs.y, obs.w, obs.h, JEREMY_GRID, JEREMY_PAL);
             // broken heart on chest
-            const ctx2 = this.ctx;
-            ctx2.font = '13px sans-serif';
-            ctx2.textAlign = 'center';
-            ctx2.textBaseline = 'middle';
-            ctx2.fillText('💔', obs.x + obs.w / 2, obs.y + obs.h * 0.42);
+            ctx.font = '13px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('💔', obs.x + obs.w / 2, obs.y + obs.h * 0.42);
+            // ascending floating hearts
+            const now = Date.now();
+            const heartPositions = [
+                { xFrac: 0.15, speed: 0.8, delay: 0.0 },
+                { xFrac: 0.55, speed: 1.0, delay: 0.4 },
+                { xFrac: 0.85, speed: 0.7, delay: 0.75 },
+            ];
+            ctx.save();
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            for (const hp of heartPositions) {
+                const cycle = ((now * 0.001 * hp.speed + hp.delay) % 1);
+                const hy = obs.y - 8 - cycle * 36;
+                const hx = obs.x + obs.w * hp.xFrac;
+                const alpha = cycle < 0.65 ? 1 : 1 - (cycle - 0.65) / 0.35;
+                ctx.globalAlpha = alpha;
+                ctx.fillText('💔', hx, hy);
+            }
+            ctx.restore();
             // drop shadow
-            ctx2.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx2.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
+            return;
+        }
+
+        // ambulance → white vehicle with flashing sirens
+        if (obs.type === 'ambulance') {
+            // Body
+            ctx.fillStyle = '#f2f2f2';
+            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            // Cab (front section, slightly darker)
+            ctx.fillStyle = '#dde';
+            ctx.fillRect(obs.x + obs.w * 0.7, obs.y, obs.w * 0.3, obs.h);
+            // Red cross on side
+            ctx.fillStyle = '#cc0000';
+            const cx = obs.x + obs.w * 0.28, cy = obs.y + obs.h * 0.3;
+            const cw2 = obs.w * 0.14, ch2 = obs.h * 0.4;
+            ctx.fillRect(cx - cw2 / 2, cy, cw2, ch2);
+            ctx.fillRect(cx - ch2 * 0.6, cy + ch2 * 0.35, ch2 * 1.2, cw2);
+            // Red stripe along body
+            ctx.fillStyle = '#cc0000';
+            ctx.fillRect(obs.x, obs.y + obs.h * 0.55, obs.w * 0.7, obs.h * 0.12);
+            // Windows
+            ctx.fillStyle = '#88ccff';
+            ctx.fillRect(obs.x + obs.w * 0.72, obs.y + obs.h * 0.08, obs.w * 0.22, obs.h * 0.3);
+            // Wheels
+            ctx.fillStyle = '#333';
+            ctx.fillRect(obs.x + obs.w * 0.1, obs.y + obs.h - 6, obs.w * 0.18, 8);
+            ctx.fillRect(obs.x + obs.w * 0.68, obs.y + obs.h - 6, obs.w * 0.18, 8);
+            // Siren lights on roof (flashing red ↔ blue alternating)
+            const sirenPhase = Math.floor(Date.now() / 200) % 2;
+            const sirenW = obs.w * 0.18, sirenH = 10;
+            const sirenY = obs.y - sirenH;
+            // Red light (left)
+            if (sirenPhase === 0) {
+                ctx.save();
+                ctx.shadowColor = '#ff2200';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#ff2200';
+                ctx.fillRect(obs.x + obs.w * 0.2, sirenY, sirenW, sirenH);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#551100';
+                ctx.fillRect(obs.x + obs.w * 0.2, sirenY, sirenW, sirenH);
+            }
+            // Blue light (right)
+            if (sirenPhase === 1) {
+                ctx.save();
+                ctx.shadowColor = '#0055ff';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#2255ff';
+                ctx.fillRect(obs.x + obs.w * 0.55, sirenY, sirenW, sirenH);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#111144';
+                ctx.fillRect(obs.x + obs.w * 0.55, sirenY, sirenW, sirenH);
+            }
+            // Drop shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
             return;
         }
 
@@ -983,7 +1064,7 @@ class Renderer {
 
     // ---- BOSS ----
 
-    drawBoss(boss, accentColor) {
+    drawBoss(boss, accentColor, vipStickers) {
         const ctx = this.ctx;
 
         // 8-bit Naomi with pink glow
@@ -992,6 +1073,33 @@ class Renderer {
         ctx.shadowBlur = 14 + Math.sin(Date.now() * 0.006) * 6;
         this._drawPixelArt(boss.x, boss.y, boss.w, boss.h, NAOMI_GRID, NAOMI_PAL);
         ctx.restore();
+
+        // Pixelated boob flash when all 3 VIP stickers collected
+        if (vipStickers >= 3) {
+            const cycle = Date.now() % 2000;
+            if (cycle < 400) {
+                const t = cycle < 200 ? cycle / 200 : 1 - (cycle - 200) / 200;
+                const cw = boss.w / 16;
+                const ch = boss.h / 28;
+                ctx.save();
+                ctx.globalAlpha = t;
+                // Left side (cols 4-6, rows 11-13)
+                ctx.fillStyle = '#FFD8A8';
+                ctx.fillRect(boss.x + 4 * cw, boss.y + 11 * ch, 3 * cw, 3 * ch);
+                ctx.fillStyle = '#DBA870';
+                ctx.fillRect(boss.x + 4 * cw, boss.y + 13 * ch, 3 * cw, ch);
+                ctx.fillStyle = '#F860A8'; // nipple pixel
+                ctx.fillRect(boss.x + 5 * cw, boss.y + 12 * ch, cw, ch);
+                // Right side (cols 9-11, rows 11-13)
+                ctx.fillStyle = '#FFD8A8';
+                ctx.fillRect(boss.x + 9 * cw, boss.y + 11 * ch, 3 * cw, 3 * ch);
+                ctx.fillStyle = '#DBA870';
+                ctx.fillRect(boss.x + 9 * cw, boss.y + 13 * ch, 3 * cw, ch);
+                ctx.fillStyle = '#F860A8';
+                ctx.fillRect(boss.x + 10 * cw, boss.y + 12 * ch, cw, ch);
+                ctx.restore();
+            }
+        }
 
         // Name label above
         ctx.fillStyle = '#F860A8';

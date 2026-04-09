@@ -7,8 +7,8 @@ const LEVELS = [
         id: 1,
         name: 'BERLINER\nHAUPTBAHNHOF',
         description: 'Berlin calling! Navigiere dich durch den chaotischen Hauptbahnhof und reach die Innenstadt.',
-        scrollSpeed: 240,          // px/s
-        speedIncreaseRate: 8,      // px/s per second
+        scrollSpeed: 288,          // px/s (+20%)
+        speedIncreaseRate: 10,     // px/s per second (+20%)
         levelGoalDistance: 5000,   // px of scrolling to complete
         // Colors
         skyTop: '#0a1628',
@@ -21,10 +21,10 @@ const LEVELS = [
         buildingColorNear: '#0a1628',
         // Obstacle types available in this level
         obstacleTypes: ['suitcase', 'tourist', 'stairs', 'bouncer', 'drama_bubble'],
-        obstacleMinGap: 1.6,      // min seconds between obstacles
-        obstacleMaxGap: 3.2,
-        collectibleMinGap: 0.9,
-        collectibleMaxGap: 2.2,
+        obstacleMinGap: 1.3,      // min seconds between obstacles
+        obstacleMaxGap: 2.7,
+        collectibleMinGap: 0.75,
+        collectibleMaxGap: 1.8,
         hasBoss: false,
         // Background elements
         bgElements: ['stars', 'buildings', 'train_signs']
@@ -33,8 +33,8 @@ const LEVELS = [
         id: 2,
         name: 'PRENZLAUER\nBERG',
         description: 'Durch Graffiti-Wände und U-Bahn-Stationen – weiter zum nächsten Spot!',
-        scrollSpeed: 290,
-        speedIncreaseRate: 10,
+        scrollSpeed: 348,
+        speedIncreaseRate: 12,
         levelGoalDistance: 6500,
         skyTop: '#0d0020',
         skyBottom: '#1a0a2e',
@@ -45,10 +45,10 @@ const LEVELS = [
         buildingColorFar: '#12003a',
         buildingColorNear: '#0a0020',
         obstacleTypes: ['bouncer', 'paparazzi', 'ex_char', 'tourist', 'stairs', 'drama_bubble'],
-        obstacleMinGap: 1.4,
-        obstacleMaxGap: 2.8,
-        collectibleMinGap: 0.8,
-        collectibleMaxGap: 2.0,
+        obstacleMinGap: 1.15,
+        obstacleMaxGap: 2.3,
+        collectibleMinGap: 0.65,
+        collectibleMaxGap: 1.65,
         hasBoss: false,
         bgElements: ['stars', 'graffiti', 'street_lights']
     },
@@ -56,8 +56,8 @@ const LEVELS = [
         id: 3,
         name: 'CLUB-\nEINGANG',
         description: 'Türsteher, lange Schlangen und pures Drama. Sammle 3 VIP-Sticker für den Boss-Fight!',
-        scrollSpeed: 320,
-        speedIncreaseRate: 12,
+        scrollSpeed: 384,
+        speedIncreaseRate: 14,
         levelGoalDistance: 7000,
         skyTop: '#000010',
         skyBottom: '#0a0a1a',
@@ -68,10 +68,10 @@ const LEVELS = [
         buildingColorFar: '#080818',
         buildingColorNear: '#050510',
         obstacleTypes: ['bouncer', 'drama_bubble', 'paparazzi', 'ex_char', 'ambulance'],
-        obstacleMinGap: 1.2,
-        obstacleMaxGap: 2.5,
-        collectibleMinGap: 0.7,
-        collectibleMaxGap: 1.8,
+        obstacleMinGap: 1.0,
+        obstacleMaxGap: 2.1,
+        collectibleMinGap: 0.58,
+        collectibleMaxGap: 1.5,
         hasBoss: false,
         vipStickersNeeded: 3,
         bgElements: ['neon_signs', 'crowd', 'red_ropes']
@@ -80,8 +80,8 @@ const LEVELS = [
         id: 4,
         name: 'CLUB\nFLOOR',
         description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht! Sammle 3 VIP-Sticker für den Boss-Fight!',
-        scrollSpeed: 370,
-        speedIncreaseRate: 15,
+        scrollSpeed: 444,
+        speedIncreaseRate: 18,
         levelGoalDistance: 8000,
         skyTop: '#020008',
         skyBottom: '#0a0020',
@@ -92,10 +92,10 @@ const LEVELS = [
         buildingColorFar: '#080015',
         buildingColorNear: '#040010',
         obstacleTypes: ['bouncer', 'drama_bubble', 'ambulance', 'ex_char', 'paparazzi'],
-        obstacleMinGap: 1.0,
-        obstacleMaxGap: 2.2,
-        collectibleMinGap: 0.6,
-        collectibleMaxGap: 1.5,
+        obstacleMinGap: 0.83,
+        obstacleMaxGap: 1.8,
+        collectibleMinGap: 0.5,
+        collectibleMaxGap: 1.25,
         hasBoss: true,
         vipStickersNeeded: 3,
         bgElements: ['strobe', 'lasers', 'dj_booth']
