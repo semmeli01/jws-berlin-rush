@@ -1431,7 +1431,26 @@ class Renderer {
         if (col.type === 'heart') {
             this._drawPixelHeart(col.x, col.y, col.w, col.color);
         } else if (col.type === 'star') {
-            this._drawStar(col.x + col.w / 2, col.y + col.h / 2, col.w / 2, col.color);
+            // Pink dildo
+            const cx = col.x + col.w / 2;
+            const pink = '#ff69b4', darkPink = '#cc3380', lightPink = '#ffaacc';
+            // Base / flange
+            ctx.fillStyle = darkPink;
+            ctx.fillRect(col.x + 2, col.y + col.h - 7, col.w - 4, 7);
+            // Shaft
+            const shaftX = col.x + col.w * 0.25, shaftW = col.w * 0.5;
+            ctx.fillStyle = pink;
+            ctx.fillRect(shaftX, col.y + 8, shaftW, col.h - 18);
+            // Glans (rounded tip) — via arc
+            ctx.beginPath();
+            ctx.arc(cx, col.y + 8, shaftW / 2, Math.PI, 0, false);
+            ctx.fill();
+            // Ridge ring
+            ctx.fillStyle = darkPink;
+            ctx.fillRect(shaftX, col.y + col.h * 0.45, shaftW, 3);
+            // Highlight
+            ctx.fillStyle = lightPink;
+            ctx.fillRect(shaftX + 2, col.y + 10, 3, col.h * 0.3);
         } else if (col.type === 'oneplus') {
             ctx.fillStyle = '#cc0000';
             ctx.fillRect(col.x, col.y, col.w, col.h);
@@ -1447,12 +1466,28 @@ class Renderer {
             ctx.fillStyle = '#ffd700';
             ctx.fillText('VIP', col.x + col.w / 2, col.y + col.h - lineH);
         } else {
-            // Shot glass
-            ctx.fillStyle = col.color;
-            ctx.fillRect(col.x + 4, col.y, col.w - 8, col.h - 6);
-            ctx.fillRect(col.x + 2, col.y + col.h - 8, col.w - 4, 8);
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.fillRect(col.x + 6, col.y + 2, 3, col.h - 10);
+            // Beer mug
+            const bx = col.x + 2, bw = col.w - 8, bh = col.h;
+            // Mug body (amber glass)
+            ctx.fillStyle = '#D4820A';
+            ctx.fillRect(bx, col.y + 7, bw, bh - 10);
+            // Beer fill (golden)
+            ctx.fillStyle = '#F5A800';
+            ctx.fillRect(bx + 2, col.y + 10, bw - 4, bh - 16);
+            // Foam on top (white bubbly)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(bx, col.y + 7, bw, 5);
+            ctx.fillRect(bx + 2, col.y + 4, 4, 4);
+            ctx.fillRect(bx + 7, col.y + 3, 4, 5);
+            ctx.fillRect(bx + 12, col.y + 5, 3, 4);
+            // Handle (right side)
+            ctx.fillStyle = '#D4820A';
+            ctx.fillRect(col.x + col.w - 4, col.y + 10, 5, 4);
+            ctx.fillRect(col.x + col.w - 4, col.y + 18, 5, 4);
+            ctx.fillRect(col.x + col.w - 2, col.y + 14, 3, 4);
+            // Glass highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.35)';
+            ctx.fillRect(bx + 2, col.y + 12, 3, bh - 20);
         }
 
         ctx.restore();
