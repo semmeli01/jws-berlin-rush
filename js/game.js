@@ -646,7 +646,7 @@ class Game {
     }
 
     _spawnCollectible(lvl) {
-        const types = ['shot', 'shot', 'shot', 'star', 'star', 'heart', 'oneplus'];
+        const types = ['shot', 'shot', 'shot', 'shot', 'star', 'star', 'doener', 'doener', 'oneplus', 'heart', 'shield'];
         const typeKey = types[Math.floor(Math.random() * types.length)];
         const def = COLLECTIBLE_DEFS[typeKey];
         if (!def) return;
@@ -715,6 +715,15 @@ class Game {
                     }
                 }
                 this.audio.playCollectOneplus();
+                break;
+            case 'doener':
+                this.multi = Math.min(this.multi + 1.0, 5);
+                this.audio.playCollectStar();
+                break;
+            case 'shield':
+                this.shieldActive = true;
+                this.audio.playShield();
+                this._addFx(this.player.x, this.player.y, 'SHIELD!', '#00d4ff');
                 break;
         }
 

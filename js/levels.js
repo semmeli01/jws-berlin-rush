@@ -211,5 +211,21 @@ const COLLECTIBLE_DEFS = {
         glowColor: '#ff330066',
         points: 50,
         label: '1+'
+    },
+    doener: {
+        w: 30, h: 38,
+        heightRange: [30, 110],
+        color: '#D4A44A',
+        glowColor: '#C0582866',
+        points: 30,
+        label: '🌯'
+    },
+    shield: {
+        w: 34, h: 34,
+        heightRange: [60, 160],
+        color: '#00d4ff',
+        glowColor: '#00d4ff55',
+        points: 0,   // gives shield protection
+        label: '🛡'
     }
 };

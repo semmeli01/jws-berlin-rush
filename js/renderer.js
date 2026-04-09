@@ -1866,6 +1866,88 @@ class Renderer {
             ctx.fillText('JWS', col.x + col.w / 2, col.y + lineH);
             ctx.fillStyle = '#ffd700';
             ctx.fillText('VIP', col.x + col.w / 2, col.y + col.h - lineH);
+        } else if (col.type === 'doener') {
+            // Mini Berliner Döner (wrapped pita)
+            const cx2 = col.x + col.w / 2;
+            const pitaH = col.h;
+            // Bottom pita half
+            ctx.fillStyle = '#D4A44A';
+            ctx.beginPath();
+            ctx.ellipse(cx2, col.y + pitaH - 5, col.w / 2, 7, 0, 0, Math.PI);
+            ctx.fill();
+            // Top pita
+            ctx.fillStyle = '#E8C06A';
+            ctx.beginPath();
+            ctx.ellipse(cx2, col.y + pitaH - 5, col.w / 2, 7, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+            // Meat stack
+            const meatW2 = col.w * 0.7;
+            const meatX2 = col.x + (col.w - meatW2) / 2;
+            const meatGrd2 = ctx.createLinearGradient(meatX2, 0, meatX2 + meatW2, 0);
+            meatGrd2.addColorStop(0, '#7A3010');
+            meatGrd2.addColorStop(0.5, '#D8784A');
+            meatGrd2.addColorStop(1, '#7A3010');
+            ctx.fillStyle = meatGrd2;
+            const meatTop2 = col.y + col.h * 0.22;
+            const meatH2 = col.h * 0.5;
+            ctx.fillRect(meatX2, meatTop2, meatW2, meatH2);
+            // Lettuce stripe
+            ctx.fillStyle = '#44C040';
+            ctx.fillRect(meatX2, meatTop2 - 4, meatW2, 4);
+            // Sauce drizzle
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(meatX2 + 2, meatTop2 + meatH2 * 0.4);
+            for (let i = 1; i <= 3; i++) {
+                ctx.lineTo(meatX2 + (meatW2 - 4) * (i / 3), meatTop2 + meatH2 * (i % 2 === 0 ? 0.25 : 0.65));
+            }
+            ctx.stroke();
+            // Top pita flap
+            ctx.fillStyle = '#E0B858';
+            ctx.beginPath();
+            ctx.moveTo(meatX2, meatTop2 + 5);
+            ctx.quadraticCurveTo(cx2, meatTop2 - 7, meatX2 + meatW2, meatTop2 + 5);
+            ctx.quadraticCurveTo(cx2, meatTop2 + 2, meatX2, meatTop2 + 5);
+            ctx.fill();
+        } else if (col.type === 'shield') {
+            // Medieval round shield
+            const cx3 = col.x + col.w / 2, cy3 = col.y + col.h / 2;
+            const r3 = Math.min(col.w, col.h) / 2 - 1;
+            // Outer rim (dark metal)
+            ctx.fillStyle = '#1a3a5a';
+            ctx.beginPath(); ctx.arc(cx3, cy3, r3, 0, Math.PI * 2); ctx.fill();
+            // Shield face (quartered design)
+            ctx.fillStyle = '#003366';
+            ctx.beginPath(); ctx.arc(cx3, cy3, r3 - 2, 0, Math.PI * 2); ctx.fill();
+            // Top-left quarter (cyan)
+            ctx.fillStyle = '#00d4ff';
+            ctx.beginPath();
+            ctx.moveTo(cx3, cy3);
+            ctx.arc(cx3, cy3, r3 - 2, Math.PI, Math.PI * 1.5);
+            ctx.closePath(); ctx.fill();
+            // Bottom-right quarter (cyan)
+            ctx.beginPath();
+            ctx.moveTo(cx3, cy3);
+            ctx.arc(cx3, cy3, r3 - 2, 0, Math.PI * 0.5);
+            ctx.closePath(); ctx.fill();
+            // Cross dividers
+            ctx.strokeStyle = '#001a33';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx3, cy3 - r3 + 2); ctx.lineTo(cx3, cy3 + r3 - 2);
+            ctx.moveTo(cx3 - r3 + 2, cy3); ctx.lineTo(cx3 + r3 - 2, cy3);
+            ctx.stroke();
+            // Boss stud (center rivet)
+            ctx.fillStyle = '#ffd700';
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 6;
+            ctx.beginPath(); ctx.arc(cx3, cy3, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            // Outer rim ring
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(cx3, cy3, r3, 0, Math.PI * 2); ctx.stroke();
         } else {
             // Beer mug
             const bx = col.x + 2, bw = col.w - 8, bh = col.h;
@@ -1893,11 +1975,17 @@ class Renderer {
 
         ctx.restore();
 
-        // Points label
-        if (col.points > 0) {
+        // Points / type label above collectible
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'center';
+        if (col.type === 'shield') {
+            ctx.fillStyle = '#00d4ffaa';
+            ctx.fillText('SHIELD', col.x + col.w / 2, col.y - 4);
+        } else if (col.type === 'doener') {
+            ctx.fillStyle = '#D4A44Aaa';
+            ctx.fillText(`×MULTI`, col.x + col.w / 2, col.y - 4);
+        } else if (col.points > 0) {
             ctx.fillStyle = '#ffffffaa';
-            ctx.font = '9px monospace';
-            ctx.textAlign = 'center';
             ctx.fillText(`+${col.points}`, col.x + col.w / 2, col.y - 4);
         }
     }
