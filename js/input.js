@@ -47,6 +47,14 @@ class InputManager {
                 this.duckHeld = false;
             }
         });
+
+        // When the window loses focus, key-up events are missed → keys get stuck.
+        // Clear all held state so the next keydown is always recognized.
+        window.addEventListener('blur', () => {
+            this._keys.clear();
+            this.duckHeld = false;
+            this._rightTouches.clear();
+        });
     }
 
     _setupTouch() {
