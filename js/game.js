@@ -69,6 +69,17 @@ class Game {
         this.lastT = 0;
         this.introTimer = 0;
 
+        // Debug: rolling frame log (last 120 frames)
+        this._dbg = [];
+        window.g = this; // expose game to console: g.player, g.input, glog()
+        window.glog = () => {
+            const rows = this._dbg.slice(-30).map(f =>
+                `t=${f.t.toFixed(3)}s  dt=${f.dt.toFixed(4)}  state=${f.ps}  hurt=${f.hurt.toFixed(2)}  duck=${f.duck ? 1 : 0}  keys=[${f.keys}]  frame=${f.frame}`
+            ).join('\n');
+            console.log('--- last frames ---\n' + rows);
+            return this._dbg.slice(-30);
+        };
+
         this._setupUI();
         requestAnimationFrame(t => this._loop(t));
     }
@@ -322,6 +333,21 @@ class Game {
 
         if (this.state === S.PLAYING) {
             this._update(dt);
+        }
+
+        // Debug frame log
+        if (this.state === S.PLAYING && this.player) {
+            const p = this.player;
+            this._dbg.push({
+                t: t / 1000,
+                dt,
+                ps: p.state,
+                hurt: p.hurtTimer || 0,
+                duck: this.input.duckHeld,
+                keys: [...this.input._keys].join(','),
+                frame: p.frame
+            });
+            if (this._dbg.length > 120) this._dbg.shift();
         }
 
         this._render();
