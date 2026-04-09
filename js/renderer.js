@@ -707,9 +707,15 @@ class Renderer {
         // ex_char → 8-bit Jeremy
         if (obs.type === 'ex_char') {
             this._drawPixelArt(obs.x, obs.y, obs.w, obs.h, JEREMY_GRID, JEREMY_PAL);
+            // broken heart on chest
+            const ctx2 = this.ctx;
+            ctx2.font = '13px sans-serif';
+            ctx2.textAlign = 'center';
+            ctx2.textBaseline = 'middle';
+            ctx2.fillText('💔', obs.x + obs.w / 2, obs.y + obs.h * 0.42);
             // drop shadow
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
+            ctx2.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx2.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
             return;
         }
 
