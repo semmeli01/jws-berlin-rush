@@ -260,6 +260,8 @@ class Game {
         this.bossActive = false;
         this.bossDefeated = false;
         this.boss = null;
+        this.transitionGate = null;
+        this.vipCompleteTime = 0;
 
         // Init player
         const gy = this.renderer.getGroundY();
@@ -392,18 +394,20 @@ class Game {
             // Speed up gradually
             this.scrollSpeed += lvl.speedIncreaseRate * dt;
 
-            // Spawn obstacles
-            this.obsTimer -= dt;
-            if (this.obsTimer <= 0) {
-                this._spawnObstacle(lvl);
-                this.obsTimer = lvl.obstacleMinGap + Math.random() * (lvl.obstacleMaxGap - lvl.obstacleMinGap);
-            }
+            // Spawn obstacles (stop when transition gate is active)
+            if (!this.transitionGate) {
+                this.obsTimer -= dt;
+                if (this.obsTimer <= 0) {
+                    this._spawnObstacle(lvl);
+                    this.obsTimer = lvl.obstacleMinGap + Math.random() * (lvl.obstacleMaxGap - lvl.obstacleMinGap);
+                }
 
-            // Spawn collectibles
-            this.colTimer -= dt;
-            if (this.colTimer <= 0) {
-                this._spawnCollectible(lvl);
-                this.colTimer = lvl.collectibleMinGap + Math.random() * (lvl.collectibleMaxGap - lvl.collectibleMinGap);
+                // Spawn collectibles
+                this.colTimer -= dt;
+                if (this.colTimer <= 0) {
+                    this._spawnCollectible(lvl);
+                    this.colTimer = lvl.collectibleMinGap + Math.random() * (lvl.collectibleMaxGap - lvl.collectibleMinGap);
+                }
             }
         } else {
             // Background scrolls slowly for atmosphere
@@ -545,10 +549,36 @@ class Game {
             }
         }
 
-        // Level complete (boss levels: only after boss defeated)
-        if (this.levelDist >= lvl.levelGoalDistance && (!lvl.hasBoss || this.bossDefeated)) {
-            this._levelComplete();
+        // Spawn transition gate when goal is reached (boss levels: wait for defeat)
+        if (!this.transitionGate && this.levelDist >= lvl.levelGoalDistance
+                && (!lvl.hasBoss || this.bossDefeated)) {
+            this._spawnTransitionGate(lvl);
         }
+
+        // Move transition gate; complete level when player passes through
+        if (this.transitionGate) {
+            this.transitionGate.x -= this.scrollSpeed * dt;
+            // Trigger when gap center passes player center
+            if (this.transitionGate.x + this.transitionGate.colW < PLAYER_X + PLAYER_W * 0.5) {
+                this.transitionGate = null;
+                this._levelComplete();
+            }
+        }
+    }
+
+    _spawnTransitionGate(lvl) {
+        this.transitionGate = {
+            x: W + 60,
+            colW: 35,
+            gapW: 110,
+            w: 180,   // 35 + 110 + 35
+            h: 270,
+            lvlId: lvl.id
+        };
+        // Clear upcoming obstacles so path is open
+        this.obstacles = this.obstacles.filter(o => o.x < PLAYER_X);
+        this.obsTimer = 99;
+        this.audio.playPowerUp();
     }
 
     // ---- HIGH SCORES ----
@@ -678,6 +708,9 @@ class Game {
                 this.multi = Math.min(this.multi + 1, 5);
                 if (LEVELS[this.lvlIdx].hasBoss) {
                     this.vipStickers++;
+                    if (this.vipStickers >= 3 && !this.vipCompleteTime) {
+                        this.vipCompleteTime = Date.now();
+                    }
                 }
                 this.audio.playCollectOneplus();
                 break;
@@ -733,7 +766,8 @@ class Game {
             for (const c of this.collectibles) r.drawCollectible(c);
             r.playerX = this.player ? this.player.x : 0;
             for (const o of this.obstacles) r.drawObstacle(o);
-            if (this.bossActive && this.boss) r.drawBoss(this.boss, LEVELS[this.lvlIdx].accentColor, this.vipStickers);
+            if (this.transitionGate) r.drawTransitionGate(this.transitionGate);
+            if (this.bossActive && this.boss) r.drawBoss(this.boss, LEVELS[this.lvlIdx].accentColor, this.vipCompleteTime);
 
             r.drawPlayer(this.player, this.char, this.shieldActive);
 

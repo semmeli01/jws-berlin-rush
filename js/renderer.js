@@ -1064,7 +1064,7 @@ class Renderer {
 
     // ---- BOSS ----
 
-    drawBoss(boss, accentColor, vipStickers) {
+    drawBoss(boss, accentColor, vipCompleteTime) {
         const ctx = this.ctx;
 
         // 8-bit Naomi with pink glow
@@ -1074,23 +1074,26 @@ class Renderer {
         this._drawPixelArt(boss.x, boss.y, boss.w, boss.h, NAOMI_GRID, NAOMI_PAL);
         ctx.restore();
 
-        // Pixelated boob flash when all 3 VIP stickers collected
-        if (vipStickers >= 3) {
-            const cycle = Date.now() % 2000;
-            if (cycle < 400) {
-                const t = cycle < 200 ? cycle / 200 : 1 - (cycle - 200) / 200;
+        // Pixelated boob flash: triggers immediately when 3rd VIP collected, lasts 1s
+        if (vipCompleteTime > 0) {
+            const elapsed = Date.now() - vipCompleteTime;
+            if (elapsed < 1000) {
+                // Fade in 0-150ms, full 150-850ms, fade out 850-1000ms
+                const t = elapsed < 150 ? elapsed / 150
+                        : elapsed < 850 ? 1
+                        : 1 - (elapsed - 850) / 150;
                 const cw = boss.w / 16;
                 const ch = boss.h / 28;
                 ctx.save();
                 ctx.globalAlpha = t;
-                // Left side (cols 4-6, rows 11-13)
+                // Left chest (cols 4-6, rows 11-13)
                 ctx.fillStyle = '#FFD8A8';
                 ctx.fillRect(boss.x + 4 * cw, boss.y + 11 * ch, 3 * cw, 3 * ch);
                 ctx.fillStyle = '#DBA870';
                 ctx.fillRect(boss.x + 4 * cw, boss.y + 13 * ch, 3 * cw, ch);
                 ctx.fillStyle = '#F860A8'; // nipple pixel
                 ctx.fillRect(boss.x + 5 * cw, boss.y + 12 * ch, cw, ch);
-                // Right side (cols 9-11, rows 11-13)
+                // Right chest (cols 9-11, rows 11-13)
                 ctx.fillStyle = '#FFD8A8';
                 ctx.fillRect(boss.x + 9 * cw, boss.y + 11 * ch, 3 * cw, 3 * ch);
                 ctx.fillStyle = '#DBA870';
@@ -1111,6 +1114,283 @@ class Renderer {
         // Drop shadow
         ctx.fillStyle = 'rgba(0,0,0,0.3)';
         ctx.fillRect(boss.x + 6, boss.y + boss.h, boss.w - 8, 6);
+    }
+
+    // ---- LEVEL TRANSITION GATE ----
+
+    drawTransitionGate(gate) {
+        const ctx = this.ctx;
+        const gy = this.getGroundY();
+        const gx = gate.x;
+        const cw = gate.colW;   // column width each side
+        const gw = gate.gapW;   // gap width
+        const top = gy - gate.h;
+
+        ctx.save();
+
+        if (gate.lvlId === 1) {
+            // ── BRANDENBURGER TOR ──────────────────────────────────────
+            const stone = '#C8A060', shadow = '#906830', dark = '#604820';
+            const pulse = 0.85 + 0.15 * Math.sin(Date.now() * 0.003);
+
+            // Sandstone glow
+            ctx.shadowColor = '#D4A040';
+            ctx.shadowBlur = 18 * pulse;
+
+            // Left column group (2 sub-columns)
+            ctx.fillStyle = stone;
+            ctx.fillRect(gx, top, cw, gate.h);
+            ctx.fillStyle = shadow;
+            ctx.fillRect(gx, top, 6, gate.h);
+            ctx.fillRect(gx + cw - 6, top, 6, gate.h);
+            // sub-column divider
+            ctx.fillStyle = dark;
+            ctx.fillRect(gx + cw / 2 - 1, top + 20, 2, gate.h - 20);
+
+            // Right column group
+            ctx.fillStyle = stone;
+            ctx.fillRect(gx + cw + gw, top, cw, gate.h);
+            ctx.fillStyle = shadow;
+            ctx.fillRect(gx + cw + gw, top, 6, gate.h);
+            ctx.fillRect(gx + cw + gw + cw - 6, top, 6, gate.h);
+            ctx.fillStyle = dark;
+            ctx.fillRect(gx + cw + gw + cw / 2 - 1, top + 20, 2, gate.h - 20);
+
+            // Entablature (horizontal beam)
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = stone;
+            ctx.fillRect(gx, top, gate.w, 28);
+            ctx.fillStyle = shadow;
+            ctx.fillRect(gx, top + 28, gate.w, 5); // bottom shadow of beam
+            ctx.fillStyle = '#E0B870'; // highlight on top
+            ctx.fillRect(gx, top, gate.w, 4);
+
+            // Pediment (triangle) above beam
+            ctx.fillStyle = stone;
+            ctx.beginPath();
+            ctx.moveTo(gx, top);
+            ctx.lineTo(gx + gate.w / 2, top - 38);
+            ctx.lineTo(gx + gate.w, top);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = shadow;
+            ctx.beginPath();
+            ctx.moveTo(gx, top);
+            ctx.lineTo(gx + 10, top);
+            ctx.lineTo(gx + gate.w / 2, top - 34);
+            ctx.closePath();
+            ctx.fill();
+
+            // Quadriga silhouette on top
+            ctx.fillStyle = '#704000';
+            ctx.fillRect(gx + gate.w / 2 - 20, top - 52, 40, 14);
+            // horses silhouette (simple blocks)
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(gx + gate.w / 2 - 22 + i * 11, top - 64, 7, 12);
+            }
+
+            // Gate arch opening hint
+            ctx.fillStyle = 'rgba(200,160,60,0.18)';
+            ctx.fillRect(gx + cw, gy - gate.h + 33, gw, gate.h - 33);
+
+            // "BERLIN" label in arch
+            ctx.shadowColor = '#FFD080';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#FFD080';
+            ctx.font = 'bold 14px "Zuume", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText('BERLIN', gx + cw + gw / 2, top + 56);
+
+        } else if (gate.lvlId === 2) {
+            // ── U-BAHN ENTRANCE ARCH ──────────────────────────────────
+            const green = '#1A6B30', lightGreen = '#2EA050', tile = '#D8E8D8';
+            const pulse = 0.8 + 0.2 * Math.sin(Date.now() * 0.004);
+
+            ctx.shadowColor = '#2EA050';
+            ctx.shadowBlur = 16 * pulse;
+
+            // Side walls
+            ctx.fillStyle = green;
+            ctx.fillRect(gx, top + 40, cw, gate.h - 40);
+            ctx.fillRect(gx + cw + gw, top + 40, cw, gate.h - 40);
+
+            // Wall tiles pattern
+            ctx.fillStyle = lightGreen;
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 2; col++) {
+                    const tx = gx + (col === 0 ? 4 : gx + cw + gw + 4 - gx);
+                    const ty = top + 50 + row * 20;
+                    const ox = col === 0 ? 4 : gx + cw + gw + 4 - gx;
+                    ctx.strokeStyle = '#0A3A18';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(gx + (col === 1 ? cw + gw : 0) + 4, ty, cw - 8, 16);
+                }
+            }
+
+            // Round arch over the opening
+            ctx.fillStyle = green;
+            ctx.beginPath();
+            const archCX = gx + cw + gw / 2;
+            const archR = gw / 2 + cw;
+            ctx.arc(archCX, top + 40, archR, Math.PI, 0, false);
+            ctx.lineTo(gx + gate.w, top + 40);
+            ctx.lineTo(gx, top + 40);
+            ctx.closePath();
+            ctx.fill();
+
+            // Inner arch opening (lighter to show passage)
+            ctx.fillStyle = lightGreen;
+            ctx.beginPath();
+            ctx.arc(archCX, top + 40, archR - 8, Math.PI, 0, false);
+            ctx.lineTo(gx + gate.w - 8, top + 40);
+            ctx.lineTo(gx + 8, top + 40);
+            ctx.closePath();
+            ctx.fill();
+
+            // "U" circle emblem
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#FFD700';
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(archCX, top - 4, 22, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#003010';
+            ctx.font = 'bold 26px "Zuume", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('U', archCX, top - 3);
+
+            // Station name
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 11px "Zuume", monospace';
+            ctx.fillText('PRENZLAUER BERG', archCX, top + 20);
+
+        } else if (gate.lvlId === 3) {
+            // ── CLUB ENTRANCE ─────────────────────────────────────────
+            const darkWall = '#0a0014', neonPink = '#ff0090', neonCyan = '#00d4ff';
+            const flicker = Math.random() > 0.05 ? 1 : 0.6; // occasional neon flicker
+
+            // Dark side walls
+            ctx.fillStyle = darkWall;
+            ctx.fillRect(gx, top, cw, gate.h);
+            ctx.fillRect(gx + cw + gw, top, cw, gate.h);
+
+            // Neon arch outline
+            ctx.shadowColor = neonPink;
+            ctx.shadowBlur = 24 * flicker;
+            ctx.strokeStyle = neonPink;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(gx + 3, top + 10, cw - 6, gate.h - 10);
+            ctx.strokeRect(gx + cw + gw + 3, top + 10, cw - 6, gate.h - 10);
+
+            // Top bar connecting walls
+            ctx.fillStyle = darkWall;
+            ctx.fillRect(gx, top, gate.w, 50);
+            ctx.shadowColor = neonPink;
+            ctx.shadowBlur = 20 * flicker;
+            ctx.strokeStyle = neonPink;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(gx + 2, top + 2, gate.w - 4, 46);
+
+            // "EINGANG" neon sign
+            ctx.shadowBlur = 30 * flicker;
+            ctx.fillStyle = neonPink;
+            ctx.font = 'bold 20px "CHMedia", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('EINGANG', gx + gate.w / 2, top + 26);
+
+            // Cyan accent line
+            ctx.shadowColor = neonCyan;
+            ctx.shadowBlur = 12;
+            ctx.strokeStyle = neonCyan;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(gx, top + 50);
+            ctx.lineTo(gx + gate.w, top + 50);
+            ctx.stroke();
+
+            // Velvet rope (red line at mid-height of columns)
+            const ropeY = top + gate.h * 0.55;
+            ctx.shadowColor = '#cc0000';
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = '#cc0000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(gx + cw, ropeY);
+            ctx.quadraticCurveTo(gx + cw + gw / 2, ropeY + 10, gx + cw + gw, ropeY);
+            ctx.stroke();
+            // Rope posts
+            ctx.fillStyle = '#gold';
+            ctx.fillStyle = '#D4A020';
+            ctx.fillRect(gx + cw - 3, ropeY - 16, 6, 20);
+            ctx.fillRect(gx + cw + gw - 3, ropeY - 16, 6, 20);
+
+        } else {
+            // ── CLUB FLOOR VICTORY ARCH (L4) ──────────────────────────
+            const gold = '#FFD700', magenta = '#ff00ff';
+            const t = Date.now() * 0.004;
+            const pulse = 0.7 + 0.3 * Math.sin(t);
+
+            // Gold columns
+            ctx.shadowColor = gold;
+            ctx.shadowBlur = 22 * pulse;
+            ctx.fillStyle = '#B89000';
+            ctx.fillRect(gx, top + 20, cw, gate.h - 20);
+            ctx.fillRect(gx + cw + gw, top + 20, cw, gate.h - 20);
+            // Gold highlight edge
+            ctx.fillStyle = gold;
+            ctx.fillRect(gx, top + 20, 4, gate.h - 20);
+            ctx.fillRect(gx + cw - 4, top + 20, 4, gate.h - 20);
+            ctx.fillRect(gx + cw + gw, top + 20, 4, gate.h - 20);
+            ctx.fillRect(gx + cw + gw + cw - 4, top + 20, 4, gate.h - 20);
+
+            // Arch beam
+            ctx.fillStyle = '#B89000';
+            ctx.fillRect(gx, top + 20, gate.w, 26);
+            ctx.fillStyle = gold;
+            ctx.fillRect(gx, top + 20, gate.w, 4);
+            ctx.fillRect(gx, top + 42, gate.w, 3);
+
+            // Glowing arch curve
+            ctx.shadowColor = magenta;
+            ctx.shadowBlur = 28 * pulse;
+            ctx.strokeStyle = magenta;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(gx + gate.w / 2, top + 46, gate.w / 2 - 4, Math.PI, 0);
+            ctx.stroke();
+
+            // Star burst centre
+            ctx.shadowColor = gold;
+            ctx.shadowBlur = 30;
+            ctx.fillStyle = gold;
+            ctx.font = '28px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('★', gx + gate.w / 2, top + 6);
+
+            // "VIP FLOOR" text
+            ctx.fillStyle = gold;
+            ctx.font = 'bold 16px "CHMedia", sans-serif';
+            ctx.fillText('VIP FLOOR', gx + gate.w / 2, top + 62);
+
+            // Confetti pixels
+            const colors = ['#ff00ff', '#ffd700', '#00d4ff', '#ff0090', '#ffffff'];
+            const seed = Math.floor(Date.now() / 80);
+            for (let i = 0; i < 18; i++) {
+                const cx2 = gx + (((seed * 31 + i * 17) % 180));
+                const cy2 = top + (((seed * 13 + i * 29) % 260));
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.shadowBlur = 6;
+                ctx.fillRect(cx2, cy2, 4, 4);
+            }
+        }
+
+        ctx.restore();
     }
 
     // ---- PIXEL ART HELPER ----
