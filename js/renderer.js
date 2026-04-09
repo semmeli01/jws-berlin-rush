@@ -900,7 +900,7 @@ class Renderer {
             ctx.save();
             ctx.font = 'bold 15px "Zuume", monospace';
             const textW = ctx.measureText(bubbleText).width;
-            const bw = Math.max(obs.w, textW + 26);
+            const bw = textW + 26;
             ctx.fillStyle = '#55106a';
             ctx.fillRect(obs.x, obs.y, bw, obs.h);
             ctx.strokeStyle = '#aa40cc';
@@ -1077,11 +1077,11 @@ class Renderer {
         // Pixelated boob flash: triggers immediately when 3rd VIP collected, lasts 1s
         if (vipCompleteTime > 0) {
             const elapsed = Date.now() - vipCompleteTime;
-            if (elapsed < 1000) {
-                // Fade in 0-150ms, full 150-850ms, fade out 850-1000ms
-                const t = elapsed < 150 ? elapsed / 150
-                        : elapsed < 850 ? 1
-                        : 1 - (elapsed - 850) / 150;
+            if (elapsed < 2000) {
+                // Fade in 0-200ms, full 200-1800ms, fade out 1800-2000ms
+                const t = elapsed < 200 ? elapsed / 200
+                        : elapsed < 1800 ? 1
+                        : 1 - (elapsed - 1800) / 200;
                 const cw = boss.w / 16;
                 const ch = boss.h / 28;
                 ctx.save();
@@ -1434,23 +1434,40 @@ class Renderer {
             // Pink dildo
             const cx = col.x + col.w / 2;
             const pink = '#ff69b4', darkPink = '#cc3380', lightPink = '#ffaacc';
-            // Base / flange
-            ctx.fillStyle = darkPink;
-            ctx.fillRect(col.x + 2, col.y + col.h - 7, col.w - 4, 7);
-            // Shaft
             const shaftX = col.x + col.w * 0.25, shaftW = col.w * 0.5;
+            const ballsY = col.y + col.h - 9;
+            // Glow
+            ctx.shadowColor = '#ff69b4';
+            ctx.shadowBlur = 14;
+            // Shaft
             ctx.fillStyle = pink;
-            ctx.fillRect(shaftX, col.y + 8, shaftW, col.h - 18);
-            // Glans (rounded tip) — via arc
+            ctx.fillRect(shaftX, col.y + 8, shaftW, col.h - 26);
+            // Glans (rounded tip)
             ctx.beginPath();
             ctx.arc(cx, col.y + 8, shaftW / 2, Math.PI, 0, false);
             ctx.fill();
             // Ridge ring
             ctx.fillStyle = darkPink;
-            ctx.fillRect(shaftX, col.y + col.h * 0.45, shaftW, 3);
+            ctx.fillRect(shaftX, col.y + col.h * 0.5, shaftW, 3);
+            // Balls at bottom (two circles)
+            ctx.fillStyle = pink;
+            ctx.beginPath();
+            ctx.arc(cx - shaftW * 0.28, ballsY, shaftW * 0.38, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(cx + shaftW * 0.28, ballsY, shaftW * 0.38, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = darkPink;
+            ctx.beginPath();
+            ctx.arc(cx - shaftW * 0.28, ballsY + 2, shaftW * 0.22, 0, Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(cx + shaftW * 0.28, ballsY + 2, shaftW * 0.22, 0, Math.PI);
+            ctx.fill();
             // Highlight
             ctx.fillStyle = lightPink;
-            ctx.fillRect(shaftX + 2, col.y + 10, 3, col.h * 0.3);
+            ctx.shadowBlur = 0;
+            ctx.fillRect(shaftX + 2, col.y + 10, 3, col.h * 0.28);
         } else if (col.type === 'oneplus') {
             ctx.fillStyle = '#cc0000';
             ctx.fillRect(col.x, col.y, col.w, col.h);
