@@ -168,7 +168,7 @@ const OBSTACLE_DEFS = {
         label: '💬'
     },
     ambulance: {
-        w: 110, h: 58,
+        w: 150, h: 72,
         groundOffset: 0,
         color: '#aa0000',
         accentColor: '#ff3300',

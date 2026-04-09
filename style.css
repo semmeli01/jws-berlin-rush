@@ -174,29 +174,29 @@ html, body {
 
 /* ---- Highscore ---- */
 .highscore-wrap {
-    margin-top: 14px;
+    margin-top: 16px;
     text-align: center;
 }
 .hs-title {
     font-family: 'Zuume', monospace;
     color: #ffd700;
-    font-size: 13px;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
+    font-size: 16px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
 }
 .hs-row {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     justify-content: center;
     font-family: 'Zuume', monospace;
-    font-size: 14px;
+    font-size: 17px;
     color: #fff;
-    line-height: 1.7;
+    line-height: 1.65;
 }
-.hs-rank { color: #ffd700; min-width: 24px; }
-.hs-char { min-width: 110px; text-align: left; }
-.hs-score { color: #ff0090; min-width: 60px; text-align: right; }
-.hs-empty { font-family: 'Zuume', monospace; color: #ffffff44; font-size: 12px; }
+.hs-rank { color: #ffd700; min-width: 28px; }
+.hs-char { min-width: 130px; text-align: left; }
+.hs-score { color: #ff0090; min-width: 72px; text-align: right; }
+.hs-empty { font-family: 'Zuume', monospace; color: #ffffff44; font-size: 14px; }
 
 /* ---- BUTTONS ---- */
 .btn-primary {
@@ -399,7 +399,7 @@ html, body {
     to   { opacity: 1; transform: translateY(0); }
 }
 .level-intro-number {
-    font-size: 14px;
+    font-size: 16px;
     color: #ffffffaa;
     letter-spacing: 6px;
     margin-bottom: 14px;
@@ -413,12 +413,14 @@ html, body {
     line-height: 1.05;
     margin-bottom: 20px;
     white-space: pre-line;
+    text-align: center;
 }
 .level-intro-desc {
-    font-size: 18px;
-    color: #ffffffaa;
+    font-size: 22px;
+    color: #ffffffcc;
     line-height: 1.7;
-    max-width: 480px;
+    max-width: 620px;
+    text-align: center;
 }
 
 /* ---- GAME OVER ---- */

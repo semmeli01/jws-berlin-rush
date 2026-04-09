@@ -562,7 +562,7 @@ class Game {
             date: new Date().toLocaleDateString('de-CH')
         });
         scores.sort((a, b) => b.score - a.score);
-        scores.splice(5);
+        scores.splice(10);
         try { localStorage.setItem(key, JSON.stringify(scores)); } catch (e) {}
     }
 
@@ -575,7 +575,7 @@ class Game {
             list.innerHTML = '<div class="hs-empty">Noch keine Einträge</div>';
             return;
         }
-        list.innerHTML = scores.slice(0, 3).map((s, i) =>
+        list.innerHTML = scores.slice(0, 10).map((s, i) =>
             `<div class="hs-row">` +
             `<span class="hs-rank">#${i + 1}</span>` +
             `<span class="hs-char">${s.char.toUpperCase()}</span>` +
