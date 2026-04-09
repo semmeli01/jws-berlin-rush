@@ -1233,9 +1233,10 @@ class Renderer {
             return;
         }
 
-        // drama_bubble → speech bubble with custom text, auto-width
+        // drama_bubble → speech bubble with alternating texts, auto-width
         if (obs.type === 'drama_bubble') {
-            const bubbleText = 'säg mir nöd meitli! 🙄';
+            const _bubbleTexts = ['säg mir nöd meitli! 🙄', 'what kän i get? 💅'];
+            const bubbleText = _bubbleTexts[Math.floor(Date.now() / 2800) % 2];
             ctx.save();
             ctx.font = 'bold 30px "Zuume", monospace';
             const textW = ctx.measureText(bubbleText).width;
