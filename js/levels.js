@@ -205,7 +205,7 @@ const COLLECTIBLE_DEFS = {
         label: '★'
     },
     oneplus: {
-        w: 38, h: 38,
+        w: 54, h: 54,
         heightRange: [160, 240],
         color: '#ff3300',
         glowColor: '#ff330066',
