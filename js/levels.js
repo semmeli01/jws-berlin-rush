@@ -114,7 +114,7 @@ const OBSTACLE_DEFS = {
         label: '🧳'
     },
     tourist: {
-        w: 76, h: 76,
+        w: 115, h: 82,
         groundOffset: 0,
         color: '#4a90d9',
         accentColor: '#7ab8f8',

@@ -89,48 +89,49 @@ const JEREMY_GRID = [
 ];
 
 // ---- 8-bit Pixel Art: Isabelle (tourist obstacle) ----
-// 12-wide × 22-tall; blonde, glasses, pink leopard dress, black heels, blue suitcase
+// 10-wide × 18-tall, 2 walking frames; faces LEFT (walks toward player)
+// Suitcase drawn separately, trailing to her right
 const ISABELLE_PAL = {
-    'H': '#EED070', // blonde hair
-    'h': '#C0A030', // hair shadow
-    'S': '#FFD8A8', // skin
-    's': '#DBA870', // skin shadow
-    'G': '#C8C8C8', // glasses frame
-    'P': '#E02898', // pink dress
-    'p': '#A01860', // dress shadow / leopard spot
-    'K': '#181818', // black heels
-    'B': '#0840B0', // blue suitcase body
-    'b': '#0428A0', // suitcase shadow/edge
-    'L': '#88AACE', // suitcase city lights
-    'l': '#5080AA', // city lights shadow
-    'W': '#D0D8E0', // suitcase wheel
-    'E': '#201000', // eye
-    'N': '#E8C890', // neck
+    'H': '#E8D060', // blonde hair
+    'h': '#B89020', // hair shadow
+    'S': '#FFD8C0', // skin
+    's': '#D09068', // skin shadow
+    'G': '#776688', // glasses frame (round, lighter)
+    'P': '#E82878', // pink leopard dress
+    'p': '#980050', // dress spots
+    'B': '#111111', // black heels
 };
-// 16-wide × 22-tall: Isabelle (cols 0-8) + clearly visible blue suitcase (cols 9-15)
-const ISABELLE_GRID = [
-    '..HHHHHH........',  //  0  head
-    '.HHHHHHH........',  //  1
-    '.HHGGhGGH.......',  //  2  glasses
-    '.HHHHsHHH.......',  //  3  face
-    '..HHHssHHBBBBb..',  //  4  chin + suitcase handle (top)
-    '...NNNNNBBBBBb..',  //  5  neck + suitcase top
-    '..sPPPPsBBLLBb..',  //  6  dress + suitcase with city lights
-    '..PPpPPsBBLlBb..',  //  7
-    '..PPpPP.BbLlBb..',  //  8
-    '..PPPpP.BbLLBb..',  //  9
-    '..PPpPP.BbLlBb..',  // 10
-    '..PPPpP.BbLLBb..',  // 11
-    '...SSPp.BbLlBb..',  // 12  legs
-    '...SSSs.BbBBBb..',  // 13  suitcase lower
-    '...SSSSsBBBBbb..',  // 14
-    '...SSs..BBWWBB..',  // 15  suitcase wheels
-    '....Ss..........',  // 16
-    '...KKs..........',  // 17  heels
-    '...KKK..........',  // 18
-    '...KKK..........',  // 19
-    '....KK..........',  // 20
-    '................',  // 21
+const _ISABELLE_TOP = [
+    '..HHHHHH..',  //  0  curly blonde hair
+    '.HhHHHHHH.',  //  1
+    '.HhSSSSHh.',  //  2  face
+    '.HhSGGSHh.',  //  3  glasses
+    '.HhSSSSHh.',  //  4  face
+    '..SsSSSS..',  //  5  chin/neck
+    '..PPPPPSSs',  //  6  dress + arm extending RIGHT (to pull suitcase)
+    '.PPpPPpPSs',  //  7  dress + arm
+    'PPPPPPPPp.',  //  8  dress full width
+    '.PPpPPpPP.',  //  9  dress spots
+    '..PPPPPp..',  // 10  dress hem
+    '...PPPP...',  // 11  dress bottom
+];
+const ISABELLE_FRAMES = [
+    [ ..._ISABELLE_TOP,
+      '...SS.SS..',  // 12  left leg forward
+      '..SSS..SS.',  // 13
+      '..SS...sS.',  // 14
+      '..Bs....s.',  // 15  left heel down
+      '..BB....B.',  // 16
+      '...B....B.',  // 17
+    ],
+    [ ..._ISABELLE_TOP,
+      '...SS.SS..',  // 12  right leg forward
+      '..SS..SSS.',  // 13
+      '..Ss...SS.',  // 14
+      '..s....Bs.',  // 15  right heel down
+      '.B.....BB.',  // 16
+      '.B......B.',  // 17
+    ],
 ];
 
 // ---- 8-bit Pixel Art: Biggie (bouncer obstacle, 3 dance frames) ----
@@ -862,10 +863,89 @@ class Renderer {
     drawObstacle(obs) {
         const ctx = this.ctx;
 
-        // tourist → 8-bit Isabelle with suitcase
+        // tourist → Isabelle walking toward player, pulling suitcase behind her
         if (obs.type === 'tourist') {
-            this._drawPixelArt(obs.x, obs.y, obs.w, obs.h, ISABELLE_GRID, ISABELLE_PAL);
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            const frame = Math.floor(Date.now() / 260) % 2;
+            const leanY = frame * 2; // slight walking bob
+            const isabW = 50;
+
+            // Isabelle (facing left, animated)
+            this._drawPixelArt(obs.x, obs.y + leanY, isabW, obs.h - leanY, ISABELLE_FRAMES[frame], ISABELLE_PAL);
+
+            // Suitcase (blue rolling, trailing behind = to her right)
+            const suitX = obs.x + isabW + 6;
+            const suitW = obs.w - isabW - 6;
+            const suitH = Math.round(suitW * 0.92);
+            const wheelR = 7;
+            const suitBodyY = obs.y + obs.h - suitH - wheelR;
+
+            // Handle pole (vertical, from top of suitcase upward)
+            const poleX = suitX + suitW * 0.55;
+            ctx.strokeStyle = '#888899';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(poleX, suitBodyY);
+            ctx.lineTo(poleX, suitBodyY - 22);
+            ctx.stroke();
+            // Grip bar at top of pole
+            ctx.strokeStyle = '#555566';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(poleX - 6, suitBodyY - 22);
+            ctx.lineTo(poleX + 6, suitBodyY - 22);
+            ctx.stroke();
+
+            // Connecting line: Isabelle's hand → suitcase handle (she's pulling)
+            const handY = obs.y + leanY + (obs.h - leanY) * 0.35;
+            ctx.strokeStyle = '#D09068';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(obs.x + isabW, handY);
+            ctx.quadraticCurveTo(obs.x + isabW + 12, handY + 4, poleX, suitBodyY - 22);
+            ctx.stroke();
+
+            // Suitcase body (blue with city design)
+            ctx.fillStyle = '#0840B0';
+            ctx.fillRect(suitX, suitBodyY, suitW, suitH);
+            // City skyline silhouette (darker blue angular shapes)
+            ctx.fillStyle = '#0228A0';
+            const skyH = suitH * 0.55;
+            const skyY = suitBodyY + suitH - skyH;
+            const bldgs = [[0.1,0.6],[0.22,0.9],[0.38,0.5],[0.5,0.75],[0.65,0.45],[0.78,0.85],[0.9,0.6]];
+            for (const [xf, hf] of bldgs) {
+                const bw2 = suitW * 0.11;
+                ctx.fillRect(suitX + xf * suitW - bw2/2, skyY + skyH * (1 - hf), bw2, skyH * hf);
+            }
+            // City light reflections (lighter blue streaks)
+            ctx.fillStyle = '#4880D8';
+            ctx.fillRect(suitX + suitW * 0.15, suitBodyY + suitH * 0.65, suitW * 0.6, 2);
+            ctx.fillRect(suitX + suitW * 0.25, suitBodyY + suitH * 0.72, suitW * 0.4, 1);
+            // Suitcase border
+            ctx.strokeStyle = '#0228A0';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(suitX + 1, suitBodyY + 1, suitW - 2, suitH - 2);
+            // Center divider
+            ctx.strokeStyle = '#0638B8';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(suitX, suitBodyY + suitH / 2);
+            ctx.lineTo(suitX + suitW, suitBodyY + suitH / 2);
+            ctx.stroke();
+
+            // Wheels
+            [suitX + 10, suitX + suitW - 10].forEach(wx => {
+                ctx.fillStyle = '#444455';
+                ctx.beginPath();
+                ctx.arc(wx, obs.y + obs.h - wheelR, wheelR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#888899';
+                ctx.beginPath();
+                ctx.arc(wx, obs.y + obs.h - wheelR, wheelR - 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Drop shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.22)';
             ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
             return;
         }
