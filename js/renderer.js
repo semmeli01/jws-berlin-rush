@@ -5,6 +5,89 @@
 
 const PX = 4; // base pixel size for 8-bit look
 
+// ---- 8-bit Pixel Art: Naomi (Boss) ----
+// 16-wide × 28-tall grid, drawn scaled to boss.w × boss.h
+const NAOMI_PAL = {
+    'H': '#E8B028', // blonde hair
+    'h': '#B08010', // hair shadow
+    'S': '#FFD8A8', // skin
+    's': '#DBA870', // skin shadow
+    'P': '#F860A8', // pink dress
+    'p': '#C03878', // dress shadow
+    'B': '#181818', // black slipper
+    'E': '#201000', // eye
+    'L': '#E02040', // lip
+    'C': '#C0C8D0', // cross necklace
+};
+const NAOMI_GRID = [
+    '....HHHHHHHH....',
+    '...HHHHHHHHHH...',
+    '..HHHHHHHHHHHH..',
+    '..HHhSSSSSShHH..',
+    '..HHSSSSSSSSHh..',
+    '..HHSESSSSEsSH..',
+    '..HHSSsssSsSHH..',
+    '..HHSSsLLLsSHH..',
+    '..HHSSSSSSSSHh..',
+    '...hSSSCSSSShH..',
+    '..SSSSSSSSSSSS..',
+    '..PPpSSSSSSPPP..',
+    '.PPPPPPPPPPPPPP.',
+    '.PPpPPPPPPPPpPP.',
+    '.PPPPPPPPPPPPPP.',
+    '.PPpPPPPPPPPpPP.',
+    '.PPPPPPPPPPPPPP.',
+    '.PPpPPPPPPPPpPP.',
+    '.PPPPPPPPPPPPPP.',
+    '.PPpPPPPPPPPpPP.',
+    '.PPPPPPPPPPPPPP.',
+    '....PPPPPPPP....',
+    '....SSSSSSSS....',
+    '....SSSSsSSSs...',
+    '....SSSSSSSS....',
+    '....SSSSsSSSs...',
+    '..BBBBB..BBBBB..',
+    '..BBBBB..BBBBB..',
+];
+
+// ---- 8-bit Pixel Art: Jeremy (ex_char obstacle) ----
+// 10-wide × 22-tall grid, drawn scaled to obs.w × obs.h
+const JEREMY_PAL = {
+    'K': '#150808', // black hair
+    'S': '#C8783A', // skin
+    's': '#A05020', // skin shadow
+    'W': '#F0F0F0', // white tank top
+    'w': '#D0D0D0', // tank shadow
+    'G': '#2A6832', // green cargo pants
+    'g': '#1A4A22', // pants shadow
+    'N': '#E0E0D0', // sneakers
+    'E': '#200800', // eye
+};
+const JEREMY_GRID = [
+    '..KKKKKK..',
+    '.KKKKKKKK.',
+    'KSSSSSSssK',
+    'KSESSsESsK',
+    'KSSSsSsSsK',
+    'KSSssSSSsK',
+    'SSSSSSSSSS',
+    'wWWSSSSWWw',
+    'WWWWWWWWWW',
+    'WWWWWWWWWW',
+    'WwWWWWWWwW',
+    'GGGGGGGGGG',
+    'GGGGGGGGGG',
+    'GGgg..ggGG',
+    'GGgg..ggGG',
+    'GGGGGGGGGG',
+    'GGGGGGGGGG',
+    'GGGGGGGGGG',
+    'GGGGGGGGGG',
+    'NNN....NNN',
+    'NNNN.NNNNN',
+    '..........',
+];
+
 // Utility: darken a hex color by 30%
 function _darken(hex) {
     let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
@@ -621,6 +704,15 @@ class Renderer {
     drawObstacle(obs) {
         const ctx = this.ctx;
 
+        // ex_char → 8-bit Jeremy
+        if (obs.type === 'ex_char') {
+            this._drawPixelArt(obs.x, obs.y, obs.w, obs.h, JEREMY_GRID, JEREMY_PAL);
+            // drop shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
+            return;
+        }
+
         // Body
         ctx.fillStyle = obs.color;
         ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
@@ -651,41 +743,51 @@ class Renderer {
 
     drawBoss(boss, accentColor) {
         const ctx = this.ctx;
+
+        // 8-bit Naomi with pink glow
         ctx.save();
-        ctx.shadowColor = accentColor;
-        ctx.shadowBlur = 20 + Math.sin(Date.now() * 0.006) * 8;
-
-        // Body
-        ctx.fillStyle = '#05050f';
-        ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
-
-        // Pulsing accent border
-        ctx.strokeStyle = accentColor;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(boss.x + 2, boss.y + 2, boss.w - 4, boss.h - 4);
-
-        // Inner glow fill
-        ctx.fillStyle = accentColor + '18';
-        ctx.fillRect(boss.x + 4, boss.y + 4, boss.w - 8, boss.h - 8);
-
+        ctx.shadowColor = '#F860A8';
+        ctx.shadowBlur = 14 + Math.sin(Date.now() * 0.006) * 6;
+        this._drawPixelArt(boss.x, boss.y, boss.w, boss.h, NAOMI_GRID, NAOMI_PAL);
         ctx.restore();
 
-        // Emoji label
-        ctx.font = `${Math.floor(boss.h * 0.28)}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('🚫', boss.x + boss.w / 2, boss.y + boss.h / 2);
-
-        // BOSS label above
-        ctx.fillStyle = accentColor;
-        ctx.font = 'bold 14px "Zuume", monospace';
+        // Name label above
+        ctx.fillStyle = '#F860A8';
+        ctx.font = 'bold 13px "Zuume", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText('★ BOSS ★', boss.x + boss.w / 2, boss.y - 10);
+        ctx.fillText('★ NAOMI ★', boss.x + boss.w / 2, boss.y - 8);
 
         // Drop shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.35)';
-        ctx.fillRect(boss.x + 8, boss.y + boss.h, boss.w - 6, 7);
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(boss.x + 6, boss.y + boss.h, boss.w - 8, 6);
+    }
+
+    // ---- PIXEL ART HELPER ----
+
+    // Draws a pixel-art grid scaled to fit (x,y,w,h).
+    // grid: array of equal-length strings; palette: char→hex map; '.' = transparent.
+    _drawPixelArt(x, y, w, h, grid, palette) {
+        const ctx = this.ctx;
+        const rows = grid.length;
+        const cols = grid[0].length;
+        const cw = w / cols;
+        const ch = h / rows;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const ch_code = grid[r][c];
+                if (ch_code === '.') continue;
+                const color = palette[ch_code];
+                if (!color) continue;
+                ctx.fillStyle = color;
+                ctx.fillRect(
+                    Math.floor(x + c * cw),
+                    Math.floor(y + r * ch),
+                    Math.ceil(cw),
+                    Math.ceil(ch)
+                );
+            }
+        }
     }
 
     // ---- COLLECTIBLES ----
