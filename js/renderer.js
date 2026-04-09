@@ -88,6 +88,48 @@ const JEREMY_GRID = [
     '..........',
 ];
 
+// ---- 8-bit Pixel Art: Isabelle (tourist obstacle) ----
+// 12-wide × 22-tall; blonde, glasses, pink leopard dress, black heels, blue suitcase
+const ISABELLE_PAL = {
+    'H': '#EED070', // blonde hair
+    'h': '#C0A030', // hair shadow
+    'S': '#FFD8A8', // skin
+    's': '#DBA870', // skin shadow
+    'G': '#C8C8C8', // glasses frame
+    'P': '#E02898', // pink dress
+    'p': '#A01860', // dress shadow / leopard spot
+    'K': '#181818', // black heels
+    'B': '#0840B0', // blue suitcase
+    'b': '#0428A0', // suitcase shadow
+    'L': '#88AACE', // suitcase city lights
+    'E': '#201000', // eye
+    'N': '#E8C890', // neck
+};
+const ISABELLE_GRID = [
+    '.HHHHHH......',  //  0  head (trimmed to 12)
+    'HHHHHHHH.....',  //  1
+    'HHGGhGGHH....',  //  2  glasses
+    'HHHHsHHHH....',  //  3  face
+    '.HHHssHH.B...',  //  4  chin + suitcase handle
+    '..NNNNNNBBb..',  //  5  neck + suitcase top
+    '.sPPPPPsBBb..',  //  6  one-shoulder dress + suitcase
+    '.PPpPPPsBBL..',  //  7
+    '.PPpPPP.BbL..',  //  8
+    '.PPPpPP.BbL..',  //  9
+    '..PPPpP.BbL..',  // 10
+    '..PPpPP.Bbb..',  // 11
+    '..SSPpP.Bb...',  // 12  legs
+    '..SSSsP.Bb...',  // 13
+    '..SSSSs.Bb...',  // 14
+    '..SSSs..b....',  // 15
+    '...Sss.......',  // 16
+    '..KKs........',  // 17  heels
+    '..KKK........',  // 18
+    '..KKK........',  // 19
+    '...KK........',  // 20
+    '.............',  // 21
+];
+
 // ---- 8-bit Pixel Art: Biggie (bouncer obstacle, 3 dance frames) ----
 // 12-wide × 22-tall, scaled to obs.w × obs.h; cycle at ~380ms/frame
 const BIGGIE_PAL = {
@@ -778,6 +820,100 @@ class Renderer {
 
     drawObstacle(obs) {
         const ctx = this.ctx;
+
+        // tourist → 8-bit Isabelle with suitcase
+        if (obs.type === 'tourist') {
+            this._drawPixelArt(obs.x, obs.y, obs.w, obs.h, ISABELLE_GRID, ISABELLE_PAL);
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
+            return;
+        }
+
+        // stairs → recognizable staircase (4 steps ascending left→right)
+        if (obs.type === 'stairs') {
+            const steps = 4;
+            const sw = obs.w / steps;
+            const sh = obs.h / steps;
+            for (let i = 0; i < steps; i++) {
+                ctx.fillStyle = i % 2 === 0 ? '#888899' : '#7a7a8b';
+                ctx.fillRect(obs.x + i * sw, obs.y + obs.h - (i + 1) * sh, sw + 1, (i + 1) * sh);
+                ctx.fillStyle = '#aaaacc'; // top-edge highlight
+                ctx.fillRect(obs.x + i * sw, obs.y + obs.h - (i + 1) * sh, sw + 1, 3);
+                ctx.fillStyle = '#555566'; // right-edge shadow
+                ctx.fillRect(obs.x + (i + 1) * sw - 2, obs.y + obs.h - (i + 1) * sh, 2, (i + 1) * sh);
+            }
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
+            return;
+        }
+
+        // paparazzi → camera flash when player is nearby
+        if (obs.type === 'paparazzi') {
+            // Standard block + emoji
+            ctx.fillStyle = obs.color;
+            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            ctx.fillStyle = obs.accent;
+            ctx.fillRect(obs.x, obs.y, obs.w, 3);
+            ctx.fillRect(obs.x, obs.y, 3, obs.h);
+            ctx.strokeStyle = obs.accent;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(obs.x + 1, obs.y + 1, obs.w - 2, obs.h - 2);
+            const fs = Math.min(obs.w, obs.h) * 0.5;
+            ctx.font = `${fs}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('📸', obs.x + obs.w / 2, obs.y + obs.h / 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
+            // Flash effect when player within ~220px
+            const dist = Math.abs((this.playerX || 999) - (obs.x + obs.w / 2));
+            if (dist < 220) {
+                const cycle = Date.now() % 1400;
+                if (cycle < 200) {
+                    const t = cycle / 200;
+                    const alpha = (1 - t) * 0.85;
+                    const radius = 28 + t * 55;
+                    const cx = obs.x + obs.w * 0.6, cy = obs.y + obs.h * 0.3;
+                    const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+                    grd.addColorStop(0, `rgba(255,255,220,${alpha})`);
+                    grd.addColorStop(1, 'rgba(255,255,220,0)');
+                    ctx.fillStyle = grd;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            return;
+        }
+
+        // drama_bubble → speech bubble with custom text
+        if (obs.type === 'drama_bubble') {
+            ctx.save();
+            ctx.fillStyle = '#55106a';
+            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            ctx.strokeStyle = '#aa40cc';
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(obs.x + 1, obs.y + 1, obs.w - 2, obs.h - 2);
+            // Bubble tail pointing downward
+            ctx.fillStyle = '#55106a';
+            ctx.beginPath();
+            ctx.moveTo(obs.x + 28, obs.y + obs.h);
+            ctx.lineTo(obs.x + 18, obs.y + obs.h + 13);
+            ctx.lineTo(obs.x + 46, obs.y + obs.h);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#aa40cc';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            // Text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 15px "Zuume", monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('säg mir nöd meitli! 🙄', obs.x + 12, obs.y + obs.h / 2);
+            ctx.restore();
+            return;
+        }
 
         // bouncer → 8-bit Biggie with dance animation
         if (obs.type === 'bouncer') {

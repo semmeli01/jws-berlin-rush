@@ -67,7 +67,7 @@ const LEVELS = [
         accentColor: '#ffd700',
         buildingColorFar: '#080818',
         buildingColorNear: '#050510',
-        obstacleTypes: ['bouncer', 'drama_bubble', 'paparazzi', 'ex_char'],
+        obstacleTypes: ['bouncer', 'drama_bubble', 'paparazzi', 'ex_char', 'ambulance'],
         obstacleMinGap: 1.2,
         obstacleMaxGap: 2.5,
         collectibleMinGap: 0.7,
@@ -105,7 +105,7 @@ const LEVELS = [
 // Obstacle definitions: geometry + visual config
 const OBSTACLE_DEFS = {
     suitcase: {
-        w: 44, h: 38,
+        w: 58, h: 52,
         groundOffset: 0,   // sits on ground
         color: '#8b6914',
         accentColor: '#c9a227',
@@ -114,7 +114,7 @@ const OBSTACLE_DEFS = {
         label: '🧳'
     },
     tourist: {
-        w: 36, h: 72,
+        w: 52, h: 76,
         groundOffset: 0,
         color: '#4a90d9',
         accentColor: '#7ab8f8',
@@ -159,8 +159,8 @@ const OBSTACLE_DEFS = {
         label: '💔'
     },
     drama_bubble: {
-        w: 88, h: 44,
-        groundOffset: 90,  // floats above ground
+        w: 220, h: 50,
+        groundOffset: 48,  // requires duck (between duck-height 42 and stand-height 74)
         color: '#55106a',
         accentColor: '#aa40cc',
         needsJump: false,

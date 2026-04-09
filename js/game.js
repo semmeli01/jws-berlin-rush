@@ -730,6 +730,7 @@ class Game {
             r.drawGround(lvl, this.scrollX);
 
             for (const c of this.collectibles) r.drawCollectible(c);
+            r.playerX = this.player ? this.player.x : 0;
             for (const o of this.obstacles) r.drawObstacle(o);
             if (this.bossActive && this.boss) r.drawBoss(this.boss, LEVELS[this.lvlIdx].accentColor);
 
