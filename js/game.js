@@ -239,6 +239,7 @@ class Game {
         this.lives = this.char.ability === 'extra_life' ? 4 : 3;
         this.shieldActive = (this.char.ability === 'shield');
         this.shieldSpawned = (this.char.ability === 'shield'); // only one shield per run
+        this.dramaBubbleCount = 0; // alternates bubble text per spawn
         this.vipStickers = 0;
         this._initLevel();
         this._showLevelIntro();
@@ -633,6 +634,9 @@ class Game {
         if (!def) return;
 
         const gy = this.renderer.getGroundY();
+        const extra = typeKey === 'drama_bubble'
+            ? { textVariant: this.dramaBubbleCount++ % 2 }
+            : {};
         this.obstacles.push({
             type: typeKey,
             x: W + 20,
@@ -642,7 +646,8 @@ class Game {
             color: def.color,
             accent: def.accentColor,
             label: def.label,
-            hit: false
+            hit: false,
+            ...extra
         });
     }
 

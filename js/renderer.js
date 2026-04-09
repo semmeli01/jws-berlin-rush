@@ -1236,7 +1236,7 @@ class Renderer {
         // drama_bubble → speech bubble with alternating texts, auto-width
         if (obs.type === 'drama_bubble') {
             const _bubbleTexts = ['säg mir nöd meitli! 🙄', 'what kän i get? 💅'];
-            const bubbleText = _bubbleTexts[Math.floor(Date.now() / 2800) % 2];
+            const bubbleText = _bubbleTexts[(obs.textVariant ?? 0) % 2];
             ctx.save();
             ctx.font = 'bold 30px "Zuume", monospace';
             const textW = ctx.measureText(bubbleText).width;
