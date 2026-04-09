@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>JWS — Obstacle Preview</title>
+<style>
+  body { background: #050010; color: #fff; font-family: monospace; padding: 20px; }
+  h1 { color: #ff0090; letter-spacing: 4px; margin-bottom: 24px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 24px; }
+  .item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .label { font-size: 12px; color: #aaa; letter-spacing: 2px; text-transform: uppercase; }
+  .sublabel { font-size: 10px; color: #666; }
+  canvas { background: #0a0a20; border: 1px solid #333; }
+</style>
+</head>
+<body>
+<h1>JWS HINDERNISSE</h1>
+<div class="grid" id="grid"></div>
+
+<script src="js/levels.js"></script>
+<script src="js/renderer.js"></script>
+<script>
+const obstacles = [
+  { type: 'suitcase',     ...OBSTACLE_DEFS.suitcase,     color: '#EDEAE0', accent: '#55DD22', label: '🧦' },
+  { type: 'tourist',      ...OBSTACLE_DEFS.tourist,      color: '#4a90d9', accent: '#7ab8f8', label: '🗺' },
+  { type: 'stairs',       ...OBSTACLE_DEFS.stairs,       color: '#666677', accent: '#9999aa', label: '🎵' },
+  { type: 'bouncer',      ...OBSTACLE_DEFS.bouncer,      color: '#1a1a3a', accent: '#4444cc', label: '🚫' },
+  { type: 'paparazzi',    ...OBSTACLE_DEFS.paparazzi,    color: '#885500', accent: '#ffcc00', label: '📸' },
+  { type: 'ex_char',      ...OBSTACLE_DEFS.ex_char,      color: '#7b0000', accent: '#dd2222', label: '💔' },
+  { type: 'drama_bubble', ...OBSTACLE_DEFS.drama_bubble, color: '#55106a', accent: '#aa40cc', label: '💬' },
+  { type: 'ambulance',    ...OBSTACLE_DEFS.ambulance,    color: '#aa0000', accent: '#ff3300', label: '🚑' },
+];
+
+const PAD = 16;
+const grid = document.getElementById('grid');
+
+obstacles.forEach(def => {
+  const obs = { ...def, x: PAD, y: PAD };
+
+  // For drama_bubble, pre-measure text width
+  const tmpC = document.createElement('canvas');
+  const tmpCtx = tmpC.getContext('2d');
+  tmpCtx.font = 'bold 30px "Zuume", monospace';
+  const bw = def.type === 'drama_bubble'
+    ? tmpCtx.measureText('säg mir nöd meitli! 🙄').width + 30
+    : def.w;
+
+  const cw = bw + PAD * 2;
+  const ch = def.h + PAD * 2 + 20; // +20 for siren/notes above
+
+  const cvs = document.createElement('canvas');
+  cvs.width = cw;
+  cvs.height = ch;
+  const ctx = cvs.getContext('2d');
+
+  const r = new Renderer(ctx, cw, ch);
+  r.playerX = cw + 999; // no flash trigger
+  obs.x = PAD;
+  obs.y = PAD + 20; // offset down to leave room for sirens/notes above
+
+  // Draw ground line
+  ctx.strokeStyle = '#333355';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, obs.y + obs.h);
+  ctx.lineTo(cw, obs.y + obs.h);
+  ctx.stroke();
+
+  r.drawObstacle(obs);
+
+  const item = document.createElement('div');
+  item.className = 'item';
+
+  const lbl = document.createElement('div');
+  lbl.className = 'label';
+  lbl.textContent = def.type;
+
+  const sub = document.createElement('div');
+  sub.className = 'sublabel';
+  sub.textContent = `${def.w} × ${def.h}px`;
+
+  item.appendChild(cvs);
+  item.appendChild(lbl);
+  item.appendChild(sub);
+  grid.appendChild(item);
+});
+
+// Animate (for Biggie dance, Isabelle walk, ambulance sirens, Levin, music notes)
+function tick() {
+  grid.querySelectorAll('canvas').forEach((cvs, i) => {
+    const def = obstacles[i];
+    const ctx = cvs.getContext('2d');
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+    // Ground line
+    ctx.strokeStyle = '#333355';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, PAD + 20 + def.h);
+    ctx.lineTo(cvs.width, PAD + 20 + def.h);
+    ctx.stroke();
+
+    const r = new Renderer(ctx, cvs.width, cvs.height);
+    r.playerX = cvs.width + 999;
+    const obs = { ...def, x: PAD, y: PAD + 20 };
+    r.drawObstacle(obs);
+  });
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

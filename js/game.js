@@ -45,6 +45,9 @@ class Game {
         this.multi = 1;          // score multiplier
         this.shieldActive = false;
         this.vipStickers = 0;
+        this.bossActive = false;
+        this.bossDefeated = false;
+        this.boss = null;
 
         // Player
         this.player = null;
@@ -66,6 +69,17 @@ class Game {
         this.lastT = 0;
         this.introTimer = 0;
 
+        // Debug: rolling frame log (last 120 frames)
+        this._dbg = [];
+        window.g = this; // expose game to console: g.player, g.input, glog()
+        window.glog = () => {
+            const rows = this._dbg.slice(-30).map(f =>
+                `t=${f.t.toFixed(3)}s  dt=${f.dt.toFixed(4)}  state=${f.ps}  hurt=${f.hurt.toFixed(2)}  duck=${f.duck ? 1 : 0}  keys=[${f.keys}]  frame=${f.frame}`
+            ).join('\n');
+            console.log('--- last frames ---\n' + rows);
+            return this._dbg.slice(-30);
+        };
+
         this._setupUI();
         requestAnimationFrame(t => this._loop(t));
     }
@@ -86,6 +100,10 @@ class Game {
     _setupUI() {
         const $ = id => document.getElementById(id);
 
+        $('muteBtn').onclick = () => {
+            this.audio.toggle();
+            $('muteBtn').textContent = this.audio.enabled ? '🔊' : '🔇';
+        };
         $('startBtn').onclick = () => {
             this.audio.resume();
             this._setState(S.CHAR_SELECT);
@@ -98,6 +116,7 @@ class Game {
         $('quitBtn').onclick = () => this._setState(S.START);
 
         this._buildCharGrid();
+        this._renderHighscores();
     }
 
     _buildCharGrid() {
@@ -185,6 +204,9 @@ class Game {
         const screenId = screens[s];
         if (screenId) document.getElementById(screenId).classList.remove('hidden');
 
+        document.getElementById('muteBtn').classList.toggle('visible',
+            s === S.PLAYING || s === S.PAUSED);
+
         if (s === S.CHAR_SELECT) {
             this.char = null;
             document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
@@ -204,14 +226,17 @@ class Game {
             document.getElementById('finalScore').textContent = this.score.toLocaleString();
             this.audio.stopMusic();
             this.audio.playGameOver();
+            this._saveScore();
         }
         if (s === S.WIN) {
             document.getElementById('winScore').textContent = this.score.toLocaleString();
             this.audio.stopMusic();
             this.audio.playLevelComplete();
+            this._saveScore();
         }
         if (s === S.START) {
             this.audio.stopMusic();
+            this._renderHighscores();
         }
     }
 
@@ -224,6 +249,8 @@ class Game {
         this.multi = this.char.ability === 'score_boost' ? 2 : 1;
         this.lives = this.char.ability === 'extra_life' ? 4 : 3;
         this.shieldActive = (this.char.ability === 'shield');
+        this.shieldSpawned = (this.char.ability === 'shield'); // only one shield per run
+        this.dramaBubbleCount = 0; // alternates bubble text per spawn
         this.vipStickers = 0;
         this._initLevel();
         this._showLevelIntro();
@@ -231,9 +258,12 @@ class Game {
 
     _initLevel() {
         const lvl = LEVELS[this.lvlIdx];
-        this.scrollSpeed = lvl.scrollSpeed;
-        if (this.char.ability === 'speed_boost') this.scrollSpeed *= 1.15;
-        if (this.char.ability === 'slow_obstacles') this.scrollSpeed *= 0.85;
+        // Level 1: use base speed. All subsequent levels: carry over current speed.
+        if (this.lvlIdx === 0) {
+            this.scrollSpeed = lvl.scrollSpeed;
+            if (this.char.ability === 'speed_boost') this.scrollSpeed *= 1.15;
+            if (this.char.ability === 'slow_obstacles') this.scrollSpeed *= 0.85;
+        }
 
         this.scrollX = 0;
         this.levelDist = 0;
@@ -242,6 +272,12 @@ class Game {
         this.fxParticles = [];
         this.obsTimer = 2.0;   // grace period
         this.colTimer = 1.0;
+        this.levelStartTime = Date.now();
+        this.bossActive = false;
+        this.bossDefeated = false;
+        this.boss = null;
+        this.transitionGate = null;
+        this.vipCompleteTime = 0;
 
         // Init player
         const gy = this.renderer.getGroundY();
@@ -297,6 +333,21 @@ class Game {
 
         if (this.state === S.PLAYING) {
             this._update(dt);
+        }
+
+        // Debug frame log
+        if (this.state === S.PLAYING && this.player) {
+            const p = this.player;
+            this._dbg.push({
+                t: t / 1000,
+                dt,
+                ps: p.state,
+                hurt: p.hurtTimer || 0,
+                duck: this.input.duckHeld,
+                keys: [...this.input._keys].join(','),
+                frame: p.frame
+            });
+            if (this._dbg.length > 120) this._dbg.shift();
         }
 
         this._render();
@@ -363,17 +414,58 @@ class Game {
         p.frameTimer += dt;
         if (p.frameTimer > 0.12) { p.frame++; p.frameTimer = 0; }
 
-        // Scroll
-        this.scrollX += this.scrollSpeed * dt;
-        this.levelDist += this.scrollSpeed * dt;
-        this.score += Math.floor(this.scrollSpeed * dt * 0.1 * this.multi);
+        // Boss phase: freeze level progress; otherwise scroll normally
+        const bossSlowSpeed = this.scrollSpeed * 0.25;
+        if (!this.bossActive) {
+            // Scroll
+            this.scrollX += this.scrollSpeed * dt;
+            this.levelDist += this.scrollSpeed * dt;
+            this.score += Math.floor(this.scrollSpeed * dt * 0.1 * this.multi);
 
-        // Speed up gradually
-        this.scrollSpeed += lvl.speedIncreaseRate * dt;
+            // Speed up gradually
+            this.scrollSpeed += lvl.speedIncreaseRate * dt;
 
-        // Particles
+            // Spawn obstacles (stop when transition gate is active)
+            if (!this.transitionGate) {
+                this.obsTimer -= dt;
+                if (this.obsTimer <= 0) {
+                    this._spawnObstacle(lvl);
+                    this.obsTimer = lvl.obstacleMinGap + Math.random() * (lvl.obstacleMaxGap - lvl.obstacleMinGap);
+                }
+
+                // Spawn collectibles
+                this.colTimer -= dt;
+                if (this.colTimer <= 0) {
+                    this._spawnCollectible(lvl);
+                    this.colTimer = lvl.collectibleMinGap + Math.random() * (lvl.collectibleMaxGap - lvl.collectibleMinGap);
+                }
+            }
+        } else {
+            // Background scrolls slowly for atmosphere
+            this.scrollX += bossSlowSpeed * dt;
+
+            // Keep spawning oneplus until player has 3 VIP stickers
+            if (this.vipStickers < 3) {
+                this.colTimer -= dt;
+                if (this.colTimer <= 0) {
+                    const gy = this.renderer.getGroundY();
+                    const def = COLLECTIBLE_DEFS['oneplus'];
+                    const hOff = def.heightRange[0] + Math.random() * (def.heightRange[1] - def.heightRange[0]);
+                    const baseY = gy - hOff - def.h;
+                    this.collectibles.push({
+                        type: 'oneplus', x: W + 20, y: baseY, baseY,
+                        w: def.w, h: def.h, color: def.color, glow: def.glowColor,
+                        points: def.points, bobT: 0, hit: false
+                    });
+                    this.colTimer = 2.5 + Math.random() * 1.5;
+                }
+            }
+        }
+
+        // Particles (always scroll, slower during boss)
+        const ptSpeed = this.bossActive ? bossSlowSpeed : this.scrollSpeed;
         for (const pt of this.particles) {
-            pt.x -= pt.sp * this.scrollSpeed * dt * 0.08;
+            pt.x -= pt.sp * ptSpeed * dt * 0.08;
             if (pt.x < -4) pt.x = W + 4;
         }
 
@@ -384,29 +476,16 @@ class Game {
             return fx.life > 0;
         });
 
-        // Spawn obstacles
-        this.obsTimer -= dt;
-        if (this.obsTimer <= 0) {
-            this._spawnObstacle(lvl);
-            this.obsTimer = lvl.obstacleMinGap + Math.random() * (lvl.obstacleMaxGap - lvl.obstacleMinGap);
-        }
-
-        // Spawn collectibles
-        this.colTimer -= dt;
-        if (this.colTimer <= 0) {
-            this._spawnCollectible(lvl);
-            this.colTimer = lvl.collectibleMinGap + Math.random() * (lvl.collectibleMaxGap - lvl.collectibleMinGap);
-        }
-
-        // Move obstacles
+        // Move obstacles (slower during boss)
+        const obsSpeed = this.bossActive ? bossSlowSpeed : this.scrollSpeed;
         this.obstacles = this.obstacles.filter(o => {
-            o.x -= this.scrollSpeed * dt;
+            o.x -= obsSpeed * dt;
             return o.x + o.w > -60;
         });
 
-        // Move collectibles
+        // Move collectibles (slower during boss)
         this.collectibles = this.collectibles.filter(c => {
-            c.x -= this.scrollSpeed * dt;
+            c.x -= obsSpeed * dt;
             c.bobT += dt;
             c.y = c.baseY + Math.sin(c.bobT * 3.5) * 6;
             return c.x + c.w > -40;
@@ -456,10 +535,114 @@ class Game {
         }
         this.collectibles = this.collectibles.filter(c => !c.hit);
 
-        // Level complete
-        if (this.levelDist >= lvl.levelGoalDistance) {
-            this._levelComplete();
+        // Boss spawn check
+        if (lvl.hasBoss && !this.bossActive && !this.bossDefeated
+                && this.levelDist >= lvl.levelGoalDistance * 0.72) {
+            this._spawnBoss();
         }
+
+        // Boss update
+        if (this.bossActive && this.boss) {
+            const b = this.boss;
+            b.hitTimer = Math.max(0, b.hitTimer - dt);
+            b.oscillateT += dt;
+
+            // Slide in from right, then oscillate in place
+            const targetX = PLAYER_X + PLAYER_W + 5; // boss touches player right edge
+            if (b.x > targetX + 20) {
+                b.x -= b.baseSpeed * dt;
+            } else {
+                b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
+            }
+
+            // Collision with boss
+            if (p.hurtTimer <= 0 && b.hitTimer <= 0 && this._aabb(p, b)) {
+                b.hitTimer = 0.6;
+                if (this.vipStickers >= 3) {
+                    this.bossDefeated = true;
+                    this.bossActive = false;
+                    this.boss = null;
+                    this.audio.playLevelComplete();
+                    this._addFx(PLAYER_X + 140, H / 2, "VIP! YOU'RE IN!", '#ffd700');
+                    this.score += Math.floor(500 * this.multi);
+                    this.levelDist = lvl.levelGoalDistance; // end level
+                } else {
+                    this.lives--;
+                    p.hurtTimer = 1.8;
+                    this.audio.playHit();
+                    this._addFx(p.x, p.y, '-1', '#ff3300');
+                    this._addFx(b.x, b.y - 18, `NOCH ${3 - this.vipStickers} VIP`, '#ffd700');
+                    if (this.lives <= 0) {
+                        this._setState(S.GAME_OVER);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Spawn transition gate when goal is reached (boss levels: wait for defeat)
+        if (!this.transitionGate && this.levelDist >= lvl.levelGoalDistance
+                && (!lvl.hasBoss || this.bossDefeated)) {
+            this._spawnTransitionGate(lvl);
+        }
+
+        // Move transition gate; complete level when player passes through
+        if (this.transitionGate) {
+            this.transitionGate.x -= this.scrollSpeed * dt;
+            // Trigger when gap center passes player center
+            if (this.transitionGate.x + this.transitionGate.colW < PLAYER_X + PLAYER_W * 0.5) {
+                this.transitionGate = null;
+                this._levelComplete();
+            }
+        }
+    }
+
+    _spawnTransitionGate(lvl) {
+        this.transitionGate = {
+            x: W + 60,
+            colW: 35,
+            gapW: 110,
+            w: 180,   // 35 + 110 + 35
+            h: 270,
+            lvlId: lvl.id
+        };
+        // Stop spawning new obstacles (existing ones stay)
+        this.obsTimer = 99;
+        this.audio.playPowerUp();
+    }
+
+    // ---- HIGH SCORES ----
+
+    _saveScore() {
+        const key = 'jws_highscores';
+        let scores = [];
+        try { scores = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
+        scores.push({
+            score: this.score,
+            char: this.char ? this.char.name : '?',
+            date: new Date().toLocaleDateString('de-CH')
+        });
+        scores.sort((a, b) => b.score - a.score);
+        scores.splice(10);
+        try { localStorage.setItem(key, JSON.stringify(scores)); } catch (e) {}
+    }
+
+    _renderHighscores() {
+        const list = document.getElementById('highscoreList');
+        if (!list) return;
+        let scores = [];
+        try { scores = JSON.parse(localStorage.getItem('jws_highscores') || '[]'); } catch (e) {}
+        if (scores.length === 0) {
+            list.innerHTML = '<div class="hs-empty">Noch keine Einträge</div>';
+            return;
+        }
+        list.innerHTML = scores.slice(0, 10).map((s, i) =>
+            `<div class="hs-row">` +
+            `<span class="hs-rank">#${i + 1}</span>` +
+            `<span class="hs-char">${s.char.toUpperCase()}</span>` +
+            `<span class="hs-score">${s.score.toLocaleString()}</span>` +
+            `</div>`
+        ).join('');
     }
 
     _aabb(a, b) {
@@ -477,6 +660,9 @@ class Game {
         if (!def) return;
 
         const gy = this.renderer.getGroundY();
+        const extra = typeKey === 'drama_bubble'
+            ? { textVariant: this.dramaBubbleCount++ % 2 }
+            : {};
         this.obstacles.push({
             type: typeKey,
             x: W + 20,
@@ -486,13 +672,16 @@ class Game {
             color: def.color,
             accent: def.accentColor,
             label: def.label,
-            hit: false
+            hit: false,
+            ...extra
         });
     }
 
     _spawnCollectible(lvl) {
-        const types = ['shot', 'shot', 'shot', 'star', 'star', 'heart', 'oneplus'];
-        const typeKey = types[Math.floor(Math.random() * types.length)];
+        const types = ['shot', 'shot', 'shot', 'shot', 'star', 'star', 'doener', 'doener', 'oneplus', 'heart', 'shield'];
+        let typeKey = types[Math.floor(Math.random() * types.length)];
+        if (typeKey === 'shield' && this.shieldSpawned) typeKey = 'shot'; // only one shield per run
+        if (typeKey === 'shield') this.shieldSpawned = true;
         const def = COLLECTIBLE_DEFS[typeKey];
         if (!def) return;
 
@@ -513,6 +702,23 @@ class Game {
             bobT: Math.random() * 6,
             hit: false
         });
+    }
+
+    _spawnBoss() {
+        const gy = this.renderer.getGroundY();
+        this.bossActive = true;
+        this.obstacles = []; // clear existing obstacles
+        this.boss = {
+            x: W + 60,
+            y: gy - 140,
+            w: 80,
+            h: 140,
+            baseSpeed: 80,
+            hitTimer: 0,
+            oscillateT: 0
+        };
+        this._addFx(W / 2, H / 2 - 30, '★ BOSS ★', '#ffd700');
+        this.audio.playPowerUp();
     }
 
     _collectItem(c) {
@@ -538,8 +744,20 @@ class Game {
                 this.multi = Math.min(this.multi + 1, 5);
                 if (LEVELS[this.lvlIdx].hasBoss) {
                     this.vipStickers++;
+                    if (this.vipStickers >= 3 && !this.vipCompleteTime) {
+                        this.vipCompleteTime = Date.now();
+                    }
                 }
                 this.audio.playCollectOneplus();
+                break;
+            case 'doener':
+                this.multi = Math.min(this.multi + 1.0, 5);
+                this.audio.playCollectStar();
+                break;
+            case 'shield':
+                this.shieldActive = true;
+                this.audio.playShield();
+                this._addFx(this.player.x, this.player.y, 'SHIELD!', '#00d4ff');
                 break;
         }
 
@@ -572,12 +790,29 @@ class Game {
 
         if (this.state === S.PLAYING || this.state === S.PAUSED) {
             const lvl = LEVELS[this.lvlIdx];
+            const p = this.player;
+
+            // Screen shake when recently hurt (fades out over 0.4s)
+            let shakeActive = false;
+            if (p && p.hurtTimer > 1.4) {
+                const t = (p.hurtTimer - 1.4) / 0.4;
+                const intensity = t * 7;
+                this.ctx.save();
+                this.ctx.translate(
+                    (Math.random() - 0.5) * intensity,
+                    (Math.random() - 0.5) * intensity * 0.6
+                );
+                shakeActive = true;
+            }
 
             r.drawBackground(lvl, this.scrollX, this.particles);
             r.drawGround(lvl, this.scrollX);
 
             for (const c of this.collectibles) r.drawCollectible(c);
+            r.playerX = this.player ? this.player.x : 0;
             for (const o of this.obstacles) r.drawObstacle(o);
+            if (this.transitionGate) r.drawTransitionGate(this.transitionGate);
+            if (this.bossActive && this.boss) r.drawBoss(this.boss, LEVELS[this.lvlIdx].accentColor, this.vipCompleteTime);
 
             r.drawPlayer(this.player, this.char, this.shieldActive);
 
@@ -593,13 +828,18 @@ class Game {
                 ctx.restore();
             }
 
+            if (shakeActive) this.ctx.restore(); // HUD drawn outside shake
+
             r.drawHUD(this.score, this.lives, this.multi,
                 lvl.id, lvl.accentColor, this.vipStickers, lvl.hasBoss);
             r.drawProgressBar(this.levelDist / lvl.levelGoalDistance, lvl.accentColor);
 
-            // Keyboard hints (fade out after start)
-            const hintAlpha = Math.max(0, 1 - this.levelDist / 600);
-            r.drawKeyboardHints(hintAlpha);
+            // Keyboard hints (level 1 only, fade out after 10s)
+            if (this.lvlIdx === 0) {
+                const elapsed = (Date.now() - this.levelStartTime) / 1000;
+                const hintAlpha = elapsed < 10 ? 1.0 : Math.max(0, 1 - (elapsed - 10) / 2);
+                r.drawKeyboardHints(hintAlpha);
+            }
         } else {
             r.drawDarkBg();
         }

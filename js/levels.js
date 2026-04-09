@@ -7,8 +7,8 @@ const LEVELS = [
         id: 1,
         name: 'BERLINER\nHAUPTBAHNHOF',
         description: 'Berlin calling! Navigiere dich durch den chaotischen Hauptbahnhof und reach die Innenstadt.',
-        scrollSpeed: 240,          // px/s
-        speedIncreaseRate: 8,      // px/s per second
+        scrollSpeed: 288,          // px/s (+20%)
+        speedIncreaseRate: 16,     // px/s per second
         levelGoalDistance: 5000,   // px of scrolling to complete
         // Colors
         skyTop: '#0a1628',
@@ -20,11 +20,11 @@ const LEVELS = [
         buildingColorFar: '#0d1f3c',
         buildingColorNear: '#0a1628',
         // Obstacle types available in this level
-        obstacleTypes: ['suitcase', 'tourist', 'stairs', 'bouncer'],
-        obstacleMinGap: 1.6,      // min seconds between obstacles
-        obstacleMaxGap: 3.2,
-        collectibleMinGap: 0.9,
-        collectibleMaxGap: 2.2,
+        obstacleTypes: ['suitcase', 'tourist', 'stairs', 'bouncer', 'drama_bubble', 'paparazzi'],
+        obstacleMinGap: 1.3,      // min seconds between obstacles
+        obstacleMaxGap: 2.7,
+        collectibleMinGap: 0.75,
+        collectibleMaxGap: 1.8,
         hasBoss: false,
         // Background elements
         bgElements: ['stars', 'buildings', 'train_signs']
@@ -33,8 +33,8 @@ const LEVELS = [
         id: 2,
         name: 'PRENZLAUER\nBERG',
         description: 'Durch Graffiti-Wände und U-Bahn-Stationen – weiter zum nächsten Spot!',
-        scrollSpeed: 290,
-        speedIncreaseRate: 10,
+        scrollSpeed: 348,
+        speedIncreaseRate: 20,
         levelGoalDistance: 6500,
         skyTop: '#0d0020',
         skyBottom: '#1a0a2e',
@@ -44,11 +44,11 @@ const LEVELS = [
         accentColor: '#ff0090',
         buildingColorFar: '#12003a',
         buildingColorNear: '#0a0020',
-        obstacleTypes: ['bouncer', 'paparazzi', 'ex_char', 'tourist', 'stairs'],
-        obstacleMinGap: 1.4,
-        obstacleMaxGap: 2.8,
-        collectibleMinGap: 0.8,
-        collectibleMaxGap: 2.0,
+        obstacleTypes: ['bouncer', 'paparazzi', 'ex_char', 'tourist', 'stairs', 'drama_bubble'],
+        obstacleMinGap: 1.15,
+        obstacleMaxGap: 2.3,
+        collectibleMinGap: 0.65,
+        collectibleMaxGap: 1.65,
         hasBoss: false,
         bgElements: ['stars', 'graffiti', 'street_lights']
     },
@@ -56,8 +56,8 @@ const LEVELS = [
         id: 3,
         name: 'CLUB-\nEINGANG',
         description: 'Türsteher, lange Schlangen und pures Drama. Sammle 3 VIP-Sticker für den Boss-Fight!',
-        scrollSpeed: 320,
-        speedIncreaseRate: 12,
+        scrollSpeed: 384,
+        speedIncreaseRate: 22,
         levelGoalDistance: 7000,
         skyTop: '#000010',
         skyBottom: '#0a0a1a',
@@ -67,22 +67,22 @@ const LEVELS = [
         accentColor: '#ffd700',
         buildingColorFar: '#080818',
         buildingColorNear: '#050510',
-        obstacleTypes: ['bouncer', 'drama_bubble', 'paparazzi', 'ex_char'],
-        obstacleMinGap: 1.2,
-        obstacleMaxGap: 2.5,
-        collectibleMinGap: 0.7,
-        collectibleMaxGap: 1.8,
-        hasBoss: true,
+        obstacleTypes: ['bouncer', 'drama_bubble', 'paparazzi', 'ex_char', 'ambulance'],
+        obstacleMinGap: 1.0,
+        obstacleMaxGap: 2.1,
+        collectibleMinGap: 0.58,
+        collectibleMaxGap: 1.5,
+        hasBoss: false,
         vipStickersNeeded: 3,
         bgElements: ['neon_signs', 'crowd', 'red_ropes']
     },
     {
         id: 4,
         name: 'CLUB\nFLOOR',
-        description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht!',
-        scrollSpeed: 370,
-        speedIncreaseRate: 15,
-        levelGoalDistance: 8000,
+        description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht! Sammle 3 VIP-Sticker für den Boss-Fight!',
+        scrollSpeed: 444,
+        speedIncreaseRate: 26,
+        levelGoalDistance: 12000,
         skyTop: '#020008',
         skyBottom: '#0a0020',
         groundColor: '#1a0030',
@@ -92,11 +92,12 @@ const LEVELS = [
         buildingColorFar: '#080015',
         buildingColorNear: '#040010',
         obstacleTypes: ['bouncer', 'drama_bubble', 'ambulance', 'ex_char', 'paparazzi'],
-        obstacleMinGap: 1.0,
-        obstacleMaxGap: 2.2,
-        collectibleMinGap: 0.6,
-        collectibleMaxGap: 1.5,
-        hasBoss: false,
+        obstacleMinGap: 0.83,
+        obstacleMaxGap: 1.8,
+        collectibleMinGap: 0.5,
+        collectibleMaxGap: 1.25,
+        hasBoss: true,
+        vipStickersNeeded: 3,
         bgElements: ['strobe', 'lasers', 'dj_booth']
     }
 ];
@@ -104,16 +105,16 @@ const LEVELS = [
 // Obstacle definitions: geometry + visual config
 const OBSTACLE_DEFS = {
     suitcase: {
-        w: 44, h: 38,
-        groundOffset: 0,   // sits on ground
-        color: '#8b6914',
-        accentColor: '#c9a227',
-        needsJump: true,
-        needsDuck: false,
-        label: '🧳'
+        w: 62, h: 68,
+        groundOffset: 48,  // floats — requires duck (between duck-height 42 and stand-height 74)
+        color: '#EDEAE0',
+        accentColor: '#55DD22',
+        needsJump: false,
+        needsDuck: true,
+        label: '🧦'
     },
     tourist: {
-        w: 36, h: 72,
+        w: 115, h: 82,
         groundOffset: 0,
         color: '#4a90d9',
         accentColor: '#7ab8f8',
@@ -122,13 +123,13 @@ const OBSTACLE_DEFS = {
         label: '🗺'
     },
     stairs: {
-        w: 70, h: 32,
+        w: 96, h: 88,
         groundOffset: 0,
         color: '#666677',
         accentColor: '#9999aa',
-        needsJump: false,
-        needsDuck: false, // stepped — jump or duck
-        label: '▲'
+        needsJump: true,
+        needsDuck: false,
+        label: '🎵'
     },
     bouncer: {
         w: 44, h: 84,
@@ -140,7 +141,7 @@ const OBSTACLE_DEFS = {
         label: '🚫'
     },
     paparazzi: {
-        w: 36, h: 70,
+        w: 70, h: 44,
         groundOffset: 0,
         color: '#885500',
         accentColor: '#ffcc00',
@@ -158,8 +159,8 @@ const OBSTACLE_DEFS = {
         label: '💔'
     },
     drama_bubble: {
-        w: 88, h: 44,
-        groundOffset: 90,  // floats above ground
+        w: 220, h: 66,
+        groundOffset: 48,  // requires duck (between duck-height 42 and stand-height 74)
         color: '#55106a',
         accentColor: '#aa40cc',
         needsJump: false,
@@ -167,7 +168,7 @@ const OBSTACLE_DEFS = {
         label: '💬'
     },
     ambulance: {
-        w: 110, h: 58,
+        w: 150, h: 72,
         groundOffset: 0,
         color: '#aa0000',
         accentColor: '#ff3300',
@@ -196,7 +197,7 @@ const COLLECTIBLE_DEFS = {
         label: '♥'
     },
     star: {
-        w: 30, h: 30,
+        w: 30, h: 60,
         heightRange: [120, 200],
         color: '#ffd700',
         glowColor: '#ffd70066',
@@ -204,11 +205,27 @@ const COLLECTIBLE_DEFS = {
         label: '★'
     },
     oneplus: {
-        w: 38, h: 38,
+        w: 54, h: 54,
         heightRange: [160, 240],
         color: '#ff3300',
         glowColor: '#ff330066',
         points: 50,
         label: '1+'
+    },
+    doener: {
+        w: 30, h: 38,
+        heightRange: [30, 110],
+        color: '#D4A44A',
+        glowColor: '#C0582866',
+        points: 30,
+        label: '🌯'
+    },
+    shield: {
+        w: 34, h: 34,
+        heightRange: [60, 160],
+        color: '#00d4ff',
+        glowColor: '#00d4ff55',
+        points: 0,   // gives shield protection
+        label: '🛡'
     }
 };

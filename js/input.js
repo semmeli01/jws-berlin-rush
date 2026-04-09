@@ -47,6 +47,27 @@ class InputManager {
                 this.duckHeld = false;
             }
         });
+
+        // When the window loses focus, key-up events are missed → keys get stuck.
+        // Clear all held state so the next keydown is always recognized.
+        window.addEventListener('blur', () => {
+            this._keys.clear();
+            this.duckHeld = false;
+            this.jumpJustPressed = false;
+            this.pauseJustPressed = false;
+            this._rightTouches.clear();
+        });
+
+        // Also reset on tab visibility change (mobile background, Alt+Tab, etc.)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this._keys.clear();
+                this.duckHeld = false;
+                this.jumpJustPressed = false;
+                this.pauseJustPressed = false;
+                this._rightTouches.clear();
+            }
+        });
     }
 
     _setupTouch() {

@@ -36,7 +36,7 @@ const CHARACTERS = [
         ability: 'shield',
         abilityName: 'KOMMENTAR-SCHILD',
         abilityDesc: 'Nils\' Aussage schützt vor einem Treffer',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/nils.jpg',
         sprite: {
             skinColor: '#f5cba7',
@@ -61,7 +61,7 @@ const CHARACTERS = [
         ability: 'double_collect',
         abilityName: 'DOPPEL-COLLECT',
         abilityDesc: 'Alle Collectibles zählen doppelt',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/ana.jpg',
         sprite: {
             skinColor: '#d4a574',
@@ -85,7 +85,7 @@ const CHARACTERS = [
         ability: 'speed_boost',
         abilityName: 'TURBO-SPRINT',
         abilityDesc: 'Permanenter Speed-Boost dank Adrenalinstoß',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/sven.jpg',
         sprite: {
             skinColor: '#f5cba7',
@@ -109,7 +109,7 @@ const CHARACTERS = [
         ability: 'extra_life',
         abilityName: '50-EURO-TROST',
         abilityDesc: 'Startet mit einem Extra-Leben',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/timmo.jpg',
         sprite: {
             skinColor: '#d4a574',
@@ -133,7 +133,7 @@ const CHARACTERS = [
         ability: 'magnet',
         abilityName: 'CHARME-MAGNET',
         abilityDesc: 'Collectibles werden magnetisch angezogen',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/alex.jpg',
         sprite: {
             skinColor: '#f5cba7',
@@ -181,7 +181,7 @@ const CHARACTERS = [
         ability: 'slow_obstacles',
         abilityName: 'DRAMA-CHILL',
         abilityDesc: 'Obstacles bewegen sich 15% langsamer',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/lia.jpg',
         sprite: {
             skinColor: '#fce5d0',
@@ -230,7 +230,7 @@ const CHARACTERS = [
         ability: 'score_boost',
         abilityName: 'STAR-POWER',
         abilityDesc: 'Score-Multiplikator startet bei ×2',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/shinara.jpg',
         sprite: {
             skinColor: '#fce5d0',
@@ -254,7 +254,7 @@ const CHARACTERS = [
         ability: 'shield',
         abilityName: 'GEHEIMES LÄCHELN',
         abilityDesc: 'Schützt vor dem ersten Treffer',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/alina.jpg',
         sprite: {
             skinColor: '#fce5d0',
@@ -278,7 +278,7 @@ const CHARACTERS = [
         ability: 'heart_triple',
         abilityName: 'FLIRT-POWER',
         abilityDesc: 'Herzen geben dreifache Punkte',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/erica.jpg',
         sprite: {
             skinColor: '#d4a574',
@@ -302,7 +302,7 @@ const CHARACTERS = [
         ability: 'speed_boost',
         abilityName: 'FLIRT-SPRINT',
         abilityDesc: 'Erhöhte Startgeschwindigkeit',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/sandro.jpg',
         sprite: {
             skinColor: '#c8956c',
@@ -326,7 +326,7 @@ const CHARACTERS = [
         ability: 'shot_double',
         abilityName: 'PARTY-BOOST',
         abilityDesc: 'Shot-Gläser geben doppelte Punkte',
-        maxJumps: 1,
+        maxJumps: 2,
         photoSrc: 'img/chars/ermioni.jpg',
         sprite: {
             skinColor: '#fce5d0',
