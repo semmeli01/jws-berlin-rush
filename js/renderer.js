@@ -868,17 +868,22 @@ class Renderer {
             ctx.fillText('📸', obs.x + obs.w / 2, obs.y + obs.h / 2);
             ctx.fillStyle = 'rgba(0,0,0,0.25)';
             ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
-            // Flash effect when player within ~220px
+            // Flash effect when player within ~220px — screen-filling white burst
             const dist = Math.abs((this.playerX || 999) - (obs.x + obs.w / 2));
             if (dist < 220) {
-                const cycle = Date.now() % 1400;
-                if (cycle < 200) {
-                    const t = cycle / 200;
-                    const alpha = (1 - t) * 0.85;
-                    const radius = 28 + t * 55;
+                const cycle = Date.now() % 1000;
+                if (cycle < 250) {
+                    const t = cycle / 250;
+                    // Full-screen white overlay (strong!) + radial source burst
+                    const screenAlpha = (1 - t) * 0.75;
+                    ctx.fillStyle = `rgba(255,255,240,${screenAlpha})`;
+                    ctx.fillRect(0, 0, this.W, this.H);
+                    // Bright lens burst at camera
                     const cx = obs.x + obs.w * 0.6, cy = obs.y + obs.h * 0.3;
+                    const radius = 20 + t * 180;
                     const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-                    grd.addColorStop(0, `rgba(255,255,220,${alpha})`);
+                    grd.addColorStop(0, `rgba(255,255,255,${(1 - t) * 0.95})`);
+                    grd.addColorStop(0.3, `rgba(255,255,220,${(1 - t) * 0.6})`);
                     grd.addColorStop(1, 'rgba(255,255,220,0)');
                     ctx.fillStyle = grd;
                     ctx.beginPath();
