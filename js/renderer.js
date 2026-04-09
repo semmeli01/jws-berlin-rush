@@ -892,6 +892,137 @@ class Renderer {
     drawObstacle(obs) {
         const ctx = this.ctx;
 
+        // suitcase → Berliner Döner Kebab
+        if (obs.type === 'suitcase') {
+            const x = obs.x, y = obs.y, w = obs.w, h = obs.h;
+            const cx = x + w / 2;
+
+            // Drop shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.28)';
+            ctx.fillRect(x + 4, y + h, w - 6, 5);
+
+            // ── Pita bread (outer wrap — two halves) ──
+            const pitaW = w * 0.9;
+            const pitaX = x + (w - pitaW) / 2;
+            // Bottom pita half
+            ctx.fillStyle = '#D4A44A';
+            ctx.beginPath();
+            ctx.ellipse(cx, y + h - 4, pitaW / 2, 10, 0, 0, Math.PI);
+            ctx.fill();
+            // Top pita half
+            ctx.fillStyle = '#E8C06A';
+            ctx.beginPath();
+            ctx.ellipse(cx, y + h - 4, pitaW / 2, 10, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+            // Pita crust lines (top)
+            ctx.strokeStyle = '#C49040';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(cx, y + h - 4, pitaW / 2 - 4, 7, 0, Math.PI, Math.PI * 2);
+            ctx.stroke();
+
+            // ── Meat stack (doner layers) ──
+            const meatBottom = y + h - 12;
+            const meatTop = y + h * 0.28;
+            const meatH = meatBottom - meatTop;
+            const meatW = w * 0.72;
+            const meatX = x + (w - meatW) / 2;
+            // Meat gradient (dark edges, lighter center)
+            const meatGrd = ctx.createLinearGradient(meatX, 0, meatX + meatW, 0);
+            meatGrd.addColorStop(0,    '#7A3010');
+            meatGrd.addColorStop(0.18, '#C05828');
+            meatGrd.addColorStop(0.45, '#D8784A');
+            meatGrd.addColorStop(0.72, '#C05828');
+            meatGrd.addColorStop(1,    '#7A3010');
+            ctx.fillStyle = meatGrd;
+            ctx.fillRect(meatX, meatTop, meatW, meatH);
+            // Meat texture — horizontal slice lines
+            ctx.strokeStyle = 'rgba(90,30,10,0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < 5; i++) {
+                const ly = meatTop + meatH * (i / 5);
+                ctx.beginPath();
+                ctx.moveTo(meatX + 2, ly);
+                ctx.lineTo(meatX + meatW - 2, ly);
+                ctx.stroke();
+            }
+            // Charred edges
+            ctx.fillStyle = '#501808';
+            ctx.fillRect(meatX, meatTop, 4, meatH);
+            ctx.fillRect(meatX + meatW - 4, meatTop, 4, meatH);
+
+            // ── Lettuce (bright green ruffles) ──
+            const lettY = meatTop - 4;
+            ctx.fillStyle = '#44C040';
+            for (let i = 0; i < 6; i++) {
+                const lx = meatX + (meatW / 5) * i;
+                ctx.beginPath();
+                ctx.ellipse(lx + 4, lettY, 6, 5, (i % 2 === 0 ? -0.3 : 0.3), 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#28A024';
+            for (let i = 0; i < 5; i++) {
+                const lx = meatX + (meatW / 4) * i + 3;
+                ctx.beginPath();
+                ctx.ellipse(lx, lettY - 2, 4, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // ── Tomato slices (red half-circles) ──
+            ctx.fillStyle = '#E03020';
+            for (let i = 0; i < 3; i++) {
+                const tx = meatX + meatW * 0.18 + i * meatW * 0.28;
+                ctx.beginPath();
+                ctx.ellipse(tx, meatTop + 2, 6, 5, 0, Math.PI, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FF5040';
+                ctx.beginPath();
+                ctx.ellipse(tx, meatTop + 1, 3, 2.5, 0, Math.PI, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#E03020';
+            }
+
+            // ── Garlic sauce drizzle (white zigzag) ──
+            ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(meatX + 4, meatTop + meatH * 0.55);
+            for (let i = 0; i < 5; i++) {
+                const sx = meatX + 4 + (meatW - 8) * ((i + 1) / 5);
+                const sy = meatTop + meatH * (i % 2 === 0 ? 0.35 : 0.7);
+                ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+            ctx.lineCap = 'butt';
+
+            // ── Top pita flap (slightly open, crisped) ──
+            const flapW = w * 0.78;
+            const flapX = x + (w - flapW) / 2;
+            ctx.fillStyle = '#E0B858';
+            ctx.beginPath();
+            ctx.moveTo(flapX, meatTop + 8);
+            ctx.quadraticCurveTo(cx, meatTop - 10, flapX + flapW, meatTop + 8);
+            ctx.quadraticCurveTo(cx, meatTop + 4, flapX, meatTop + 8);
+            ctx.fill();
+            // Crust dots on top flap
+            ctx.fillStyle = '#C49040';
+            for (let i = 0; i < 4; i++) {
+                const dx = flapX + flapW * 0.15 + i * flapW * 0.22;
+                ctx.beginPath();
+                ctx.arc(dx, meatTop + 1, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // ── "DÖNER" label ──
+            ctx.fillStyle = '#FFD070';
+            ctx.font = 'bold 9px "Zuume", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText('DÖNER', cx, y - 4);
+            return;
+        }
+
         // tourist → Isabelle walking toward player, pulling suitcase behind her
         if (obs.type === 'tourist') {
             const frame = Math.floor(Date.now() / 260) % 2;
