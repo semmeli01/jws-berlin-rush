@@ -33,8 +33,8 @@ class AudioEngine {
         if (!this._bgAudio) {
             this._bgAudio = new Audio('jws-song-8bit/jws-song-8bit-loop-short.mp3');
             this._bgAudio.loop = true;
-            this._bgTargetVol = 0.5;
-            this._bgAudio.volume = this.enabled ? 0.5 : 0;
+            this._bgTargetVol = 0.2;
+            this._bgAudio.volume = this.enabled ? 0.2 : 0;
             this._bgAudio.play().catch(() => {});
         }
     }
@@ -152,14 +152,14 @@ class AudioEngine {
     startMusic(levelId) {
         this._currentLevelId = levelId;
         if (!this._bgAudio) return;
-        this._bgTargetVol = 1.0;
-        if (this.enabled) this._bgAudio.volume = 1.0;
+        this._bgTargetVol = 0.4;
+        if (this.enabled) this._bgAudio.volume = 0.4;
     }
 
     /** Called on game over / level complete / quit — ambient volume */
     stopMusic() {
         if (!this._bgAudio) return;
-        this._bgTargetVol = 0.5;
-        if (this.enabled) this._bgAudio.volume = 0.5;
+        this._bgTargetVol = 0.2;
+        if (this.enabled) this._bgAudio.volume = 0.2;
     }
 }
