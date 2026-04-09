@@ -238,6 +238,7 @@ class Game {
         this.multi = this.char.ability === 'score_boost' ? 2 : 1;
         this.lives = this.char.ability === 'extra_life' ? 4 : 3;
         this.shieldActive = (this.char.ability === 'shield');
+        this.shieldSpawned = (this.char.ability === 'shield'); // only one shield per run
         this.vipStickers = 0;
         this._initLevel();
         this._showLevelIntro();
@@ -647,7 +648,9 @@ class Game {
 
     _spawnCollectible(lvl) {
         const types = ['shot', 'shot', 'shot', 'shot', 'star', 'star', 'doener', 'doener', 'oneplus', 'heart', 'shield'];
-        const typeKey = types[Math.floor(Math.random() * types.length)];
+        let typeKey = types[Math.floor(Math.random() * types.length)];
+        if (typeKey === 'shield' && this.shieldSpawned) typeKey = 'shot'; // only one shield per run
+        if (typeKey === 'shield') this.shieldSpawned = true;
         const def = COLLECTIBLE_DEFS[typeKey];
         if (!def) return;
 
