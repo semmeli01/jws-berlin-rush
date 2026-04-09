@@ -755,10 +755,12 @@ class Game {
                 lvl.id, lvl.accentColor, this.vipStickers, lvl.hasBoss);
             r.drawProgressBar(this.levelDist / lvl.levelGoalDistance, lvl.accentColor);
 
-            // Keyboard hints (fade out after start)
-            const elapsed = (Date.now() - this.levelStartTime) / 1000;
-            const hintAlpha = elapsed < 10 ? 1.0 : Math.max(0, 1 - (elapsed - 10) / 2);
-            r.drawKeyboardHints(hintAlpha);
+            // Keyboard hints (level 1 only, fade out after 10s)
+            if (this.lvlIdx === 0) {
+                const elapsed = (Date.now() - this.levelStartTime) / 1000;
+                const hintAlpha = elapsed < 10 ? 1.0 : Math.max(0, 1 - (elapsed - 10) / 2);
+                r.drawKeyboardHints(hintAlpha);
+            }
         } else {
             r.drawDarkBg();
         }
