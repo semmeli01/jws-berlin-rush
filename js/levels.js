@@ -141,7 +141,7 @@ const OBSTACLE_DEFS = {
         label: '🚫'
     },
     paparazzi: {
-        w: 36, h: 70,
+        w: 70, h: 44,
         groundOffset: 0,
         color: '#885500',
         accentColor: '#ffcc00',

@@ -134,6 +134,35 @@ const ISABELLE_FRAMES = [
     ],
 ];
 
+// ---- 8-bit Pixel Art: Levin (paparazzi obstacle) ----
+// 14-wide × 10-tall, sitting on ground with camera pointing left (toward player)
+const LEVIN_PAL = {
+    'H': '#8B6030', // brown hair
+    'h': '#604010', // hair shadow
+    'S': '#F0D0A8', // skin
+    's': '#C8A070', // skin shadow
+    'C': '#D4B080', // beige shirt
+    'c': '#A88050', // shirt shadow
+    'J': '#384060', // dark grey-blue jeans
+    'j': '#202838', // jeans shadow
+    'W': '#F0F0F0', // white socks
+    'B': '#282828', // dark sneakers
+    'K': '#1A1A1A', // camera body
+    'L': '#88AACC', // camera lens glass
+};
+const LEVIN_GRID = [
+    '.....HHHH.....',  //  0  head
+    '....HhHHhH....',  //  1
+    '....HSSSsH....',  //  2  face
+    '....SSSsSs....',  //  3  chin/neck
+    '..KKCCCCCCcc..',  //  4  camera body (left) + beige shirt
+    '.KLKCCCCCCcc..',  //  5  camera lens + shirt
+    'JJJJCCcCCJJJJJ',  //  6  jeans + shirt waist + jeans
+    'JJJJJJJJJJJJjW',  //  7  jeans + white sock right
+    'BBBJJJJJJJJjBB',  //  8  left shoe + jeans + right shoe
+    'BBB.........BB',  //  9  shoe soles
+];
+
 // ---- 8-bit Pixel Art: Biggie (bouncer obstacle, 3 dance frames) ----
 // 12-wide × 22-tall, scaled to obs.w × obs.h; cycle at ~380ms/frame
 const BIGGIE_PAL = {
@@ -1068,36 +1097,27 @@ class Renderer {
             return;
         }
 
-        // paparazzi → camera flash when player is nearby
+        // paparazzi → Levin sitting on ground with camera (flash when player nearby)
         if (obs.type === 'paparazzi') {
-            // Standard block + emoji
-            ctx.fillStyle = obs.color;
-            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-            ctx.fillStyle = obs.accent;
-            ctx.fillRect(obs.x, obs.y, obs.w, 3);
-            ctx.fillRect(obs.x, obs.y, 3, obs.h);
-            ctx.strokeStyle = obs.accent;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(obs.x + 1, obs.y + 1, obs.w - 2, obs.h - 2);
-            const fs = Math.min(obs.w, obs.h) * 0.5;
-            ctx.font = `${fs}px sans-serif`;
+            // 8-bit Levin sitting
+            this._drawPixelArt(obs.x, obs.y, obs.w, obs.h, LEVIN_GRID, LEVIN_PAL);
+            // "LEVIN" label above
+            ctx.fillStyle = '#C8A070';
+            ctx.font = 'bold 9px "Zuume", monospace';
             ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('📸', obs.x + obs.w / 2, obs.y + obs.h / 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText('LEVIN', obs.x + obs.w / 2, obs.y - 5);
             // Flash effect when player within ~220px — screen-filling white burst
             const dist = Math.abs((this.playerX || 999) - (obs.x + obs.w / 2));
             if (dist < 220) {
                 const cycle = Date.now() % 1000;
                 if (cycle < 250) {
                     const t = cycle / 250;
-                    // Full-screen white overlay (strong!) + radial source burst
                     const screenAlpha = (1 - t) * 0.75;
                     ctx.fillStyle = `rgba(255,255,240,${screenAlpha})`;
                     ctx.fillRect(0, 0, this.W, this.H);
-                    // Bright lens burst at camera
-                    const cx = obs.x + obs.w * 0.6, cy = obs.y + obs.h * 0.3;
+                    // Burst originates from camera lens (left side of Levin)
+                    const cx = obs.x + obs.w * 0.12, cy = obs.y + obs.h * 0.5;
                     const radius = 20 + t * 180;
                     const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
                     grd.addColorStop(0, `rgba(255,255,255,${(1 - t) * 0.95})`);
