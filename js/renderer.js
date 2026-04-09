@@ -898,7 +898,7 @@ class Renderer {
         if (obs.type === 'drama_bubble') {
             const bubbleText = 'säg mir nöd meitli! 🙄';
             ctx.save();
-            ctx.font = 'bold 15px "Zuume", monospace';
+            ctx.font = 'bold 20px "Zuume", monospace';
             const textW = ctx.measureText(bubbleText).width;
             const bw = textW + 26;
             ctx.fillStyle = '#55106a';
@@ -919,7 +919,7 @@ class Renderer {
             ctx.stroke();
             // Text
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 15px "Zuume", monospace';
+            ctx.font = 'bold 20px "Zuume", monospace';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(bubbleText, obs.x + 12, obs.y + obs.h / 2);
@@ -927,10 +927,32 @@ class Renderer {
             return;
         }
 
-        // bouncer → 8-bit Biggie with dance animation
+        // bouncer → 8-bit Biggie with dance animation + disco lights
         if (obs.type === 'bouncer') {
             const frame = Math.floor(Date.now() / 380) % 3;
             const yBounce = frame === 1 ? -3 : 0;
+            const now = Date.now();
+            const cx = obs.x + obs.w / 2;
+            const cy = obs.y + obs.h / 2;
+            // Rotating disco lights around Biggie
+            const discoColors = ['#ff0090', '#00d4ff', '#ffd700', '#ff3300', '#aa00ff'];
+            const numLights = 5;
+            for (let i = 0; i < numLights; i++) {
+                const angle = (now * 0.002 + (i * Math.PI * 2) / numLights) % (Math.PI * 2);
+                const radius = obs.w * 1.1 + Math.sin(now * 0.004 + i) * 6;
+                const lx = cx + Math.cos(angle) * radius;
+                const ly = cy + Math.sin(angle) * radius * 0.5;
+                ctx.save();
+                ctx.shadowColor = discoColors[i];
+                ctx.shadowBlur = 18;
+                ctx.fillStyle = discoColors[i];
+                ctx.globalAlpha = 0.55 + 0.45 * Math.sin(now * 0.006 + i * 1.3);
+                ctx.beginPath();
+                ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            // Biggie sprite (no drop shadow — dances directly on ground)
             this._drawPixelArt(obs.x, obs.y + yBounce, obs.w, obs.h, BIGGIE_FRAMES[frame], BIGGIE_PAL);
             // "BIGGIE" label above
             ctx.fillStyle = '#4466EE';
@@ -938,9 +960,6 @@ class Renderer {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'alphabetic';
             ctx.fillText('BIGGIE', obs.x + obs.w / 2, obs.y - 5);
-            // drop shadow
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.fillRect(obs.x + 3, obs.y + obs.h, obs.w - 4, 4);
             return;
         }
 
@@ -1074,34 +1093,30 @@ class Renderer {
         this._drawPixelArt(boss.x, boss.y, boss.w, boss.h, NAOMI_GRID, NAOMI_PAL);
         ctx.restore();
 
-        // Pixelated boob flash: triggers immediately when 3rd VIP collected, lasts 1s
+        // Pixelated boob flash: stays on permanently once 3rd VIP collected
         if (vipCompleteTime > 0) {
             const elapsed = Date.now() - vipCompleteTime;
-            if (elapsed < 2000) {
-                // Fade in 0-200ms, full 200-1800ms, fade out 1800-2000ms
-                const t = elapsed < 200 ? elapsed / 200
-                        : elapsed < 1800 ? 1
-                        : 1 - (elapsed - 1800) / 200;
-                const cw = boss.w / 16;
-                const ch = boss.h / 28;
-                ctx.save();
-                ctx.globalAlpha = t;
-                // Left chest (cols 4-6, rows 11-13)
-                ctx.fillStyle = '#FFD8A8';
-                ctx.fillRect(boss.x + 4 * cw, boss.y + 11 * ch, 3 * cw, 3 * ch);
-                ctx.fillStyle = '#DBA870';
-                ctx.fillRect(boss.x + 4 * cw, boss.y + 13 * ch, 3 * cw, ch);
-                ctx.fillStyle = '#F860A8'; // nipple pixel
-                ctx.fillRect(boss.x + 5 * cw, boss.y + 12 * ch, cw, ch);
-                // Right chest (cols 9-11, rows 11-13)
-                ctx.fillStyle = '#FFD8A8';
-                ctx.fillRect(boss.x + 9 * cw, boss.y + 11 * ch, 3 * cw, 3 * ch);
-                ctx.fillStyle = '#DBA870';
-                ctx.fillRect(boss.x + 9 * cw, boss.y + 13 * ch, 3 * cw, ch);
-                ctx.fillStyle = '#F860A8';
-                ctx.fillRect(boss.x + 10 * cw, boss.y + 12 * ch, cw, ch);
-                ctx.restore();
-            }
+            // Fade in over 200ms, then stay on
+            const t = Math.min(1, elapsed / 200);
+            const cw = boss.w / 16;
+            const ch = boss.h / 28;
+            ctx.save();
+            ctx.globalAlpha = t;
+            // Left chest (cols 3-7, rows 10-14) — bigger patch
+            ctx.fillStyle = '#FFD8A8';
+            ctx.fillRect(boss.x + 3 * cw, boss.y + 10 * ch, 4 * cw, 4 * ch);
+            ctx.fillStyle = '#DBA870';
+            ctx.fillRect(boss.x + 3 * cw, boss.y + 13 * ch, 4 * cw, 1.5 * ch);
+            ctx.fillStyle = '#F860A8'; // nipple pixel (2×2)
+            ctx.fillRect(boss.x + 4.5 * cw, boss.y + 11.5 * ch, 1.5 * cw, 1.5 * ch);
+            // Right chest (cols 9-13, rows 10-14)
+            ctx.fillStyle = '#FFD8A8';
+            ctx.fillRect(boss.x + 9 * cw, boss.y + 10 * ch, 4 * cw, 4 * ch);
+            ctx.fillStyle = '#DBA870';
+            ctx.fillRect(boss.x + 9 * cw, boss.y + 13 * ch, 4 * cw, 1.5 * ch);
+            ctx.fillStyle = '#F860A8';
+            ctx.fillRect(boss.x + 10.5 * cw, boss.y + 11.5 * ch, 1.5 * cw, 1.5 * ch);
+            ctx.restore();
         }
 
         // Name label above

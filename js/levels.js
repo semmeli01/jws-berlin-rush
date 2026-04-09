@@ -8,7 +8,7 @@ const LEVELS = [
         name: 'BERLINER\nHAUPTBAHNHOF',
         description: 'Berlin calling! Navigiere dich durch den chaotischen Hauptbahnhof und reach die Innenstadt.',
         scrollSpeed: 288,          // px/s (+20%)
-        speedIncreaseRate: 10,     // px/s per second (+20%)
+        speedIncreaseRate: 16,     // px/s per second
         levelGoalDistance: 5000,   // px of scrolling to complete
         // Colors
         skyTop: '#0a1628',
@@ -34,7 +34,7 @@ const LEVELS = [
         name: 'PRENZLAUER\nBERG',
         description: 'Durch Graffiti-Wände und U-Bahn-Stationen – weiter zum nächsten Spot!',
         scrollSpeed: 348,
-        speedIncreaseRate: 12,
+        speedIncreaseRate: 20,
         levelGoalDistance: 6500,
         skyTop: '#0d0020',
         skyBottom: '#1a0a2e',
@@ -57,7 +57,7 @@ const LEVELS = [
         name: 'CLUB-\nEINGANG',
         description: 'Türsteher, lange Schlangen und pures Drama. Sammle 3 VIP-Sticker für den Boss-Fight!',
         scrollSpeed: 384,
-        speedIncreaseRate: 14,
+        speedIncreaseRate: 22,
         levelGoalDistance: 7000,
         skyTop: '#000010',
         skyBottom: '#0a0a1a',
@@ -81,7 +81,7 @@ const LEVELS = [
         name: 'CLUB\nFLOOR',
         description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht! Sammle 3 VIP-Sticker für den Boss-Fight!',
         scrollSpeed: 444,
-        speedIncreaseRate: 18,
+        speedIncreaseRate: 26,
         levelGoalDistance: 8000,
         skyTop: '#020008',
         skyBottom: '#0a0020',
