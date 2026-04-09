@@ -256,6 +256,7 @@ class Game {
         this.fxParticles = [];
         this.obsTimer = 2.0;   // grace period
         this.colTimer = 1.0;
+        this.levelStartTime = Date.now();
         this.bossActive = false;
         this.bossDefeated = false;
         this.boss = null;
@@ -755,7 +756,8 @@ class Game {
             r.drawProgressBar(this.levelDist / lvl.levelGoalDistance, lvl.accentColor);
 
             // Keyboard hints (fade out after start)
-            const hintAlpha = Math.max(0, 1 - this.levelDist / 600);
+            const elapsed = (Date.now() - this.levelStartTime) / 1000;
+            const hintAlpha = elapsed < 10 ? 1.0 : Math.max(0, 1 - (elapsed - 10) / 2);
             r.drawKeyboardHints(hintAlpha);
         } else {
             r.drawDarkBg();

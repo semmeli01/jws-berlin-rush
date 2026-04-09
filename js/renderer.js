@@ -1176,35 +1176,44 @@ class Renderer {
         if (alpha <= 0) return;
         const ctx = this.ctx;
         ctx.save();
-        ctx.globalAlpha = alpha * 0.65;
+        ctx.globalAlpha = alpha;
 
         const gy = this.getGroundY();
-        const boxY = gy + 10;
-        const boxH = this.H - gy - 10;
-
-        // Key hint boxes centered at bottom
         const hints = [
-            { key: 'SPACE', label: 'JUMP', color: '#00d4ff' },
-            { key: '↑  /  W', label: 'JUMP', color: '#00d4ff' },
-            { key: '↓  /  S', label: 'DUCK', color: '#ff0090' },
-            { key: 'P  /  ESC', label: 'PAUSE', color: '#ffd700' },
+            { key: 'SPACE / ↑', label: 'JUMP',  color: '#00d4ff' },
+            { key: '↓  /  S',   label: 'DUCK',  color: '#ff0090' },
+            { key: 'P / ESC',   label: 'PAUSE', color: '#ffd700' },
         ];
 
-        const bw = 130, bh = 36, gap = 12;
+        const bw = 160, bh = 44, gap = 14;
         const totalW = hints.length * bw + (hints.length - 1) * gap;
         let bx = (this.W - totalW) / 2;
+        const by = gy + 8;
+
+        // Dark backdrop behind all tiles
+        ctx.fillStyle = 'rgba(0,0,0,0.72)';
+        ctx.fillRect(bx - 12, by - 6, totalW + 24, bh + 12);
 
         hints.forEach(h => {
-            ctx.fillStyle = h.color + '22';
-            ctx.fillRect(bx, boxY, bw, bh);
-            ctx.strokeStyle = h.color + '88';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(bx, boxY, bw, bh);
+            // Tile background
+            ctx.fillStyle = h.color + '33';
+            ctx.fillRect(bx, by, bw, bh);
+            // Solid border
+            ctx.strokeStyle = h.color;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(bx, by, bw, bh);
 
+            // Action label (big, colored)
             ctx.fillStyle = h.color;
-            ctx.font = 'bold 12px "Zuume", monospace';
+            ctx.font = 'bold 18px "Zuume", monospace';
             ctx.textAlign = 'center';
-            ctx.fillText(`[${h.key}]  ${h.label}`, bx + bw / 2, boxY + 14);
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText(h.label, bx + bw / 2, by + 20);
+
+            // Key label (smaller, white)
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '13px "Zuume", monospace';
+            ctx.fillText(`[ ${h.key} ]`, bx + bw / 2, by + 37);
 
             bx += bw + gap;
         });
