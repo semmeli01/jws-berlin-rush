@@ -123,13 +123,13 @@ const OBSTACLE_DEFS = {
         label: '🗺'
     },
     stairs: {
-        w: 70, h: 32,
+        w: 96, h: 88,
         groundOffset: 0,
         color: '#666677',
         accentColor: '#9999aa',
-        needsJump: false,
-        needsDuck: false, // stepped — jump or duck
-        label: '▲'
+        needsJump: true,
+        needsDuck: false,
+        label: '🎵'
     },
     bouncer: {
         w: 44, h: 84,

@@ -208,6 +208,44 @@ const BIGGIE_FRAMES = _BIGGIE_ARMS.map((arms, fi) => {
     return [...top, ...arms, ..._BIGGIE_STATIC_BOT];
 });
 
+// ---- 8-bit Pixel Art: Luca (stairs/boombox obstacle) ----
+// 10-wide × 20-tall grid, drawn scaled to ~44px × 88px (left half of obstacle)
+const LUCA_PAL = {
+    'H': '#D4A820', // blonde curly hair
+    'h': '#A07010', // hair curl shadow
+    'S': '#FFD8A8', // skin
+    's': '#DBA870', // skin shadow
+    'G': '#111111', // black sunglasses
+    'W': '#F2F2F2', // white oversized shirt
+    'w': '#D0D0D0', // shirt shadow
+    'K': '#B8A060', // khaki shorts
+    'k': '#907040', // shorts shadow
+    'B': '#222233', // dark sneakers
+    'b': '#333355', // sneaker detail
+};
+const LUCA_GRID = [
+    '.HhHHHHhH.',  // 0  curly hair top
+    'HhHHHHHHhH',  // 1  hair wide
+    'HHhHHHHhHH',  // 2  hair curl detail
+    '.hSSSSSSh.',  // 3  face
+    '.sGGGGGGs.',  // 4  narrow black sunglasses
+    '.hSSSSSSh.',  // 5  face below glasses
+    '..SSSsSSS.',  // 6  chin/jaw
+    '.WWWWWWWWW',  // 7  shirt top
+    'WWWWWWWWWW',  // 8  shirt (oversized = full width)
+    'WwWWWWWwWW',  // 9  shirt shading
+    '.WWWWWWWWW',  // 10 shirt
+    '.WWWWWWWWW',  // 11 shirt hem
+    '.KKKkKKKk.',  // 12 khaki shorts
+    '.KkKKKkKk.',  // 13 shorts
+    '.KKKKkKKK.',  // 14 shorts
+    '.KkKkKKkK.',  // 15 shorts bottom
+    '..BB..BB..',  // 16 legs gap
+    '..BB..BB..',  // 17 legs
+    '.BBBB.BBB.',  // 18 sneakers
+    '.bbbb.bbb.',  // 19 sneaker soles
+];
+
 // Utility: darken a hex color by 30%
 function _darken(hex) {
     let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
@@ -832,21 +870,121 @@ class Renderer {
             return;
         }
 
-        // stairs → recognizable staircase (4 steps ascending left→right)
+        // stairs → Luca Dorst with boombox on wheels
         if (obs.type === 'stairs') {
-            const steps = 4;
-            const sw = obs.w / steps;
-            const sh = obs.h / steps;
-            for (let i = 0; i < steps; i++) {
-                ctx.fillStyle = i % 2 === 0 ? '#888899' : '#7a7a8b';
-                ctx.fillRect(obs.x + i * sw, obs.y + obs.h - (i + 1) * sh, sw + 1, (i + 1) * sh);
-                ctx.fillStyle = '#aaaacc'; // top-edge highlight
-                ctx.fillRect(obs.x + i * sw, obs.y + obs.h - (i + 1) * sh, sw + 1, 3);
-                ctx.fillStyle = '#555566'; // right-edge shadow
-                ctx.fillRect(obs.x + (i + 1) * sw - 2, obs.y + obs.h - (i + 1) * sh, 2, (i + 1) * sh);
+            const now = Date.now();
+            const lucaW = 44, lucaH = obs.h;
+            const boxX = obs.x + lucaW + 2;
+            const boxW = obs.w - lucaW - 2;  // ~50px
+            const boxH = Math.floor(boxW * 0.72);
+            const boxY = obs.y + obs.h - boxH - 10; // sits on wheels
+            const wheelR = 7;
+            const wheelY = obs.y + obs.h - wheelR;
+
+            // Vibration offset (boombox thumps)
+            const beat = Math.floor(now / 120) % 4;
+            const vibe = beat === 0 ? -2 : beat === 2 ? -1 : 0;
+
+            // ── Luca pixel art ──
+            this._drawPixelArt(obs.x, obs.y, lucaW, lucaH, LUCA_GRID, LUCA_PAL);
+
+            // ── Boombox body ──
+            ctx.save();
+            ctx.translate(0, vibe);
+
+            // Main body
+            ctx.fillStyle = '#1a1a2a';
+            ctx.fillRect(boxX, boxY, boxW, boxH);
+            ctx.strokeStyle = '#444466';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+
+            // Left speaker grille
+            ctx.fillStyle = '#333355';
+            ctx.fillRect(boxX + 3, boxY + 4, boxW * 0.3, boxH - 8);
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 2; c++) {
+                    ctx.fillStyle = '#111122';
+                    ctx.beginPath();
+                    ctx.arc(boxX + 8 + c * 7, boxY + 10 + r * 8, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.fillRect(obs.x + 4, obs.y + obs.h, obs.w - 2, 4);
+
+            // Right speaker grille
+            const rGrilleX = boxX + boxW - 3 - boxW * 0.3;
+            ctx.fillStyle = '#333355';
+            ctx.fillRect(rGrilleX, boxY + 4, boxW * 0.3, boxH - 8);
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 2; c++) {
+                    ctx.fillStyle = '#111122';
+                    ctx.beginPath();
+                    ctx.arc(rGrilleX + 5 + c * 7, boxY + 10 + r * 8, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Center cassette window
+            const cWinX = boxX + boxW * 0.35, cWinW = boxW * 0.3;
+            ctx.fillStyle = '#0a0a18';
+            ctx.fillRect(cWinX, boxY + 5, cWinW, boxH * 0.45);
+            // Cassette spools
+            const spoolY = boxY + 5 + boxH * 0.2;
+            ctx.fillStyle = '#444';
+            ctx.beginPath(); ctx.arc(cWinX + cWinW * 0.3, spoolY, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cWinX + cWinW * 0.7, spoolY, 4, 0, Math.PI * 2); ctx.fill();
+            // Volume knob + LED
+            ctx.fillStyle = '#555';
+            ctx.beginPath(); ctx.arc(boxX + boxW / 2, boxY + boxH - 8, 4, 0, Math.PI * 2); ctx.fill();
+            const ledOn = Math.floor(now / 300) % 2 === 0;
+            ctx.fillStyle = ledOn ? '#00ff44' : '#004411';
+            ctx.shadowColor = '#00ff44'; ctx.shadowBlur = ledOn ? 8 : 0;
+            ctx.fillRect(boxX + boxW * 0.35, boxY + boxH - 6, 4, 4);
+            ctx.shadowBlur = 0;
+
+            // Antenna
+            ctx.strokeStyle = '#888899';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(boxX + boxW - 8, boxY);
+            ctx.lineTo(boxX + boxW - 4, boxY - 22);
+            ctx.stroke();
+
+            // Wheels (2)
+            [boxX + 10, boxX + boxW - 10].forEach(wx => {
+                ctx.fillStyle = '#333';
+                ctx.beginPath(); ctx.arc(wx, wheelY, wheelR, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#666';
+                ctx.beginPath(); ctx.arc(wx, wheelY, wheelR - 3, 0, Math.PI * 2); ctx.fill();
+            });
+
+            ctx.restore();
+
+            // ── Music notes floating out ──
+            const noteChars = ['♩', '♪', '♫', '♩'];
+            for (let i = 0; i < 4; i++) {
+                const phase = (now * 0.0007 + i * 0.28) % 1;
+                const nx = boxX + boxW * 0.3 + i * 9 + Math.sin(phase * Math.PI * 4) * 5;
+                const ny = boxY - 6 - phase * 44;
+                const alpha = phase < 0.75 ? 1 : 1 - (phase - 0.75) / 0.25;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#FFD700';
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 7;
+                ctx.font = `${10 + (i % 2) * 3}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(noteChars[i], nx, ny);
+                ctx.restore();
+            }
+
+            // "LUCA" label above
+            ctx.fillStyle = '#D4A820';
+            ctx.font = 'bold 9px "Zuume", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText('LUCA', obs.x + lucaW / 2, obs.y - 5);
             return;
         }
 
