@@ -197,7 +197,7 @@ const COLLECTIBLE_DEFS = {
         label: '♥'
     },
     star: {
-        w: 30, h: 30,
+        w: 48, h: 56,
         heightRange: [120, 200],
         color: '#ffd700',
         glowColor: '#ffd70066',
