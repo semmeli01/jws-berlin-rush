@@ -82,7 +82,7 @@ const LEVELS = [
         description: 'Strobo, Chaos und volle Power! Das ist das Finale – Berlin Nacht! Sammle 3 VIP-Sticker für den Boss-Fight!',
         scrollSpeed: 444,
         speedIncreaseRate: 26,
-        levelGoalDistance: 8000,
+        levelGoalDistance: 12000,
         skyTop: '#020008',
         skyBottom: '#0a0020',
         groundColor: '#1a0030',
@@ -159,7 +159,7 @@ const OBSTACLE_DEFS = {
         label: '💔'
     },
     drama_bubble: {
-        w: 220, h: 50,
+        w: 220, h: 58,
         groundOffset: 48,  // requires duck (between duck-height 42 and stand-height 74)
         color: '#55106a',
         accentColor: '#aa40cc',

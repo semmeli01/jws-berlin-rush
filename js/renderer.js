@@ -1116,9 +1116,9 @@ class Renderer {
         if (obs.type === 'drama_bubble') {
             const bubbleText = 'säg mir nöd meitli! 🙄';
             ctx.save();
-            ctx.font = 'bold 20px "Zuume", monospace';
+            ctx.font = 'bold 26px "Zuume", monospace';
             const textW = ctx.measureText(bubbleText).width;
-            const bw = textW + 26;
+            const bw = textW + 30;
             ctx.fillStyle = '#55106a';
             ctx.fillRect(obs.x, obs.y, bw, obs.h);
             ctx.strokeStyle = '#aa40cc';
@@ -1137,10 +1137,10 @@ class Renderer {
             ctx.stroke();
             // Text
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 20px "Zuume", monospace';
+            ctx.font = 'bold 26px "Zuume", monospace';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
-            ctx.fillText(bubbleText, obs.x + 12, obs.y + obs.h / 2);
+            ctx.fillText(bubbleText, obs.x + 14, obs.y + obs.h / 2);
             ctx.restore();
             return;
         }
