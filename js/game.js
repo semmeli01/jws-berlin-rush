@@ -245,9 +245,12 @@ class Game {
 
     _initLevel() {
         const lvl = LEVELS[this.lvlIdx];
-        this.scrollSpeed = lvl.scrollSpeed;
-        if (this.char.ability === 'speed_boost') this.scrollSpeed *= 1.15;
-        if (this.char.ability === 'slow_obstacles') this.scrollSpeed *= 0.85;
+        // Level 1: use base speed. All subsequent levels: carry over current speed.
+        if (this.lvlIdx === 0) {
+            this.scrollSpeed = lvl.scrollSpeed;
+            if (this.char.ability === 'speed_boost') this.scrollSpeed *= 1.15;
+            if (this.char.ability === 'slow_obstacles') this.scrollSpeed *= 0.85;
+        }
 
         this.scrollX = 0;
         this.levelDist = 0;
