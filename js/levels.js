@@ -107,11 +107,11 @@ const OBSTACLE_DEFS = {
     suitcase: {
         w: 62, h: 68,
         groundOffset: 48,  // floats — requires duck (between duck-height 42 and stand-height 74)
-        color: '#D4A44A',
-        accentColor: '#C05828',
+        color: '#EDEAE0',
+        accentColor: '#55DD22',
         needsJump: false,
         needsDuck: true,
-        label: '🌯'
+        label: '🧦'
     },
     tourist: {
         w: 115, h: 82,

@@ -892,140 +892,101 @@ class Renderer {
     drawObstacle(obs) {
         const ctx = this.ctx;
 
-        // suitcase → Berliner Döner Kebab
+        // suitcase → Stinky sock with rising green stench clouds
         if (obs.type === 'suitcase') {
             const x = obs.x, y = obs.y, w = obs.w, h = obs.h;
             const cx = x + w / 2;
+            const now = Date.now();
 
-            // Drop shadow
-            ctx.fillStyle = 'rgba(0,0,0,0.28)';
-            ctx.fillRect(x + 4, y + h, w - 6, 5);
+            // ── Sock body (L-shape: leg + foot) ──
+            const legX = x + w * 0.22, legW = w * 0.56, legH = h * 0.66;
+            const footY = y + h * 0.58, footW = w * 0.78, footH = h * 0.3;
+            const footX = x + w * 0.08;
 
-            // ── Pita bread (outer wrap — two halves) ──
-            const pitaW = w * 0.9;
-            const pitaX = x + (w - pitaW) / 2;
-            // Bottom pita half
-            ctx.fillStyle = '#D4A44A';
+            // Cuff stripe at top (grey band)
+            ctx.fillStyle = '#C8C8C0';
+            ctx.fillRect(legX, y, legW, h * 0.11);
+            ctx.fillStyle = '#B0B0A8';
+            ctx.fillRect(legX, y + h * 0.05, legW, 3);
+
+            // Leg (vertical tube)
+            ctx.fillStyle = '#EDEAE0';
+            ctx.fillRect(legX, y + h * 0.08, legW, legH - h * 0.05);
+
+            // Foot (horizontal tube)
+            ctx.fillStyle = '#EDEAE0';
+            ctx.fillRect(footX, footY, footW - h * 0.14, footH);
+
+            // Toe (rounded end)
+            ctx.fillStyle = '#EDEAE0';
             ctx.beginPath();
-            ctx.ellipse(cx, y + h - 4, pitaW / 2, 10, 0, 0, Math.PI);
+            ctx.arc(footX + footW - h * 0.14, footY + footH / 2, footH / 2, -Math.PI / 2, Math.PI / 2);
             ctx.fill();
-            // Top pita half
-            ctx.fillStyle = '#E8C06A';
+
+            // Heel (darker rounded bump at leg-foot join)
+            ctx.fillStyle = '#D8D4C8';
             ctx.beginPath();
-            ctx.ellipse(cx, y + h - 4, pitaW / 2, 10, 0, Math.PI, Math.PI * 2);
+            ctx.arc(legX, footY + footH / 2, footH * 0.55, Math.PI / 2, Math.PI * 1.5);
             ctx.fill();
-            // Pita crust lines (top)
-            ctx.strokeStyle = '#C49040';
-            ctx.lineWidth = 1;
+
+            // Dirt / stain spots
+            ctx.fillStyle = 'rgba(160,120,30,0.38)';
+            ctx.beginPath(); ctx.ellipse(footX + footW * 0.55, footY + footH * 0.55, 7, 4, 0.4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(footX + footW * 0.35, footY + footH * 0.4, 4, 3, -0.3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(legX + legW * 0.55, y + legH * 0.5, 3, 5, 0.2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(legX + legW * 0.25, y + legH * 0.7, 5, 3, -0.1, 0, Math.PI * 2); ctx.fill();
+
+            // Outline
+            ctx.strokeStyle = '#A8A49A';
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.ellipse(cx, y + h - 4, pitaW / 2 - 4, 7, 0, Math.PI, Math.PI * 2);
+            // Leg outline
+            ctx.rect(legX, y, legW, legH);
+            ctx.stroke();
+            ctx.beginPath();
+            // Foot outline
+            ctx.rect(footX, footY, footW - h * 0.14, footH);
             ctx.stroke();
 
-            // ── Meat stack (doner layers) ──
-            const meatBottom = y + h - 12;
-            const meatTop = y + h * 0.28;
-            const meatH = meatBottom - meatTop;
-            const meatW = w * 0.72;
-            const meatX = x + (w - meatW) / 2;
-            // Meat gradient (dark edges, lighter center)
-            const meatGrd = ctx.createLinearGradient(meatX, 0, meatX + meatW, 0);
-            meatGrd.addColorStop(0,    '#7A3010');
-            meatGrd.addColorStop(0.18, '#C05828');
-            meatGrd.addColorStop(0.45, '#D8784A');
-            meatGrd.addColorStop(0.72, '#C05828');
-            meatGrd.addColorStop(1,    '#7A3010');
-            ctx.fillStyle = meatGrd;
-            ctx.fillRect(meatX, meatTop, meatW, meatH);
-            // Meat texture — horizontal slice lines
-            ctx.strokeStyle = 'rgba(90,30,10,0.5)';
-            ctx.lineWidth = 1;
-            for (let i = 1; i < 5; i++) {
-                const ly = meatTop + meatH * (i / 5);
-                ctx.beginPath();
-                ctx.moveTo(meatX + 2, ly);
-                ctx.lineTo(meatX + meatW - 2, ly);
-                ctx.stroke();
-            }
-            // Charred edges
-            ctx.fillStyle = '#501808';
-            ctx.fillRect(meatX, meatTop, 4, meatH);
-            ctx.fillRect(meatX + meatW - 4, meatTop, 4, meatH);
-
-            // ── Lettuce (bright green ruffles) ──
-            const lettY = meatTop - 4;
-            ctx.fillStyle = '#44C040';
-            for (let i = 0; i < 6; i++) {
-                const lx = meatX + (meatW / 5) * i;
-                ctx.beginPath();
-                ctx.ellipse(lx + 4, lettY, 6, 5, (i % 2 === 0 ? -0.3 : 0.3), 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.fillStyle = '#28A024';
-            for (let i = 0; i < 5; i++) {
-                const lx = meatX + (meatW / 4) * i + 3;
-                ctx.beginPath();
-                ctx.ellipse(lx, lettY - 2, 4, 4, 0, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // ── Tomato slices (red half-circles) ──
-            ctx.fillStyle = '#E03020';
-            for (let i = 0; i < 3; i++) {
-                const tx = meatX + meatW * 0.18 + i * meatW * 0.28;
-                ctx.beginPath();
-                ctx.ellipse(tx, meatTop + 2, 6, 5, 0, Math.PI, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#FF5040';
-                ctx.beginPath();
-                ctx.ellipse(tx, meatTop + 1, 3, 2.5, 0, Math.PI, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#E03020';
-            }
-
-            // ── Garlic sauce drizzle (white zigzag) ──
-            ctx.strokeStyle = 'rgba(255,255,255,0.88)';
-            ctx.lineWidth = 2.5;
-            ctx.lineCap = 'round';
+            // ── Floating ground shadow ──
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
             ctx.beginPath();
-            ctx.moveTo(meatX + 4, meatTop + meatH * 0.55);
-            for (let i = 0; i < 5; i++) {
-                const sx = meatX + 4 + (meatW - 8) * ((i + 1) / 5);
-                const sy = meatTop + meatH * (i % 2 === 0 ? 0.35 : 0.7);
-                ctx.lineTo(sx, sy);
-            }
-            ctx.stroke();
-            ctx.lineCap = 'butt';
-
-            // ── Top pita flap (slightly open, crisped) ──
-            const flapW = w * 0.78;
-            const flapX = x + (w - flapW) / 2;
-            ctx.fillStyle = '#E0B858';
-            ctx.beginPath();
-            ctx.moveTo(flapX, meatTop + 8);
-            ctx.quadraticCurveTo(cx, meatTop - 10, flapX + flapW, meatTop + 8);
-            ctx.quadraticCurveTo(cx, meatTop + 4, flapX, meatTop + 8);
-            ctx.fill();
-            // Crust dots on top flap
-            ctx.fillStyle = '#C49040';
-            for (let i = 0; i < 4; i++) {
-                const dx = flapX + flapW * 0.15 + i * flapW * 0.22;
-                ctx.beginPath();
-                ctx.arc(dx, meatTop + 1, 1.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // ── Floating shadow below (döner hovers) ──
-            ctx.fillStyle = 'rgba(0,0,0,0.28)';
-            ctx.beginPath();
-            ctx.ellipse(cx, y + h + 34, w * 0.38, 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(cx, y + h + 34, w * 0.35, 5, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // ── "DÖNER" label + duck hint ──
-            ctx.fillStyle = '#FFD070';
+            // ── Rising stench clouds (animated green puffs) ──
+            const stenchConfigs = [
+                { xFrac: 0.30, speed: 0.60, delay: 0.00, size: 1.00 },
+                { xFrac: 0.62, speed: 0.80, delay: 0.35, size: 0.80 },
+                { xFrac: 0.48, speed: 0.70, delay: 0.65, size: 0.90 },
+                { xFrac: 0.20, speed: 0.50, delay: 0.82, size: 0.65 },
+                { xFrac: 0.75, speed: 0.65, delay: 0.18, size: 0.70 },
+            ];
+            for (const sc of stenchConfigs) {
+                const phase = ((now * 0.001 * sc.speed + sc.delay) % 1);
+                const sxc = x + w * sc.xFrac + Math.sin(phase * Math.PI * 2) * 6;
+                const syc = y - 10 - phase * 58;
+                const alpha = phase < 0.55 ? 0.72 : 0.72 * (1 - (phase - 0.55) / 0.45);
+                const puffR = (7 + sc.size * 5) * (0.4 + phase * 0.6);
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.shadowColor = '#22BB00';
+                ctx.shadowBlur = 10;
+                // Three overlapping circles per puff
+                ctx.fillStyle = '#55DD22';
+                ctx.beginPath(); ctx.arc(sxc, syc, puffR, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#33CC00';
+                ctx.beginPath(); ctx.arc(sxc - puffR * 0.55, syc + puffR * 0.3, puffR * 0.7, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(sxc + puffR * 0.5, syc + puffR * 0.25, puffR * 0.65, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+
+            // ── Label ──
+            ctx.fillStyle = '#66DD22';
             ctx.font = 'bold 9px "Zuume", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'alphabetic';
-            ctx.fillText('DÖNER', cx, y - 14);
+            ctx.fillText('STINKY!', cx, y - 74);
             ctx.fillStyle = '#ffffff88';
             ctx.font = '8px monospace';
             ctx.fillText('↓ duck', cx, y - 4);
