@@ -210,11 +210,25 @@ class Game {
         if (!grid) return;
         const { width: availW, height: availH } = grid.getBoundingClientRect();
         if (availW <= 0 || availH <= 0) return;
-        const COLS = 7, ROWS = 2, GAP = 6;
-        const tileByW = (availW - (COLS - 1) * GAP) / COLS;
-        const tileByH = (availH - (ROWS - 1) * GAP) / ROWS;
-        const tile = Math.floor(Math.min(tileByW, tileByH));
-        grid.style.setProperty('--tile', tile + 'px');
+
+        const itemCount = CHARACTERS.length;
+        const GAP = 8;
+
+        let bestCols = 1, bestTile = 0;
+        for (let cols = 1; cols <= itemCount; cols++) {
+            const rows = Math.ceil(itemCount / cols);
+            const tileW = (availW - GAP * (cols - 1)) / cols;
+            const tileH = (availH - GAP * (rows - 1)) / rows;
+            const tile = Math.floor(Math.min(tileW, tileH));
+            if (tile > bestTile) {
+                bestTile = tile;
+                bestCols = cols;
+            }
+        }
+
+        grid.style.gridTemplateColumns = `repeat(${bestCols}, ${bestTile}px)`;
+        grid.style.gridAutoRows = `${bestTile}px`;
+        grid.style.gap = `${GAP}px`;
     }
 
     _setState(s) {

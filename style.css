@@ -261,22 +261,19 @@ html, body {
 
 .char-grid {
     display: grid;
-    grid-template-columns: repeat(7, var(--tile, 1fr));
-    grid-auto-rows: var(--tile, auto);
-    gap: 6px;
+    /* columns, rows and gap are set dynamically by _resizeCharGrid() */
     place-content: center;
+    align-content: center;
+    justify-content: center;
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #ff009044 transparent;
 }
-.char-grid::-webkit-scrollbar { width: 4px; }
-.char-grid::-webkit-scrollbar-thumb { background: #ff009044; border-radius: 2px; }
 
 .char-card {
     position: relative;
     overflow: hidden;
+    aspect-ratio: 1 / 1;
     border: 2px solid #ffffff15;
     background: #111;
     cursor: pointer;
