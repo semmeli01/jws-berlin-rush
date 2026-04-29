@@ -24,6 +24,7 @@ class InputManager {
 
     _setupKeyboard() {
         window.addEventListener('keydown', (e) => {
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             if (this._keys.has(e.code)) return; // already held
             this._keys.add(e.code);
 
@@ -42,6 +43,7 @@ class InputManager {
         });
 
         window.addEventListener('keyup', (e) => {
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             this._keys.delete(e.code);
             if (e.code === 'ArrowDown' || e.code === 'KeyS') {
                 this.duckHeld = false;
