@@ -2109,6 +2109,46 @@ class Renderer {
         this.ctx.fillRect(0, 0, this.W, this.H);
     }
 
+    drawLipstick(proj) {
+        const ctx = this.ctx;
+        const { x, y, w, h } = proj;
+
+        ctx.save();
+        ctx.shadowColor = '#FF60A8';
+        ctx.shadowBlur = 10;
+
+        // Gold metallic tube body
+        ctx.fillStyle = '#C89020';
+        ctx.fillRect(x + w * 0.28, y + h * 0.1, w * 0.57, h * 0.8);
+
+        // Highlight on tube
+        ctx.fillStyle = '#F0C040';
+        ctx.fillRect(x + w * 0.30, y + h * 0.12, w * 0.25, h * 0.35);
+
+        // Gold cap (right side, back of lipstick)
+        ctx.fillStyle = '#A06810';
+        ctx.fillRect(x + w * 0.85, y + h * 0.05, w * 0.15, h * 0.9);
+
+        // Red pigment bullet (left of tube)
+        ctx.fillStyle = '#D81840';
+        ctx.fillRect(x + w * 0.14, y + h * 0.18, w * 0.14, h * 0.64);
+
+        // Pointed tip (direction of travel = left)
+        ctx.fillStyle = '#C01030';
+        ctx.beginPath();
+        ctx.moveTo(x,              y + h * 0.5);
+        ctx.lineTo(x + w * 0.14,  y + h * 0.12);
+        ctx.lineTo(x + w * 0.14,  y + h * 0.88);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tiny shine dot on tip
+        ctx.fillStyle = '#FF80B0';
+        ctx.fillRect(x + w * 0.05, y + h * 0.38, w * 0.06, h * 0.25);
+
+        ctx.restore();
+    }
+
     getGroundY() {
         // Desktop: ground at 76% of height (leaves room for ground + keyboard hints below)
         return Math.floor(this.H * 0.76);

@@ -49,6 +49,7 @@ class Game {
         this.bossActive = false;
         this.bossDefeated = false;
         this.boss = null;
+        this.bossProjectiles = [];
 
         // Player
         this.player = null;
@@ -298,6 +299,7 @@ class Game {
         this.bossActive = false;
         this.bossDefeated = false;
         this.boss = null;
+        this.bossProjectiles = [];
         this.transitionGate = null;
         this.vipCompleteTime = 0;
 
@@ -569,13 +571,60 @@ class Game {
             b.hitTimer = Math.max(0, b.hitTimer - dt);
             b.oscillateT += dt;
 
-            // Slide in from right, then oscillate in place
-            const targetX = PLAYER_X + PLAYER_W + 5; // boss touches player right edge
-            if (b.x > targetX + 20) {
-                b.x -= b.baseSpeed * dt;
+            if (this.vipStickers < 3) {
+                // Phase 1: stay on right side, throw lipsticks
+                const holdX = W * 0.72;
+                if (b.x > holdX) {
+                    b.x -= b.baseSpeed * dt;
+                } else {
+                    b.x = holdX + Math.sin(b.oscillateT * 2.0) * 14;
+                }
+
+                b.projTimer -= dt;
+                if (b.projTimer <= 0) {
+                    const gy = this.renderer.getGroundY();
+                    const PW = 40, PH = 16;
+                    const isHigh = Math.random() < 0.5;
+                    const py = isHigh ? gy - PH - 60 : gy - PH;
+                    this.bossProjectiles.push({
+                        x: b.x, y: py, w: PW, h: PH,
+                        speed: 400, high: isHigh, hit: false
+                    });
+                    b.projTimer = 1.0 + Math.random() * 0.5;
+                }
             } else {
-                b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
+                // Phase 2: 3 VIPs collected — charge toward player
+                const targetX = PLAYER_X + PLAYER_W + 5;
+                if (b.x > targetX + 20) {
+                    b.x -= b.baseSpeed * 2.5 * dt;
+                } else {
+                    b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
+                }
             }
+
+            // Move lipstick projectiles + collision
+            this.bossProjectiles = this.bossProjectiles.filter(proj => {
+                proj.x -= proj.speed * dt;
+                if (proj.x + proj.w < 0) return false;
+                if (!proj.hit && p.hurtTimer <= 0 && this._aabb(p, proj)) {
+                    proj.hit = true;
+                    if (this.shieldActive) {
+                        this.shieldActive = false;
+                        this.audio.playShield();
+                        this._addFx(proj.x, proj.y, 'SHIELD!', '#00d4ff');
+                    } else {
+                        this.lives--;
+                        p.hurtTimer = 1.8;
+                        this.audio.playHit();
+                        this._addFx(p.x, p.y - 20, '💄 -1', '#ff3300');
+                        if (this.lives <= 0) {
+                            this._setState(S.GAME_OVER);
+                            return false;
+                        }
+                    }
+                }
+                return !proj.hit;
+            });
 
             // Collision with boss
             if (p.hurtTimer <= 0 && b.hitTimer <= 0 && this._aabb(p, b)) {
@@ -733,15 +782,17 @@ class Game {
     _spawnBoss() {
         const gy = this.renderer.getGroundY();
         this.bossActive = true;
-        this.obstacles = []; // clear existing obstacles
+        this.obstacles = [];
+        this.bossProjectiles = [];
         this.boss = {
             x: W + 60,
             y: gy - 140,
             w: 80,
             h: 140,
-            baseSpeed: 80,
+            baseSpeed: 200,
             hitTimer: 0,
-            oscillateT: 0
+            oscillateT: 0,
+            projTimer: 1.0
         };
         this._addFx(W / 2, H / 2 - 30, '★ BOSS ★', '#ffd700');
         this.audio.playPowerUp();
@@ -837,6 +888,7 @@ class Game {
             for (const c of this.collectibles) r.drawCollectible(c);
             r.playerX = this.player ? this.player.x : 0;
             for (const o of this.obstacles) r.drawObstacle(o);
+            for (const proj of this.bossProjectiles) r.drawLipstick(proj);
             if (this.transitionGate) r.drawTransitionGate(this.transitionGate);
             if (this.bossActive && this.boss) r.drawBoss(this.boss, LEVELS[this.lvlIdx].accentColor, this.vipCompleteTime);
 
