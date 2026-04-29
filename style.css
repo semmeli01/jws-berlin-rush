@@ -236,7 +236,7 @@ html, body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 16px 12px 12px 20px;
+    padding: clamp(10px, 2vh, 20px) clamp(10px, 1.5vw, 20px) clamp(8px, 1.5vh, 16px) clamp(12px, 2vw, 28px);
     overflow: hidden;
     min-width: 0;
 }
@@ -244,19 +244,22 @@ html, body {
 .char-grid-title {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 26px;
+    font-size: clamp(18px, 3vw, 42px);
     color: #ff0090;
-    letter-spacing: 3px;
+    letter-spacing: clamp(1px, 0.25vw, 4px);
     text-shadow: 0 0 10px #ff009066;
-    margin-bottom: 2px;
+    margin-bottom: clamp(2px, 0.4vh, 6px);
     flex-shrink: 0;
+    line-height: 1;
 }
 .char-grid-subtitle {
-    font-size: 17px;
+    font-size: clamp(11px, 1.3vw, 19px);
     color: #ffffffaa;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
+    letter-spacing: clamp(0.5px, 0.12vw, 2px);
+    margin-bottom: clamp(6px, 1.2vh, 16px);
     flex-shrink: 0;
+    line-height: 1.25;
+    max-width: min(100%, 900px);
 }
 
 .char-grid {
