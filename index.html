@@ -46,6 +46,16 @@
                 <div class="panel-origin" id="panelOrigin"></div>
                 <div class="panel-ability" id="panelAbility"></div>
                 <button id="confirmCharBtn" class="btn-primary" style="display:none">LOS GEHT'S!</button>
+                <button id="showHighscoresBtn" class="btn-secondary hs-open-btn">🏆 HIGHSCORES</button>
+            </div>
+
+            <!-- Highscore overlay inside char select -->
+            <div id="hsOverlay" class="hs-overlay hidden">
+                <div class="hs-overlay-box">
+                    <div class="hs-title">HIGHSCORES</div>
+                    <div id="highscoreListOverlay"><div class="hs-empty">Noch keine Einträge</div></div>
+                    <button id="closeHighscoresBtn" class="btn-secondary" style="margin-top:18px">✕ SCHLIESSEN</button>
+                </div>
             </div>
             <!-- Keep old ids for JS compatibility -->
             <div class="char-info hidden" id="charInfo">
