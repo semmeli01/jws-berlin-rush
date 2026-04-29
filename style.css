@@ -2,24 +2,7 @@
    JWS: BERLIN RUSH — Stylesheet (Desktop)
    ============================================= */
 
-@font-face {
-    font-family: 'Zuume';
-    src: url('fonts/Zuume_Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'ZuumeLight';
-    src: url('fonts/Zuume_Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'CHMedia';
-    src: url('fonts/CHMedia-Black.otf') format('opentype');
-    font-weight: 900;
-    font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800;900&display=swap');
 
 /* ---- Reset & Base ---- */
 *, *::before, *::after {
@@ -32,7 +15,7 @@ html, body {
     width: 100%; height: 100%;
     overflow: hidden;
     background: #050010;
-    font-family: 'Zuume', 'Courier New', monospace;
+    font-family: 'Inter', sans-serif;
     color: #fff;
     cursor: default;
 }
@@ -134,7 +117,8 @@ html, body {
 .logo-area { text-align: center; }
 
 .jws-logo {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 100px;
     line-height: 1;
     color: #ff0090;
@@ -149,7 +133,8 @@ html, body {
 }
 
 .logo-sub {
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
     font-size: 32px;
     color: #00d4ff;
     letter-spacing: 7px;
@@ -158,7 +143,8 @@ html, body {
 }
 
 .logo-tagline {
-    font-family: 'ZuumeLight', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
     font-size: 15px;
     color: #ffffffaa;
     letter-spacing: 4px;
@@ -178,7 +164,8 @@ html, body {
     text-align: center;
 }
 .hs-title {
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
     color: #ffd700;
     font-size: 16px;
     letter-spacing: 3px;
@@ -188,7 +175,8 @@ html, body {
     display: flex;
     gap: 14px;
     justify-content: center;
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
     font-size: 17px;
     color: #fff;
     line-height: 1.65;
@@ -196,7 +184,7 @@ html, body {
 .hs-rank { color: #ffd700; min-width: 28px; }
 .hs-char { min-width: 130px; text-align: left; }
 .hs-score { color: #ff0090; min-width: 72px; text-align: right; }
-.hs-empty { font-family: 'Zuume', monospace; color: #ffffff44; font-size: 14px; }
+.hs-empty { font-family: 'Inter', sans-serif; font-weight: 400; color: #ffffff44; font-size: 14px; }
 
 /* ---- BUTTONS ---- */
 .btn-primary {
@@ -204,7 +192,8 @@ html, body {
     color: #fff;
     border: none;
     padding: 18px 64px;
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
     font-size: 26px;
     letter-spacing: 5px;
     cursor: pointer;
@@ -221,7 +210,8 @@ html, body {
     color: #00d4ff;
     border: 2px solid #00d4ff;
     padding: 14px 40px;
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
     font-size: 20px;
     letter-spacing: 3px;
     cursor: pointer;
@@ -252,7 +242,8 @@ html, body {
 }
 
 .char-grid-title {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 26px;
     color: #ff0090;
     letter-spacing: 3px;
@@ -315,7 +306,8 @@ html, body {
     bottom: 0;
     left: 0; right: 0;
     background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
     font-size: clamp(16px, 1.6vw, 22px);
     color: #fff;
     letter-spacing: 1px;
@@ -364,7 +356,8 @@ html, body {
 }
 
 .char-info-panel .panel-name {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 38px;
     color: #ff0090;
     text-shadow: 0 0 14px #ff009066;
@@ -409,7 +402,8 @@ html, body {
     text-align: center;
 }
 .level-intro-name {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 72px;
     color: #ff0090;
     text-shadow: 0 0 24px #ff0090;
@@ -429,7 +423,8 @@ html, body {
 
 /* ---- GAME OVER ---- */
 .over-title {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 80px;
     color: #ff3300;
     text-shadow: 0 0 24px #ff330088;
@@ -448,7 +443,8 @@ html, body {
 
 /* ---- WIN ---- */
 .win-title {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 70px;
     color: #ffd700;
     text-shadow: 0 0 24px #ffd70088;
@@ -460,7 +456,8 @@ html, body {
 
 /* ---- PAUSE ---- */
 .pause-title {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 80px;
     color: #00d4ff;
     text-shadow: 0 0 24px #00d4ff88;
@@ -475,7 +472,8 @@ html, body {
     color: #fff;
     text-decoration: none;
     padding: 16px 36px;
-    font-family: 'Zuume', monospace;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
     font-size: 16px;
     letter-spacing: 3px;
     text-align: center;
@@ -487,7 +485,8 @@ html, body {
 
 /* ---- SCREEN TITLE (generic) ---- */
 .screen-title {
-    font-family: 'CHMedia', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
     font-size: 28px;
     color: #ff0090;
     letter-spacing: 3px;
