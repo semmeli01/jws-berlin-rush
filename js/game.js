@@ -571,26 +571,35 @@ class Game {
             b.hitTimer = Math.max(0, b.hitTimer - dt);
             b.oscillateT += dt;
 
-            // Slide in from right, then oscillate in place
-            const targetX = PLAYER_X + PLAYER_W + 5; // boss touches player right edge
-            if (b.x > targetX + 20) {
-                b.x -= b.baseSpeed * dt;
-            } else {
-                b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
-            }
+            if (this.vipStickers < 3) {
+                // Phase 1: stay on right side, throw lipsticks
+                const holdX = W * 0.72;
+                if (b.x > holdX) {
+                    b.x -= b.baseSpeed * dt;
+                } else {
+                    b.x = holdX + Math.sin(b.oscillateT * 2.0) * 14;
+                }
 
-            // Throw lipsticks periodically throughout the boss fight
-            b.projTimer -= dt;
-            if (b.projTimer <= 0) {
-                const gy = this.renderer.getGroundY();
-                const PW = 40, PH = 16;
-                const isHigh = Math.random() < 0.5;
-                const py = isHigh ? gy - PH - 60 : gy - PH;
-                this.bossProjectiles.push({
-                    x: b.x, y: py, w: PW, h: PH,
-                    speed: 400, high: isHigh, hit: false
-                });
-                b.projTimer = 2.0 + Math.random() * 1.5;
+                b.projTimer -= dt;
+                if (b.projTimer <= 0) {
+                    const gy = this.renderer.getGroundY();
+                    const PW = 40, PH = 16;
+                    const isHigh = Math.random() < 0.5;
+                    const py = isHigh ? gy - PH - 60 : gy - PH;
+                    this.bossProjectiles.push({
+                        x: b.x, y: py, w: PW, h: PH,
+                        speed: 400, high: isHigh, hit: false
+                    });
+                    b.projTimer = 1.0 + Math.random() * 0.5;
+                }
+            } else {
+                // Phase 2: 3 VIPs collected — charge toward player
+                const targetX = PLAYER_X + PLAYER_W + 5;
+                if (b.x > targetX + 20) {
+                    b.x -= b.baseSpeed * 2.5 * dt;
+                } else {
+                    b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
+                }
             }
 
             // Move lipstick projectiles + collision
@@ -780,10 +789,10 @@ class Game {
             y: gy - 140,
             w: 80,
             h: 140,
-            baseSpeed: 260,
+            baseSpeed: 200,
             hitTimer: 0,
             oscillateT: 0,
-            projTimer: 1.2
+            projTimer: 1.0
         };
         this._addFx(W / 2, H / 2 - 30, '★ BOSS ★', '#ffd700');
         this.audio.playPowerUp();
