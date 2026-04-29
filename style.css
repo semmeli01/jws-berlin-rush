@@ -319,7 +319,7 @@ html, body {
 
 /* Right panel: selected character info */
 .char-info-panel {
-    width: 280px;
+    width: clamp(220px, 22vw, 360px);
     flex-shrink: 0;
     background: rgba(255, 0, 144, 0.06);
     border-left: 1px solid #ff009033;
@@ -327,15 +327,16 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 32px 28px;
-    gap: 16px;
+    padding: clamp(16px, 3vw, 40px) clamp(12px, 2.5vw, 32px);
+    gap: clamp(8px, 1.4vh, 18px);
+    overflow: hidden;
 }
 
 /* Hide the old char-info element positioning */
 .char-info { display: none !important; }
 
 .char-info-panel .panel-placeholder {
-    font-size: 16px;
+    font-size: clamp(13px, 1.4vw, 18px);
     color: #ffffffaa;
     letter-spacing: 2px;
     text-align: center;
@@ -343,19 +344,20 @@ html, body {
 }
 
 .char-info-panel .panel-photo {
-    width: 160px;
-    height: 160px;
+    width: clamp(100px, 13vw, 210px);
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     object-position: center 15%;
     border: 3px solid #ff009066;
     display: none;
     filter: contrast(1.1) saturate(1.2);
+    flex-shrink: 0;
 }
 
 .char-info-panel .panel-name {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 38px;
+    font-size: clamp(22px, 3.8vw, 52px);
     color: #ff0090;
     text-shadow: 0 0 14px #ff009066;
     letter-spacing: 2px;
@@ -363,7 +365,7 @@ html, body {
     display: none;
 }
 .char-info-panel .panel-ability {
-    font-size: 17px;
+    font-size: clamp(12px, 1.3vw, 17px);
     color: #00d4ff;
     text-align: center;
     letter-spacing: 1px;
@@ -371,11 +373,20 @@ html, body {
     display: none;
 }
 .char-info-panel .panel-origin {
-    font-size: 14px;
+    font-size: clamp(11px, 1.1vw, 15px);
     color: #ffffffaa;
     letter-spacing: 2px;
     text-align: center;
     display: none;
+}
+
+/* CTA button inside the char panel */
+#confirmCharBtn {
+    width: min(100%, clamp(180px, 18vw, 320px));
+    padding: clamp(12px, 1.6vw, 20px) clamp(16px, 2.5vw, 48px);
+    font-size: clamp(15px, 2vw, 26px);
+    letter-spacing: clamp(2px, 0.4vw, 5px);
+    margin-top: clamp(4px, 1vh, 16px);
 }
 
 /* ---- LEVEL INTRO ---- */
@@ -492,8 +503,10 @@ html, body {
 /* ---- HIGHSCORE OVERLAY (char select) ---- */
 .hs-open-btn {
     margin-top: auto;
-    font-size: 14px;
-    padding: 10px 24px;
+    margin-bottom: clamp(8px, 2vh, 24px);
+    width: min(100%, clamp(160px, 15vw, 280px));
+    font-size: clamp(11px, 1.2vw, 15px);
+    padding: clamp(8px, 1.1vw, 13px) clamp(12px, 1.8vw, 24px);
     letter-spacing: 2px;
 }
 
