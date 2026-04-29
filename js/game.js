@@ -579,22 +579,18 @@ class Game {
                 b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
             }
 
-            // Throw lipsticks once Naomi has slid into position
-            const bossInPlace = b.x <= PLAYER_X + PLAYER_W + 5 + 22 + 20;
-            if (bossInPlace) {
-                b.projTimer -= dt;
-                if (b.projTimer <= 0) {
-                    const gy = this.renderer.getGroundY();
-                    const PW = 40, PH = 16;
-                    // Alternate between low (jump) and high (duck) randomly
-                    const isHigh = Math.random() < 0.5;
-                    const py = isHigh ? gy - PH - 60 : gy - PH;
-                    this.bossProjectiles.push({
-                        x: b.x, y: py, w: PW, h: PH,
-                        speed: 360, high: isHigh, hit: false
-                    });
-                    b.projTimer = 2.2 + Math.random() * 1.8;
-                }
+            // Throw lipsticks periodically throughout the boss fight
+            b.projTimer -= dt;
+            if (b.projTimer <= 0) {
+                const gy = this.renderer.getGroundY();
+                const PW = 40, PH = 16;
+                const isHigh = Math.random() < 0.5;
+                const py = isHigh ? gy - PH - 60 : gy - PH;
+                this.bossProjectiles.push({
+                    x: b.x, y: py, w: PW, h: PH,
+                    speed: 400, high: isHigh, hit: false
+                });
+                b.projTimer = 2.0 + Math.random() * 1.5;
             }
 
             // Move lipstick projectiles + collision
@@ -784,10 +780,10 @@ class Game {
             y: gy - 140,
             w: 80,
             h: 140,
-            baseSpeed: 80,
+            baseSpeed: 260,
             hitTimer: 0,
             oscillateT: 0,
-            projTimer: 2.0   // first lipstick after 2s
+            projTimer: 1.2
         };
         this._addFx(W / 2, H / 2 - 30, '★ BOSS ★', '#ffd700');
         this.audio.playPowerUp();
