@@ -49,6 +49,7 @@ class Game {
         this.bossActive = false;
         this.bossDefeated = false;
         this.boss = null;
+        this.bossProjectiles = [];
 
         // Player
         this.player = null;
@@ -298,6 +299,7 @@ class Game {
         this.bossActive = false;
         this.bossDefeated = false;
         this.boss = null;
+        this.bossProjectiles = [];
         this.transitionGate = null;
         this.vipCompleteTime = 0;
 
@@ -577,6 +579,48 @@ class Game {
                 b.x = targetX + Math.sin(b.oscillateT * 2.5) * 22;
             }
 
+            // Throw lipsticks once Naomi has slid into position
+            const bossInPlace = b.x <= PLAYER_X + PLAYER_W + 5 + 22 + 20;
+            if (bossInPlace) {
+                b.projTimer -= dt;
+                if (b.projTimer <= 0) {
+                    const gy = this.renderer.getGroundY();
+                    const PW = 40, PH = 16;
+                    // Alternate between low (jump) and high (duck) randomly
+                    const isHigh = Math.random() < 0.5;
+                    const py = isHigh ? gy - PH - 60 : gy - PH;
+                    this.bossProjectiles.push({
+                        x: b.x, y: py, w: PW, h: PH,
+                        speed: 360, high: isHigh, hit: false
+                    });
+                    b.projTimer = 2.2 + Math.random() * 1.8;
+                }
+            }
+
+            // Move lipstick projectiles + collision
+            this.bossProjectiles = this.bossProjectiles.filter(proj => {
+                proj.x -= proj.speed * dt;
+                if (proj.x + proj.w < 0) return false;
+                if (!proj.hit && p.hurtTimer <= 0 && this._aabb(p, proj)) {
+                    proj.hit = true;
+                    if (this.shieldActive) {
+                        this.shieldActive = false;
+                        this.audio.playShield();
+                        this._addFx(proj.x, proj.y, 'SHIELD!', '#00d4ff');
+                    } else {
+                        this.lives--;
+                        p.hurtTimer = 1.8;
+                        this.audio.playHit();
+                        this._addFx(p.x, p.y - 20, '💄 -1', '#ff3300');
+                        if (this.lives <= 0) {
+                            this._setState(S.GAME_OVER);
+                            return false;
+                        }
+                    }
+                }
+                return !proj.hit;
+            });
+
             // Collision with boss
             if (p.hurtTimer <= 0 && b.hitTimer <= 0 && this._aabb(p, b)) {
                 b.hitTimer = 0.6;
@@ -733,7 +777,8 @@ class Game {
     _spawnBoss() {
         const gy = this.renderer.getGroundY();
         this.bossActive = true;
-        this.obstacles = []; // clear existing obstacles
+        this.obstacles = [];
+        this.bossProjectiles = [];
         this.boss = {
             x: W + 60,
             y: gy - 140,
@@ -741,7 +786,8 @@ class Game {
             h: 140,
             baseSpeed: 80,
             hitTimer: 0,
-            oscillateT: 0
+            oscillateT: 0,
+            projTimer: 2.0   // first lipstick after 2s
         };
         this._addFx(W / 2, H / 2 - 30, '★ BOSS ★', '#ffd700');
         this.audio.playPowerUp();
@@ -837,6 +883,7 @@ class Game {
             for (const c of this.collectibles) r.drawCollectible(c);
             r.playerX = this.player ? this.player.x : 0;
             for (const o of this.obstacles) r.drawObstacle(o);
+            for (const proj of this.bossProjectiles) r.drawLipstick(proj);
             if (this.transitionGate) r.drawTransitionGate(this.transitionGate);
             if (this.bossActive && this.boss) r.drawBoss(this.boss, LEVELS[this.lvlIdx].accentColor, this.vipCompleteTime);
 
