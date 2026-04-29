@@ -77,8 +77,8 @@ const CHARACTERS = [
         }
     },
     {
-        id: 'sven',
-        name: 'Sven',
+        id: 'eric',
+        name: 'Eric',
         age: 22,
         origin: 'Kriens LU',
         bodyColor: '#2980b9',
@@ -86,7 +86,7 @@ const CHARACTERS = [
         abilityName: 'TURBO-SPRINT',
         abilityDesc: 'Permanenter Speed-Boost dank Adrenalinstoß',
         maxJumps: 2,
-        photoSrc: 'img/chars/sven.jpg',
+        photoSrc: 'img/chars/eric.jpg',
         sprite: {
             skinColor: '#f5cba7',
             hairColor: '#c8a060',     // light blonde
