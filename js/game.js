@@ -129,6 +129,14 @@ class Game {
         $('resumeBtn').onclick = () => { this.audio.resume(); this._setState(S.PLAYING); };
         $('quitBtn').onclick = () => this._setState(S.START);
 
+        $('showHighscoresBtn').onclick = () => {
+            this._renderHighscores('highscoreListOverlay');
+            $('hsOverlay').classList.remove('hidden');
+        };
+        $('closeHighscoresBtn').onclick = () => {
+            $('hsOverlay').classList.add('hidden');
+        };
+
         this._buildCharGrid();
         this._renderHighscores();
     }
@@ -699,8 +707,8 @@ class Game {
         try { localStorage.setItem(key, JSON.stringify(scores)); } catch (e) {}
     }
 
-    _renderHighscores() {
-        const list = document.getElementById('highscoreList');
+    _renderHighscores(targetId = 'highscoreList') {
+        const list = document.getElementById(targetId);
         if (!list) return;
         let scores = [];
         try { scores = JSON.parse(localStorage.getItem('jws_highscores') || '[]'); } catch (e) {}
