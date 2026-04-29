@@ -492,6 +492,37 @@ html, body {
     letter-spacing: 3px;
     text-shadow: 0 0 12px #ff009066;
 }
+/* ---- NAME INPUT ---- */
+.name-input-char {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    color: #ff0090;
+    letter-spacing: 4px;
+    text-align: center;
+    text-shadow: 0 0 10px #ff009066;
+}
+
+.name-input-field {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid #00d4ff;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    letter-spacing: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 12px 8px;
+    outline: none;
+    width: 100%;
+    max-width: 360px;
+    caret-color: #00d4ff;
+}
+.name-input-field::placeholder { color: #ffffff33; }
+.name-input-field:focus { border-bottom-color: #ff0090; }
+
 .screen-subtitle {
     font-size: 13px;
     color: #ffffff55;

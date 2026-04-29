@@ -18,7 +18,7 @@ const PLAYER_H_DUCK = 42;
 // State enum
 const S = {
     START: 0, CHAR_SELECT: 1, LEVEL_INTRO: 2,
-    PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6
+    PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7
 };
 
 class Game {
@@ -39,6 +39,7 @@ class Game {
         // Game state
         this.state = S.START;
         this.char = null;        // selected character
+        this.playerName = '';    // entered player name
         this.lvlIdx = 0;         // current level index
         this.score = 0;
         this.lives = 3;
@@ -108,8 +109,20 @@ class Game {
             this.audio.resume();
             this._setState(S.CHAR_SELECT);
         };
-        $('confirmCharBtn').onclick = () => { if (this.char) this._startGame(); };
-        $('retryBtn').onclick = () => this._startGame();
+        $('confirmCharBtn').onclick = () => { if (this.char) this._setState(S.NAME_INPUT); };
+        $('retryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('confirmNameBtn').onclick = () => {
+            const val = $('playerNameInput').value.trim();
+            if (!val) return;
+            this.playerName = val;
+            this._startGame();
+        };
+        $('playerNameInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const val = $('playerNameInput').value.trim();
+                if (val) { this.playerName = val; this._startGame(); }
+            }
+        });
         $('charSelectBtn').onclick = () => this._setState(S.CHAR_SELECT);
         $('playAgainBtn').onclick = () => this._setState(S.CHAR_SELECT);
         $('resumeBtn').onclick = () => { this.audio.resume(); this._setState(S.PLAYING); };
@@ -198,7 +211,7 @@ class Game {
     _setState(s) {
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
-            null, 'pauseScreen', 'gameOverScreen', 'winScreen'];
+            null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen'];
         document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
 
         const screenId = screens[s];
@@ -220,6 +233,15 @@ class Game {
                 panel.querySelector('.panel-origin').style.display = 'none';
                 panel.querySelector('.panel-ability').style.display = 'none';
                 document.getElementById('confirmCharBtn').style.display = 'none';
+            }
+        }
+        if (s === S.NAME_INPUT) {
+            const charLabel = document.getElementById('nameInputChar');
+            if (charLabel && this.char) charLabel.textContent = this.char.name.toUpperCase();
+            const input = document.getElementById('playerNameInput');
+            if (input) {
+                input.value = this.playerName || '';
+                requestAnimationFrame(() => input.focus());
             }
         }
         if (s === S.GAME_OVER) {
@@ -620,6 +642,7 @@ class Game {
         scores.push({
             score: this.score,
             char: this.char ? this.char.name : '?',
+            player: this.playerName || '?',
             date: new Date().toLocaleDateString('de-CH')
         });
         scores.sort((a, b) => b.score - a.score);
@@ -636,13 +659,16 @@ class Game {
             list.innerHTML = '<div class="hs-empty">Noch keine Einträge</div>';
             return;
         }
-        list.innerHTML = scores.slice(0, 10).map((s, i) =>
-            `<div class="hs-row">` +
-            `<span class="hs-rank">#${i + 1}</span>` +
-            `<span class="hs-char">${s.char.toUpperCase()}</span>` +
-            `<span class="hs-score">${s.score.toLocaleString()}</span>` +
-            `</div>`
-        ).join('');
+        list.innerHTML = scores.slice(0, 10).map((s, i) => {
+            const label = s.player && s.player !== '?'
+                ? `${s.player} mit ${s.char}`
+                : s.char;
+            return `<div class="hs-row">` +
+                `<span class="hs-rank">#${i + 1}</span>` +
+                `<span class="hs-char">${label.toUpperCase()}</span>` +
+                `<span class="hs-score">${s.score.toLocaleString()}</span>` +
+                `</div>`;
+        }).join('');
     }
 
     _aabb(a, b) {
