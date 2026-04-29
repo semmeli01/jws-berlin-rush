@@ -892,104 +892,118 @@ class Renderer {
     drawObstacle(obs) {
         const ctx = this.ctx;
 
-        // suitcase → Stinky sock with rising green stench clouds
+        // suitcase → Stinky sock
         if (obs.type === 'suitcase') {
             const x = obs.x, y = obs.y, w = obs.w, h = obs.h;
             const cx = x + w / 2;
-            const now = Date.now();
+            const now = Date.now() * 0.001;
 
-            // ── Sock body (L-shape: leg + foot) ──
-            const legX = x + w * 0.22, legW = w * 0.56, legH = h * 0.66;
-            const footY = y + h * 0.58, footW = w * 0.78, footH = h * 0.3;
-            const footX = x + w * 0.08;
-
-            // Cuff stripe at top (grey band)
-            ctx.fillStyle = '#C8C8C0';
-            ctx.fillRect(legX, y, legW, h * 0.11);
-            ctx.fillStyle = '#B0B0A8';
-            ctx.fillRect(legX, y + h * 0.05, legW, 3);
-
-            // Leg (vertical tube)
-            ctx.fillStyle = '#EDEAE0';
-            ctx.fillRect(legX, y + h * 0.08, legW, legH - h * 0.05);
-
-            // Foot (horizontal tube)
-            ctx.fillStyle = '#EDEAE0';
-            ctx.fillRect(footX, footY, footW - h * 0.14, footH);
-
-            // Toe (rounded end)
-            ctx.fillStyle = '#EDEAE0';
-            ctx.beginPath();
-            ctx.arc(footX + footW - h * 0.14, footY + footH / 2, footH / 2, -Math.PI / 2, Math.PI / 2);
-            ctx.fill();
-
-            // Heel (darker rounded bump at leg-foot join)
-            ctx.fillStyle = '#D8D4C8';
-            ctx.beginPath();
-            ctx.arc(legX, footY + footH / 2, footH * 0.55, Math.PI / 2, Math.PI * 1.5);
-            ctx.fill();
-
-            // Dirt / stain spots
-            ctx.fillStyle = 'rgba(160,120,30,0.38)';
-            ctx.beginPath(); ctx.ellipse(footX + footW * 0.55, footY + footH * 0.55, 7, 4, 0.4, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(footX + footW * 0.35, footY + footH * 0.4, 4, 3, -0.3, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(legX + legW * 0.55, y + legH * 0.5, 3, 5, 0.2, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(legX + legW * 0.25, y + legH * 0.7, 5, 3, -0.1, 0, Math.PI * 2); ctx.fill();
-
-            // Outline
-            ctx.strokeStyle = '#A8A49A';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            // Leg outline
-            ctx.rect(legX, y, legW, legH);
-            ctx.stroke();
-            ctx.beginPath();
-            // Foot outline
-            ctx.rect(footX, footY, footW - h * 0.14, footH);
-            ctx.stroke();
-
-            // ── Floating ground shadow ──
+            // ── Ground shadow ──
             ctx.fillStyle = 'rgba(0,0,0,0.25)';
             ctx.beginPath();
             ctx.ellipse(cx, y + h + 34, w * 0.35, 5, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // ── Rising stench clouds (animated green puffs) ──
-            const stenchConfigs = [
-                { xFrac: 0.30, speed: 0.60, delay: 0.00, size: 1.00 },
-                { xFrac: 0.62, speed: 0.80, delay: 0.35, size: 0.80 },
-                { xFrac: 0.48, speed: 0.70, delay: 0.65, size: 0.90 },
-                { xFrac: 0.20, speed: 0.50, delay: 0.82, size: 0.65 },
-                { xFrac: 0.75, speed: 0.65, delay: 0.18, size: 0.70 },
+            // ── Sock geometry ──
+            const legX = x + w * 0.22, legW = w * 0.56;
+            const legTopY = y + h * 0.10, legH = h * 0.58;
+            const footY = y + h * 0.60, footH = h * 0.28;
+            const footX = x + w * 0.06, footW = w * 0.86;
+
+            // Heel bump (grey, behind foot)
+            ctx.fillStyle = '#9A9EB0';
+            ctx.beginPath();
+            ctx.arc(legX + 2, footY + footH * 0.5, footH * 0.55, Math.PI * 0.4, Math.PI * 1.6);
+            ctx.fill();
+
+            // Foot
+            ctx.fillStyle = '#EDEAE0';
+            ctx.fillRect(footX + footH * 0.45, footY, footW - footH * 0.45, footH);
+            ctx.beginPath();
+            ctx.arc(footX + footW, footY + footH * 0.5, footH * 0.5, -Math.PI / 2, Math.PI / 2);
+            ctx.fill();
+            // Foot shadow strip
+            ctx.fillStyle = '#C8C6BC';
+            ctx.fillRect(footX + footH * 0.45, footY + footH * 0.72, footW - footH * 0.45, footH * 0.28);
+
+            // Leg
+            ctx.fillStyle = '#EDEAE0';
+            ctx.fillRect(legX, legTopY, legW, legH);
+            // Leg shadow (right edge)
+            ctx.fillStyle = '#C8C6BC';
+            ctx.fillRect(legX + legW * 0.78, legTopY, legW * 0.22, legH);
+
+            // Cuff
+            ctx.fillStyle = '#B8BCCA';
+            ctx.fillRect(legX, y, legW, h * 0.12);
+            ctx.fillStyle = '#6A6E80';
+            ctx.fillRect(legX, y + h * 0.045, legW, h * 0.028);
+            ctx.fillStyle = '#6A6E80';
+            ctx.fillRect(legX, y + h * 0.086, legW, h * 0.016);
+
+            // Cross-shaped dirt stains
+            const drawDirtCross = (sx, sy, s) => {
+                ctx.fillRect(sx - s,        sy - s * 0.35, s * 2,    s * 0.7);
+                ctx.fillRect(sx - s * 0.35, sy - s,        s * 0.7,  s * 2);
+            };
+            ctx.fillStyle = 'rgba(130,80,15,0.65)';
+            drawDirtCross(footX + footW * 0.52, footY + footH * 0.45, 6);
+            drawDirtCross(footX + footW * 0.30, footY + footH * 0.38, 4);
+            drawDirtCross(legX + legW * 0.58,   legTopY + legH * 0.42, 5);
+            drawDirtCross(legX + legW * 0.28,   legTopY + legH * 0.68, 3.5);
+
+            // Outline
+            ctx.strokeStyle = '#9A9690';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(legX, y, legW, h * 0.12 + legH);
+            ctx.strokeRect(footX + footH * 0.45, footY, footW - footH * 0.45, footH);
+
+            // ── Animated wavy green stench lines (rising) ──
+            const lineHeight = 52;
+            const steps = 18;
+            const segH = lineHeight / steps + 1;
+            const lineConfigs = [
+                { bx: cx - w * 0.14, amp: 5.5, speed: 0.38, phase: 0.0 },
+                { bx: cx + w * 0.14, amp: 4.5, speed: 0.32, phase: 0.55 },
             ];
-            for (const sc of stenchConfigs) {
-                const phase = ((now * 0.001 * sc.speed + sc.delay) % 1);
-                const sxc = x + w * sc.xFrac + Math.sin(phase * Math.PI * 2) * 6;
-                const syc = y - 10 - phase * 58;
-                const alpha = phase < 0.55 ? 0.72 : 0.72 * (1 - (phase - 0.55) / 0.45);
-                const puffR = (7 + sc.size * 5) * (0.4 + phase * 0.6);
-                ctx.save();
-                ctx.globalAlpha = alpha;
-                ctx.shadowColor = '#22BB00';
-                ctx.shadowBlur = 10;
-                // Three overlapping circles per puff
-                ctx.fillStyle = '#55DD22';
-                ctx.beginPath(); ctx.arc(sxc, syc, puffR, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#33CC00';
-                ctx.beginPath(); ctx.arc(sxc - puffR * 0.55, syc + puffR * 0.3, puffR * 0.7, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(sxc + puffR * 0.5, syc + puffR * 0.25, puffR * 0.65, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
+            ctx.save();
+            ctx.shadowColor = '#44DD00';
+            ctx.shadowBlur = 8;
+            for (const lc of lineConfigs) {
+                for (let i = 0; i < steps; i++) {
+                    const t = ((i / steps) + now * lc.speed) % 1;
+                    const segY = y - 4 - t * lineHeight;
+                    const waveX = lc.bx + Math.sin(t * Math.PI * 3.5 + lc.phase) * lc.amp;
+                    const alpha = t < 0.12 ? t / 0.12 : t > 0.72 ? (1 - t) / 0.28 : 1;
+                    const green = Math.round(150 + (1 - t) * 70);
+                    ctx.globalAlpha = alpha * 0.92;
+                    ctx.fillStyle = `rgb(55,${green},0)`;
+                    ctx.fillRect(waveX - 2, segY, 5, segH);
+                }
+            }
+            ctx.restore();
+
+            // ── Animated flies orbiting the sock ──
+            const sockcx = cx, sockcy = y + h * 0.44;
+            const flyDefs = [
+                { rx: w * 0.60, ry: h * 0.28, speed: 1.9, phase: 0.0 },
+                { rx: w * 0.52, ry: h * 0.20, speed: 1.3, phase: 2.1 },
+                { rx: w * 0.46, ry: h * 0.32, speed: 2.5, phase: 4.2 },
+                { rx: w * 0.64, ry: h * 0.18, speed: 1.7, phase: 1.5 },
+            ];
+            for (const fd of flyDefs) {
+                const angle = now * fd.speed + fd.phase;
+                const fx = Math.round(sockcx + Math.cos(angle) * fd.rx);
+                const fy = Math.round(sockcy + Math.sin(angle) * fd.ry);
+                // Body pixel
+                ctx.fillStyle = '#1A1A1A';
+                ctx.fillRect(fx - 1, fy - 1, 3, 2);
+                // Wings (light grey)
+                ctx.fillStyle = 'rgba(210,210,210,0.8)';
+                ctx.fillRect(fx - 3, fy - 2, 2, 1);
+                ctx.fillRect(fx + 2, fy - 2, 2, 1);
             }
 
-            // ── Label ──
-            ctx.fillStyle = '#66DD22';
-            ctx.font = 'bold 9px "Zuume", monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'alphabetic';
-            ctx.fillText('STINKY!', cx, y - 74);
-            ctx.fillStyle = '#ffffff88';
-            ctx.font = '8px monospace';
-            ctx.fillText('↓ duck', cx, y - 4);
             return;
         }
 
