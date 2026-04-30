@@ -910,3 +910,51 @@ html, body {
         background: rgba(170, 170, 180, 0.36);
     }
 }
+
+/* Also show pause button in portrait during gameplay */
+@media (orientation: portrait) and (pointer: coarse) {
+    #app.gameplay-active .mobile-pause-btn {
+        display: flex;
+        position: absolute;
+        left: 50%;
+        /*
+         * Stack from bottom:
+         *   safe-area / home bar  (env(safe-area-inset-bottom))
+         *   orientation hint box  (~clamp(48px, 7vh, 64px) tall)
+         *   gap between hint and button (~clamp(10px, 1.5vh, 16px))
+         */
+        bottom: calc(
+            max(clamp(12px, 2.5vh, 24px), env(safe-area-inset-bottom, 12px))
+            + clamp(48px, 7vh, 64px)
+            + clamp(18px, 2.5vh, 28px)
+        );
+        transform: translateX(-50%);
+        z-index: 40;
+        pointer-events: auto;
+
+        align-items: center;
+        justify-content: center;
+
+        min-width: clamp(96px, 32vw, 160px);
+        min-height: clamp(40px, 6vh, 54px);
+        padding: 0 clamp(18px, 5vw, 32px);
+
+        border: 2px solid rgba(220, 220, 220, 0.9);
+        background: rgba(120, 120, 130, 0.28);
+        color: #f2f2f2;
+        cursor: pointer;
+
+        font-family: 'Inter', sans-serif;
+        font-weight: 900;
+        font-size: clamp(12px, 3.5vw, 16px);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        box-shadow: 0 0 10px rgba(220, 220, 220, 0.45),
+                    inset 0 0 12px rgba(255, 255, 255, 0.12);
+    }
+
+    #app.gameplay-active .mobile-pause-btn:active {
+        transform: translateX(-50%) scale(0.96);
+        background: rgba(170, 170, 180, 0.36);
+    }
+}
