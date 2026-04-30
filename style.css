@@ -656,33 +656,45 @@ html, body {
 .touch-jump .touch-label { color: #ff009099; }
 .touch-duck .touch-label { color: #00d4ff99; }
 
-.rotate-tip {
+.portrait-orientation-hint {
     position: absolute;
-    bottom: max(8px, env(safe-area-inset-bottom, 8px));
-    left: 0; right: 0;
-    text-align: center;
-    font-family: 'Inter', sans-serif;
-    font-size: clamp(10px, 2.5vw, 13px);
-    color: #ffffff33;
-    letter-spacing: 1px;
+    bottom: max(clamp(12px, 2.5vh, 24px), env(safe-area-inset-bottom, 12px));
+    left: 50%;
+    transform: translateX(-50%);
     pointer-events: none;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
+    gap: clamp(8px, 2vw, 14px);
+    padding: clamp(8px, 1.8vh, 14px) clamp(14px, 3.5vw, 24px);
+    background: rgba(20, 20, 28, 0.72);
+    border: 1.5px solid rgba(220, 220, 220, 0.55);
+    border-radius: 10px;
+    box-shadow: 0 0 14px rgba(0, 212, 255, 0.18), 0 0 8px rgba(255, 0, 144, 0.12), 0 2px 12px rgba(0,0,0,0.5);
+    white-space: nowrap;
 }
 
-.rotate-tip-icon {
-    display: inline-block;
-    font-size: clamp(14px, 3.5vw, 18px);
-    animation: rotateTip 2s ease-in-out infinite;
+.poi-icon {
+    width: clamp(28px, 6vw, 42px);
+    height: auto;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.55)) drop-shadow(0 0 3px rgba(255, 0, 144, 0.45));
+    animation: poiPhoneTilt 3s ease-in-out infinite;
     transform-origin: center;
 }
 
-@keyframes rotateTip {
+.poi-text {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(9px, 2vw, 12px);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: rgba(220, 220, 230, 0.88);
+    text-transform: uppercase;
+}
+
+@keyframes poiPhoneTilt {
     0%   { transform: rotate(0deg); }
-    40%  { transform: rotate(90deg); }
-    60%  { transform: rotate(90deg); }
+    35%  { transform: rotate(90deg); }
+    65%  { transform: rotate(90deg); }
     100% { transform: rotate(0deg); }
 }
 
@@ -720,12 +732,15 @@ html, body {
         overflow-x: hidden;
     }
 
+    .char-grid-title { text-align: center; }
+    .char-grid-subtitle { text-align: center; margin-left: auto; margin-right: auto; }
+
     .char-info-panel {
         width: 100%;
         height: clamp(130px, 24vh, 210px);
         flex-shrink: 0;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         border-left: none;
         border-top: 1px solid #ff009033;
@@ -744,16 +759,16 @@ html, body {
     }
     .char-info-panel .panel-name {
         font-size: clamp(20px, 6vw, 38px);
-        text-align: left;
+        text-align: center;
         letter-spacing: 1px;
     }
     .char-info-panel .panel-origin {
         font-size: clamp(10px, 2.5vw, 14px);
-        text-align: left;
+        text-align: center;
     }
     .char-info-panel .panel-ability {
         font-size: clamp(10px, 2.3vw, 14px);
-        text-align: left;
+        text-align: center;
         line-height: 1.35;
         white-space: pre-line;
     }
@@ -791,4 +806,107 @@ html, body {
 @media (orientation: landscape) {
     .portrait-hud  { display: none !important; }
     .touch-controls { display: none !important; }
+}
+
+/* Ground strip = bottom 24% of the 960×540 logical canvas (getGroundY = H*0.76).
+   In landscape on phones the canvas height ≈ 100vh, so 24vh matches exactly.
+   Capped at 132px to avoid overshooting on wide-canvas tablets. */
+:root { --landscape-floor-h: clamp(80px, 24vh, 132px); }
+
+/* =============================================
+   LANDSCAPE TOUCH HINTS
+   Shown only on touch/coarse-pointer devices in landscape during gameplay.
+   pointer-events: none — never captures taps.
+   ============================================= */
+.touch-hints-landscape {
+    display: none; /* hidden by default; enabled via media query below */
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9; /* below screens (z-index 20) but above canvas */
+}
+
+.touch-hint {
+    position: absolute;
+    bottom: clamp(24px, 8vh, 72px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.72;
+}
+
+.touch-hint-jump { left: 18%; color: #ff0090; }
+.touch-hint-duck { right: 18%; color: #00d4ff; }
+
+.touch-arrow {
+    font-size: clamp(36px, 7vw, 64px);
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 0 12px currentColor, 0 0 28px currentColor;
+}
+
+.touch-hint-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: clamp(10px, 1.4vw, 15px);
+    letter-spacing: 0.18em;
+}
+
+/* ---- Mobile pause button (hidden by default) ---- */
+.mobile-pause-btn {
+    display: none;
+}
+
+/* Only visible on coarse-pointer (touch) devices in landscape during gameplay */
+@media (orientation: landscape) and (pointer: coarse) {
+    #app.gameplay-active .touch-hints-landscape {
+        display: block;
+    }
+
+    /* Anchor arrows to the vertical center of the floor strip */
+    .touch-hints-landscape .touch-hint {
+        bottom: calc(var(--landscape-floor-h) / 2);
+        transform: translateY(50%);
+    }
+
+    /* Slightly smaller arrow so it fits neatly within the floor strip */
+    .touch-hints-landscape .touch-arrow {
+        font-size: clamp(32px, 6vw, 56px);
+    }
+
+    #app.gameplay-active .mobile-pause-btn {
+        display: flex;
+        position: absolute;
+        left: 50%;
+        bottom: clamp(14px, 4vh, 36px);
+        transform: translateX(-50%);
+        z-index: 30;
+        pointer-events: auto;
+
+        align-items: center;
+        justify-content: center;
+
+        min-width: clamp(96px, 18vw, 160px);
+        min-height: clamp(40px, 8vh, 56px);
+        padding: 0 clamp(18px, 4vw, 32px);
+
+        border: 2px solid rgba(220, 220, 220, 0.9);
+        background: rgba(120, 120, 130, 0.28);
+        color: #f2f2f2;
+        cursor: pointer;
+
+        font-family: 'Inter', sans-serif;
+        font-weight: 900;
+        font-size: clamp(11px, 1.8vw, 15px);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        box-shadow: 0 0 10px rgba(220, 220, 220, 0.45),
+                    inset 0 0 12px rgba(255, 255, 255, 0.12);
+    }
+
+    #app.gameplay-active .mobile-pause-btn:active {
+        transform: translateX(-50%) scale(0.96);
+        background: rgba(170, 170, 180, 0.36);
+    }
 }
