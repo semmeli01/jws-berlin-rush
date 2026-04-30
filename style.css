@@ -732,12 +732,15 @@ html, body {
         overflow-x: hidden;
     }
 
+    .char-grid-title { text-align: center; }
+    .char-grid-subtitle { text-align: center; margin-left: auto; margin-right: auto; }
+
     .char-info-panel {
         width: 100%;
         height: clamp(130px, 24vh, 210px);
         flex-shrink: 0;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         border-left: none;
         border-top: 1px solid #ff009033;
@@ -756,16 +759,16 @@ html, body {
     }
     .char-info-panel .panel-name {
         font-size: clamp(20px, 6vw, 38px);
-        text-align: left;
+        text-align: center;
         letter-spacing: 1px;
     }
     .char-info-panel .panel-origin {
         font-size: clamp(10px, 2.5vw, 14px);
-        text-align: left;
+        text-align: center;
     }
     .char-info-panel .panel-ability {
         font-size: clamp(10px, 2.3vw, 14px);
-        text-align: left;
+        text-align: center;
         line-height: 1.35;
         white-space: pre-line;
     }
