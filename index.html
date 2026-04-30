@@ -11,6 +11,25 @@
         <canvas id="gameCanvas"></canvas>
         <button id="muteBtn" class="mute-btn" title="Sound ein/aus">🔊</button>
 
+        <!-- Portrait HUD strip — score/lives/level outside canvas in portrait -->
+        <div id="portraitHUD" class="portrait-hud">
+            <span id="phScore" class="ph-score">0</span>
+            <span id="phLevel" class="ph-level">LV.1</span>
+            <span id="phLives" class="ph-lives">❤ ❤ ❤</span>
+        </div>
+
+        <!-- Portrait touch controls — jump / duck zones below the canvas -->
+        <div id="touchControls" class="touch-controls">
+            <div id="jumpBtn" class="touch-btn touch-jump">
+                <span class="touch-icon">↑</span>
+                <span class="touch-label">SPRINGEN</span>
+            </div>
+            <div id="duckBtn" class="touch-btn touch-duck">
+                <span class="touch-icon">↓</span>
+                <span class="touch-label">DUCKEN</span>
+            </div>
+        </div>
+
         <!-- Start Screen -->
         <div id="startScreen" class="screen start-screen">
             <img class="start-keyvisual" src="JWS-BILDMATERIAL/KEYVISUAL/©CH Media_JWS08-group_by F Stropek_(16_9) large.jpg" alt="JWS Cast">
@@ -122,14 +141,6 @@
             </div>
         </div>
 
-        <!-- Portrait / rotate hint -->
-        <div id="rotateHint" style="display:none">
-            <div class="rotate-hint-content">
-                <div class="rotate-hint-icon">📱↻</div>
-                <div class="rotate-hint-text">Bitte drehe dein Gerät</div>
-                <div class="rotate-hint-sub">Das Spiel läuft nur im Querformat</div>
-            </div>
-        </div>
     </div>
 
     <script src="js/characters.js"></script>

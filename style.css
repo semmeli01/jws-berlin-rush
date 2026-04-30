@@ -18,6 +18,7 @@ html, body {
     font-family: 'Inter', sans-serif;
     color: #fff;
     cursor: default;
+    overscroll-behavior: none;
 }
 
 #app {
@@ -579,49 +580,185 @@ html, body {
     margin-top: 4px;
 }
 
-/* ---- ROTATE HINT (portrait blocker) ---- */
-#rotateHint {
-    position: absolute;
-    inset: 0;
-    z-index: 100;
-    background: #050010;
-    display: flex;
+/* =============================================
+   PORTRAIT HUD — thin info strip outside canvas
+   ============================================= */
+.portrait-hud {
+    display: none; /* shown via portrait media query */
+    flex-shrink: 0;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    padding: 6px max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    background: rgba(0, 0, 0, 0.88);
+    border-top: 1px solid #ff009044;
+    border-bottom: 1px solid #00d4ff22;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(11px, 3.8vw, 16px);
+    letter-spacing: 1px;
+    z-index: 5;
+    position: relative;
+}
+.ph-score { color: #fff; }
+.ph-level { color: #00d4ff; letter-spacing: 2px; }
+.ph-lives { color: #e74c3c; letter-spacing: 3px; }
+
+/* =============================================
+   PORTRAIT TOUCH CONTROLS — jump / duck zones
+   ============================================= */
+.touch-controls {
+    display: none; /* shown via portrait media query */
+    flex: 1;
+    touch-action: none;
+    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+    position: relative;
 }
 
-.rotate-hint-content {
+.touch-btn {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    text-align: center;
-    padding: 32px;
+    justify-content: center;
+    gap: clamp(6px, 2vh, 14px);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.08s;
 }
 
-.rotate-hint-icon {
-    font-size: 64px;
-    animation: rotateDevice 1.5s ease-in-out infinite alternate;
+.touch-jump {
+    background: rgba(255, 0, 144, 0.07);
+    border-right: 1px solid #ff009033;
 }
+.touch-jump:active { background: rgba(255, 0, 144, 0.22); }
 
-@keyframes rotateDevice {
-    from { transform: rotate(-20deg); }
-    to   { transform: rotate(20deg); }
+.touch-duck {
+    background: rgba(0, 212, 255, 0.07);
 }
+.touch-duck:active { background: rgba(0, 212, 255, 0.22); }
 
-.rotate-hint-text {
+.touch-icon {
+    font-size: clamp(36px, 11vw, 64px);
+    line-height: 1;
+    font-weight: 900;
+}
+.touch-jump .touch-icon { color: #ff0090; text-shadow: 0 0 20px #ff009066; }
+.touch-duck .touch-icon { color: #00d4ff; text-shadow: 0 0 20px #00d4ff66; }
+
+.touch-label {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
-    font-size: clamp(20px, 5vw, 32px);
-    color: #ff0090;
-    letter-spacing: 3px;
-    text-shadow: 0 0 12px #ff009066;
+    font-size: clamp(11px, 3.5vw, 18px);
+    letter-spacing: clamp(2px, 1vw, 4px);
+}
+.touch-jump .touch-label { color: #ff009099; }
+.touch-duck .touch-label { color: #00d4ff99; }
+
+/* =============================================
+   PORTRAIT LAYOUT  (@media orientation: portrait)
+   ============================================= */
+@media (orientation: portrait) {
+    html, body { height: 100dvh; }
+
+    #app {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        height: 100dvh;
+    }
+
+    /* Canvas anchored to top, sized by JS (full vw × 9/16) */
+    #gameCanvas { flex-shrink: 0; }
+
+    /* Show portrait-only elements */
+    .portrait-hud  { display: flex; }
+    .touch-controls { display: flex; }
+
+    /* --- Start screen -------------------------------------------------- */
+    .start-content { gap: clamp(10px, 3vh, 24px); }
+    .start-keyvisual { object-position: center 30%; }
+    /* Collapse highscore list so CTA stays above the fold */
+    .highscore-wrap { max-height: clamp(60px, 12vh, 100px); }
+
+    /* --- Character select ---------------------------------------------- */
+    #charSelectScreen { flex-direction: column; }
+
+    .char-grid-panel {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .char-info-panel {
+        width: 100%;
+        height: clamp(130px, 24vh, 210px);
+        flex-shrink: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        border-left: none;
+        border-top: 1px solid #ff009033;
+        padding: clamp(8px, 2vh, 14px) clamp(14px, 3vw, 24px);
+        gap: clamp(2px, 0.5vh, 6px);
+        overflow: hidden;
+    }
+
+    /* Photo not needed in portrait — char card already shows it */
+    .char-info-panel .panel-photo { display: none !important; }
+
+    .char-info-panel .panel-placeholder {
+        font-size: clamp(12px, 3.5vw, 16px);
+        text-align: center;
+        width: 100%;
+    }
+    .char-info-panel .panel-name {
+        font-size: clamp(20px, 6vw, 38px);
+        text-align: left;
+        letter-spacing: 1px;
+    }
+    .char-info-panel .panel-origin {
+        font-size: clamp(10px, 2.5vw, 14px);
+        text-align: left;
+    }
+    .char-info-panel .panel-ability {
+        font-size: clamp(10px, 2.3vw, 14px);
+        text-align: left;
+        line-height: 1.35;
+        white-space: pre-line;
+    }
+
+    #confirmCharBtn {
+        width: 100%;
+        margin-top: clamp(4px, 1vh, 10px);
+        padding: clamp(8px, 1.5vh, 14px) clamp(12px, 2vw, 24px);
+        font-size: clamp(13px, 4vw, 20px);
+        letter-spacing: 2px;
+    }
+
+    /* Hide highscores button in portrait (accessible via start screen) */
+    .hs-open-btn { display: none; }
+
+    /* --- Level intro --------------------------------------------------- */
+    .level-intro-wrap {
+        padding: clamp(20px, 5vh, 60px) clamp(16px, 4vw, 40px);
+    }
+
+    /* --- Game-over / win / misc fixes ---------------------------------- */
+    .over-score  { font-size: clamp(14px, 4vw, 26px); }
+    .win-sub     { font-size: clamp(11px, 3vw, 18px); }
+    .win-score   { font-size: clamp(14px, 4vw, 28px); }
+    .screen-title { font-size: clamp(16px, 5vw, 28px); }
+    .hs-char     { min-width: min(130px, 28vw); }
+
+    /* --- Name input ---------------------------------------------------- */
+    #nameInputScreen { overflow-y: auto; }
 }
 
-.rotate-hint-sub {
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
-    font-size: clamp(12px, 3vw, 16px);
-    color: #ffffffaa;
-    letter-spacing: 2px;
+/* =============================================
+   LANDSCAPE — hide portrait-only elements
+   ============================================= */
+@media (orientation: landscape) {
+    .portrait-hud  { display: none !important; }
+    .touch-controls { display: none !important; }
 }
