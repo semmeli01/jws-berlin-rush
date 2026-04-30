@@ -30,7 +30,7 @@ class Game {
         this._resizeCanvas();
         window.addEventListener('resize', () => {
             this._resizeCanvas();
-            if (this.state === S.CHAR_SELECT) this._resizeCharGrid();
+            if (this.state === S.CHAR_SELECT) requestAnimationFrame(() => this._resizeCharGrid());
         });
 
         this.audio = new AudioEngine();
@@ -87,19 +87,24 @@ class Game {
     }
 
     _resizeCanvas() {
-        const ratio = W / H;
-        let cw = window.innerWidth;
-        let ch = window.innerHeight;
-        if (cw / ch > ratio) { cw = ch * ratio; } else { ch = cw / ratio; }
-        this.canvas.width = W;
+        this.canvas.width  = W;
         this.canvas.height = H;
-        this.canvas.style.width = cw + 'px';
-        this.canvas.style.height = ch + 'px';
 
-        const isPortrait = window.innerHeight > window.innerWidth;
-        const hint = document.getElementById('rotateHint');
-        if (hint) hint.style.display = isPortrait ? 'flex' : 'none';
-        if (isPortrait && this.state === S.PLAYING) this._setState(S.PAUSED);
+        if (window.innerHeight > window.innerWidth) {
+            // Portrait: canvas fills full viewport width, height preserves 16:9
+            const cw = window.innerWidth;
+            const ch = Math.round(cw * H / W);
+            this.canvas.style.width  = cw + 'px';
+            this.canvas.style.height = ch + 'px';
+        } else {
+            // Landscape / desktop: fit inside viewport maintaining 16:9
+            const ratio = W / H;
+            let cw = window.innerWidth;
+            let ch = window.innerHeight;
+            if (cw / ch > ratio) { cw = ch * ratio; } else { ch = cw / ratio; }
+            this.canvas.style.width  = cw + 'px';
+            this.canvas.style.height = ch + 'px';
+        }
     }
 
     // ---- UI WIRING ----
@@ -141,6 +146,29 @@ class Game {
         $('closeHighscoresBtn').onclick = () => {
             $('hsOverlay').classList.add('hidden');
         };
+
+        // Portrait HUD element refs
+        this._phScore = $('phScore');
+        this._phLevel = $('phLevel');
+        this._phLives = $('phLives');
+
+        // Portrait touch controls
+        const jumpBtn = $('jumpBtn');
+        const duckBtn = $('duckBtn');
+        if (jumpBtn) {
+            jumpBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (this.state === S.PLAYING) this.input.jumpJustPressed = true;
+            }, { passive: false });
+        }
+        if (duckBtn) {
+            duckBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (this.state === S.PLAYING) this.input.duckHeld = true;
+            }, { passive: false });
+            duckBtn.addEventListener('touchend',   (e) => { e.preventDefault(); this.input.duckHeld = false; }, { passive: false });
+            duckBtn.addEventListener('touchcancel',(e) => { e.preventDefault(); this.input.duckHeld = false; }, { passive: false });
+        }
 
         this._buildCharGrid();
         this._renderHighscores();
@@ -711,6 +739,17 @@ class Game {
 
     // ---- HIGH SCORES ----
 
+    _updatePortraitHUD() {
+        if (!this._phScore) return;
+        const lvl = LEVELS[this.lvlIdx];
+        const scoreStr = this.score.toLocaleString();
+        const levelStr = `LV.${lvl?.id ?? 1}`;
+        const livesStr = '❤'.repeat(Math.max(0, this.lives));
+        if (this._phScore.textContent !== scoreStr) this._phScore.textContent = scoreStr;
+        if (this._phLevel.textContent !== levelStr) this._phLevel.textContent = levelStr;
+        if (this._phLives.textContent !== livesStr) this._phLives.textContent = livesStr;
+    }
+
     _saveScore() {
         const key = 'jws_highscores';
         let scores = [];
@@ -938,6 +977,7 @@ class Game {
             r.drawHUD(this.score, this.lives, this.multi,
                 lvl.id, lvl.accentColor, this.vipStickers, lvl.hasBoss);
             r.drawProgressBar(this.levelDist / lvl.levelGoalDistance, lvl.accentColor);
+            this._updatePortraitHUD();
 
             // Keyboard hints (level 1 only, fade out after 10s)
             if (this.lvlIdx === 0) {
