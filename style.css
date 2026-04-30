@@ -793,6 +793,11 @@ html, body {
     .touch-controls { display: none !important; }
 }
 
+/* Ground strip = bottom 24% of the 960×540 logical canvas (getGroundY = H*0.76).
+   In landscape on phones the canvas height ≈ 100vh, so 24vh matches exactly.
+   Capped at 132px to avoid overshooting on wide-canvas tablets. */
+:root { --landscape-floor-h: clamp(80px, 24vh, 132px); }
+
 /* =============================================
    LANDSCAPE TOUCH HINTS
    Shown only on touch/coarse-pointer devices in landscape during gameplay.
@@ -842,6 +847,17 @@ html, body {
 @media (orientation: landscape) and (pointer: coarse) {
     #app.gameplay-active .touch-hints-landscape {
         display: block;
+    }
+
+    /* Anchor arrows to the vertical center of the floor strip */
+    .touch-hints-landscape .touch-hint {
+        bottom: calc(var(--landscape-floor-h) / 2);
+        transform: translateY(50%);
+    }
+
+    /* Slightly smaller arrow so it fits neatly within the floor strip */
+    .touch-hints-landscape .touch-arrow {
+        font-size: clamp(32px, 6vw, 56px);
     }
 
     #app.gameplay-active .mobile-pause-btn {
