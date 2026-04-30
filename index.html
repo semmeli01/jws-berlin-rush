@@ -11,6 +11,18 @@
         <canvas id="gameCanvas"></canvas>
         <button id="muteBtn" class="mute-btn" title="Sound ein/aus">🔊</button>
 
+        <!-- Landscape touch hints — pointer-events:none overlay, coarse/touch devices only -->
+        <div class="touch-hints-landscape" aria-hidden="true">
+            <div class="touch-hint touch-hint-jump">
+                <div class="touch-arrow">↑</div>
+                <div class="touch-hint-label">SPRINGEN</div>
+            </div>
+            <div class="touch-hint touch-hint-duck">
+                <div class="touch-arrow">↓</div>
+                <div class="touch-hint-label">DUCKEN</div>
+            </div>
+        </div>
+
         <!-- Portrait HUD strip — score/lives/level outside canvas in portrait -->
         <div id="portraitHUD" class="portrait-hud">
             <span id="phScore" class="ph-score">0</span>

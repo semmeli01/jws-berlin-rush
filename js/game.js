@@ -275,6 +275,7 @@ class Game {
 
         document.getElementById('muteBtn').classList.toggle('visible',
             s === S.PLAYING || s === S.PAUSED);
+        document.getElementById('app').classList.toggle('gameplay-active', s === S.PLAYING);
 
         if (s === S.CHAR_SELECT) {
             this.char = null;

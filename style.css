@@ -792,3 +792,50 @@ html, body {
     .portrait-hud  { display: none !important; }
     .touch-controls { display: none !important; }
 }
+
+/* =============================================
+   LANDSCAPE TOUCH HINTS
+   Shown only on touch/coarse-pointer devices in landscape during gameplay.
+   pointer-events: none — never captures taps.
+   ============================================= */
+.touch-hints-landscape {
+    display: none; /* hidden by default; enabled via media query below */
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9; /* below screens (z-index 20) but above canvas */
+}
+
+.touch-hint {
+    position: absolute;
+    bottom: clamp(24px, 8vh, 72px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.72;
+}
+
+.touch-hint-jump { left: 18%; color: #ff0090; }
+.touch-hint-duck { right: 18%; color: #00d4ff; }
+
+.touch-arrow {
+    font-size: clamp(36px, 7vw, 64px);
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 0 12px currentColor, 0 0 28px currentColor;
+}
+
+.touch-hint-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: clamp(10px, 1.4vw, 15px);
+    letter-spacing: 0.18em;
+}
+
+/* Only visible on coarse-pointer (touch) devices in landscape during gameplay */
+@media (orientation: landscape) and (pointer: coarse) {
+    #app.gameplay-active .touch-hints-landscape {
+        display: block;
+    }
+}
