@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>JWS: Berlin Rush</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -71,7 +71,7 @@
             <div class="screen-content">
                 <div class="screen-title">WIE HEISST DU?</div>
                 <div class="name-input-char" id="nameInputChar"></div>
-                <input id="playerNameInput" class="name-input-field" type="text" maxlength="20" placeholder="DEIN NAME" autocomplete="off" spellcheck="false">
+                <input id="playerNameInput" class="name-input-field" type="text" maxlength="20" placeholder="DEIN NAME" autocomplete="off" spellcheck="false" inputmode="text" autocapitalize="words">
                 <button id="confirmNameBtn" class="btn-primary">LOS GEHT'S!</button>
             </div>
         </div>
@@ -119,6 +119,15 @@
                 <div class="pause-title">PAUSE</div>
                 <button id="resumeBtn" class="btn-primary">WEITER</button>
                 <button id="quitBtn" class="btn-secondary">BEENDEN</button>
+            </div>
+        </div>
+
+        <!-- Portrait / rotate hint -->
+        <div id="rotateHint" style="display:none">
+            <div class="rotate-hint-content">
+                <div class="rotate-hint-icon">📱↻</div>
+                <div class="rotate-hint-text">Bitte drehe dein Gerät</div>
+                <div class="rotate-hint-sub">Das Spiel läuft nur im Querformat</div>
             </div>
         </div>
     </div>

@@ -33,18 +33,21 @@ html, body {
     display: block;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+    touch-action: none;
 }
 
 /* ---- Mute Button ---- */
 .mute-btn {
     position: absolute;
-    top: 8px; right: 12px;
+    top: max(clamp(8px, 2vw, 16px), env(safe-area-inset-top, 0px));
+    right: max(clamp(8px, 2vw, 16px), env(safe-area-inset-right, 0px));
     z-index: 10;
     background: rgba(0, 0, 0, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    font-size: 18px;
-    width: 36px; height: 36px;
+    font-size: clamp(14px, 2vw, 20px);
+    width: clamp(28px, 4vw, 44px);
+    height: clamp(28px, 4vw, 44px);
     border-radius: 4px;
     cursor: pointer;
     display: none;
@@ -72,10 +75,10 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    padding: 40px 48px;
+    gap: clamp(12px, 2.5vh, 20px);
+    padding: clamp(16px, 4vh, 40px) clamp(16px, 4vw, 48px);
     width: 100%;
-    max-width: 560px;
+    max-width: min(560px, 92vw);
     text-align: center;
 }
 
@@ -119,7 +122,7 @@ html, body {
 .jws-logo {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 100px;
+    font-size: clamp(36px, 10vw, 100px);
     line-height: 1;
     color: #ff0090;
     text-shadow: 0 0 10px #ff0090, 0 0 30px #ff009088, 0 0 60px #ff009044;
@@ -135,7 +138,7 @@ html, body {
 .logo-sub {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
-    font-size: 32px;
+    font-size: clamp(14px, 3.5vw, 32px);
     color: #00d4ff;
     letter-spacing: 7px;
     text-shadow: 0 0 14px #00d4ff;
@@ -145,7 +148,7 @@ html, body {
 .logo-tagline {
     font-family: 'Inter', sans-serif;
     font-weight: 300;
-    font-size: 15px;
+    font-size: clamp(10px, 2vw, 15px);
     color: #ffffffaa;
     letter-spacing: 4px;
     margin-top: 10px;
@@ -162,6 +165,8 @@ html, body {
 .highscore-wrap {
     margin-top: 16px;
     text-align: center;
+    max-height: clamp(80px, 22vh, 220px);
+    overflow-y: auto;
 }
 .hs-title {
     font-family: 'Inter', sans-serif;
@@ -191,10 +196,10 @@ html, body {
     background: linear-gradient(135deg, #ff0090, #cc0070);
     color: #fff;
     border: none;
-    padding: 18px 64px;
+    padding: clamp(10px, 2vh, 18px) clamp(24px, 5vw, 64px);
     font-family: 'Inter', sans-serif;
     font-weight: 800;
-    font-size: 26px;
+    font-size: clamp(14px, 2.5vw, 26px);
     letter-spacing: 5px;
     cursor: pointer;
     clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
@@ -209,10 +214,10 @@ html, body {
     background: transparent;
     color: #00d4ff;
     border: 2px solid #00d4ff;
-    padding: 14px 40px;
+    padding: clamp(8px, 1.5vh, 14px) clamp(16px, 3.5vw, 40px);
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: clamp(12px, 2vw, 20px);
     letter-spacing: 3px;
     cursor: pointer;
     transition: background 0.1s;
@@ -322,7 +327,7 @@ html, body {
 
 /* Right panel: selected character info */
 .char-info-panel {
-    width: clamp(220px, 22vw, 360px);
+    width: clamp(160px, 28vw, 360px);
     flex-shrink: 0;
     background: rgba(255, 0, 144, 0.06);
     border-left: 1px solid #ff009033;
@@ -406,7 +411,7 @@ html, body {
     to   { opacity: 1; transform: translateY(0); }
 }
 .level-intro-number {
-    font-size: 26px;
+    font-size: clamp(14px, 3vw, 26px);
     color: #ffffffaa;
     letter-spacing: 8px;
     margin-bottom: 14px;
@@ -415,7 +420,7 @@ html, body {
 .level-intro-name {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 72px;
+    font-size: clamp(28px, 7vw, 72px);
     color: #ff0090;
     text-shadow: 0 0 24px #ff0090;
     line-height: 1.05;
@@ -424,10 +429,10 @@ html, body {
     text-align: center;
 }
 .level-intro-desc {
-    font-size: 22px;
+    font-size: clamp(11px, 2.2vw, 22px);
     color: #ffffffcc;
     line-height: 1.7;
-    max-width: 620px;
+    max-width: min(620px, 88vw);
     text-align: center;
     margin: 0 auto;
 }
@@ -436,7 +441,7 @@ html, body {
 .over-title {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 80px;
+    font-size: clamp(32px, 8vw, 80px);
     color: #ff3300;
     text-shadow: 0 0 24px #ff330088;
     letter-spacing: 6px;
@@ -456,7 +461,7 @@ html, body {
 .win-title {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 70px;
+    font-size: clamp(28px, 7vw, 70px);
     color: #ffd700;
     text-shadow: 0 0 24px #ffd70088;
     letter-spacing: 4px;
@@ -469,7 +474,7 @@ html, body {
 .pause-title {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 80px;
+    font-size: clamp(32px, 8vw, 80px);
     color: #00d4ff;
     text-shadow: 0 0 24px #00d4ff88;
     letter-spacing: 10px;
@@ -540,7 +545,7 @@ html, body {
 .name-input-char {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 20px;
+    font-size: clamp(14px, 3vw, 20px);
     color: #ff0090;
     letter-spacing: 4px;
     text-align: center;
@@ -554,14 +559,14 @@ html, body {
     color: #fff;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    font-size: 32px;
-    letter-spacing: 6px;
+    font-size: clamp(16px, 3.5vw, 32px);
+    letter-spacing: clamp(2px, 1vw, 6px);
     text-align: center;
     text-transform: uppercase;
     padding: 12px 8px;
     outline: none;
     width: 100%;
-    max-width: 360px;
+    max-width: min(360px, 88vw);
     caret-color: #00d4ff;
 }
 .name-input-field::placeholder { color: #ffffff33; }
@@ -572,4 +577,51 @@ html, body {
     color: #ffffff55;
     letter-spacing: 2px;
     margin-top: 4px;
+}
+
+/* ---- ROTATE HINT (portrait blocker) ---- */
+#rotateHint {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    background: #050010;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rotate-hint-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    padding: 32px;
+}
+
+.rotate-hint-icon {
+    font-size: 64px;
+    animation: rotateDevice 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes rotateDevice {
+    from { transform: rotate(-20deg); }
+    to   { transform: rotate(20deg); }
+}
+
+.rotate-hint-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: clamp(20px, 5vw, 32px);
+    color: #ff0090;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px #ff009066;
+}
+
+.rotate-hint-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: clamp(12px, 3vw, 16px);
+    color: #ffffffaa;
+    letter-spacing: 2px;
 }
