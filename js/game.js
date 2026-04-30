@@ -95,6 +95,11 @@ class Game {
         this.canvas.height = H;
         this.canvas.style.width = cw + 'px';
         this.canvas.style.height = ch + 'px';
+
+        const isPortrait = window.innerHeight > window.innerWidth;
+        const hint = document.getElementById('rotateHint');
+        if (hint) hint.style.display = isPortrait ? 'flex' : 'none';
+        if (isPortrait && this.state === S.PLAYING) this._setState(S.PAUSED);
     }
 
     // ---- UI WIRING ----
