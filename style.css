@@ -656,6 +656,18 @@ html, body {
 .touch-jump .touch-label { color: #ff009099; }
 .touch-duck .touch-label { color: #00d4ff99; }
 
+.rotate-tip {
+    position: absolute;
+    bottom: max(8px, env(safe-area-inset-bottom, 8px));
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(10px, 2.5vw, 13px);
+    color: #ffffff33;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
 /* =============================================
    PORTRAIT LAYOUT  (@media orientation: portrait)
    ============================================= */
