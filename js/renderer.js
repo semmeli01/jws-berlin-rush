@@ -1961,17 +1961,17 @@ class Renderer {
         ctx.restore();
 
         // Points / type label above collectible
-        ctx.font = '9px monospace';
+        ctx.font = 'bold 13px "Inter", sans-serif';
         ctx.textAlign = 'center';
         if (col.type === 'shield') {
-            ctx.fillStyle = '#00d4ffaa';
-            ctx.fillText('SHIELD', col.x + col.w / 2, col.y - 4);
+            ctx.fillStyle = '#00d4ffcc';
+            ctx.fillText('SHIELD', col.x + col.w / 2, col.y - 6);
         } else if (col.type === 'doener') {
-            ctx.fillStyle = '#D4A44Aaa';
-            ctx.fillText(`×MULTI`, col.x + col.w / 2, col.y - 4);
+            ctx.fillStyle = '#D4A44Acc';
+            ctx.fillText('×MULTI', col.x + col.w / 2, col.y - 6);
         } else if (col.points > 0) {
-            ctx.fillStyle = '#ffffffaa';
-            ctx.fillText(`+${col.points}`, col.x + col.w / 2, col.y - 4);
+            ctx.fillStyle = '#ffffffcc';
+            ctx.fillText(`+${col.points}`, col.x + col.w / 2, col.y - 6);
         }
     }
 
