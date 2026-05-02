@@ -1094,7 +1094,8 @@ html, body {
 
 .submit-terms-label {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
     gap: clamp(10px, 2.5vw, 16px);
     cursor: pointer;
     width: 100%;
@@ -1108,7 +1109,6 @@ html, body {
     flex-shrink: 0;
     width: clamp(20px, 4vw, 26px);
     height: clamp(20px, 4vw, 26px);
-    margin-top: 1px;
     accent-color: #00d4ff;
     cursor: pointer;
 }

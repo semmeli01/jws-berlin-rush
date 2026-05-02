@@ -740,7 +740,7 @@ class Game {
                     const gy = this.renderer.getGroundY();
                     const PW = 40, PH = 16;
                     const isHigh = Math.random() < 0.5;
-                    const py = isHigh ? gy - PH - 60 : gy - PH;
+                    const py = isHigh ? gy - PH - 60 : gy - PH - 6;
                     this.bossProjectiles.push({
                         x: b.x, y: py, w: PW, h: PH,
                         speed: 400, high: isHigh, hit: false
