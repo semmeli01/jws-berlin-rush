@@ -15,6 +15,14 @@ const PLAYER_W = 40;
 const PLAYER_H_STAND = 74;
 const PLAYER_H_DUCK = 42;
 
+// Persistent player profile (nickname + email survive reloads)
+const PlayerProfileStore = {
+    getNickname() { return localStorage.getItem('jws.player.nickname') || ''; },
+    setNickname(v) { const c = String(v || '').trim(); if (c) localStorage.setItem('jws.player.nickname', c); },
+    getEmail()    { return localStorage.getItem('jws.player.email') || ''; },
+    setEmail(v)   { const c = String(v || '').trim().toLowerCase(); if (c) localStorage.setItem('jws.player.email', c); },
+};
+
 // State enum
 const S = {
     START: 0, CHAR_SELECT: 1, LEVEL_INTRO: 2,
@@ -31,7 +39,10 @@ class Game {
         this._resizeCanvas();
         window.addEventListener('resize', () => {
             this._resizeCanvas();
-            if (this.state === S.CHAR_SELECT) requestAnimationFrame(() => this._resizeCharGrid());
+            if (this.state === S.CHAR_SELECT) requestAnimationFrame(() => {
+                this._resizeCharGrid();
+                this._fitCharacterNames();
+            });
         });
 
         this.audio = new AudioEngine();
@@ -203,6 +214,7 @@ class Game {
         }
 
         this._buildCharGrid();
+        requestAnimationFrame(() => this._fitCharacterNames());
         this._renderHighscores();
     }
 
@@ -294,6 +306,18 @@ class Game {
         grid.style.gridTemplateColumns = `repeat(${bestCols}, ${bestTile}px)`;
         grid.style.gridAutoRows = `${bestTile}px`;
         grid.style.gap = `${GAP}px`;
+        this._fitCharacterNames();
+    }
+
+    _fitCharacterNames() {
+        document.querySelectorAll('.char-card-name').forEach(el => {
+            el.style.fontSize = '';
+            let size = parseFloat(getComputedStyle(el).fontSize);
+            while (el.scrollWidth > el.clientWidth && size > 10) {
+                size -= 1;
+                el.style.fontSize = `${size}px`;
+            }
+        });
     }
 
     _setState(s) {
@@ -313,7 +337,7 @@ class Game {
         if (s === S.CHAR_SELECT) {
             this.char = null;
             document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
-            requestAnimationFrame(() => this._resizeCharGrid());
+            requestAnimationFrame(() => { this._resizeCharGrid(); this._fitCharacterNames(); });
             // Reset desktop info panel
             const panel = document.getElementById('charInfoPanel');
             if (panel) {
@@ -356,7 +380,7 @@ class Game {
             const el = document.getElementById('submitFinalScore');
             if (el) el.textContent = this.finalScore.toLocaleString();
             const nick = document.getElementById('submitNickname');
-            if (nick) nick.value = this.playerName || '';
+            if (nick) nick.value = this.playerName || PlayerProfileStore.getNickname();
             const err = document.getElementById('submitError');
             if (err) err.textContent = '';
             const check = document.getElementById('submitTermsCheck');
@@ -380,7 +404,12 @@ class Game {
             const err = document.getElementById('emailError');
             if (err) err.textContent = '';
             const inp = document.getElementById('emailInput');
-            if (inp) { inp.value = ''; requestAnimationFrame(() => inp.focus()); }
+            if (inp) {
+                inp.value = PlayerProfileStore.getEmail();
+                requestAnimationFrame(() => inp.focus());
+            }
+            const btn = document.getElementById('submitEmailBtn');
+            if (btn) { btn.textContent = 'SPEICHERN'; btn.disabled = false; }
         }
         if (s === S.START) {
             this.audio.stopMusic();
@@ -897,6 +926,7 @@ class Game {
 
         // Update stored player name
         this.playerName = nick;
+        PlayerProfileStore.setNickname(nick);
         err.textContent = '';
         btn.disabled = true;
         btn.textContent = '...';
@@ -977,6 +1007,7 @@ class Game {
 
         btn.disabled = false;
         if (ok) {
+            PlayerProfileStore.setEmail(email);
             btn.textContent = 'GESPEICHERT ✓';
             setTimeout(() => this._setState(S.LEADERBOARD), 800);
         } else {
