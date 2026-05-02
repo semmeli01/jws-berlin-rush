@@ -45,6 +45,7 @@ class Game {
         this.playerName = '';    // entered player name
         this.lvlIdx = 0;         // current level index
         this.score = 0;
+        this.finalScore = 0;  // frozen at run end, safe to use during submit flow
         this.lives = 3;
         this.multi = 1;          // score multiplier
         this.shieldActive = false;
@@ -334,23 +335,26 @@ class Game {
             }
         }
         if (s === S.GAME_OVER) {
+            this.finalScore = this.score;  // freeze before any reset
             this.audio.stopMusic();
             this.audio.playGameOver();
             this._saveScore();
             this._runStartLvl = this.lvlIdx;
-            // Brief delay so the game-over screen flashes before submit form
-            setTimeout(() => this._setState(S.SCORE_SUBMIT), 900);
+            this._setState(S.SCORE_SUBMIT);  // go direct — no intermediate flash
+            return;
         }
         if (s === S.WIN) {
+            this.finalScore = this.score;  // freeze before any reset
             this.audio.stopMusic();
             this.audio.playLevelComplete();
             this._saveScore();
             this._runStartLvl = LEVELS.length;
-            setTimeout(() => this._setState(S.SCORE_SUBMIT), 900);
+            this._setState(S.SCORE_SUBMIT);  // go direct — no intermediate flash
+            return;
         }
         if (s === S.SCORE_SUBMIT) {
             const el = document.getElementById('submitFinalScore');
-            if (el) el.textContent = this.score.toLocaleString();
+            if (el) el.textContent = this.finalScore.toLocaleString();
             const nick = document.getElementById('submitNickname');
             if (nick) nick.value = this.playerName || '';
             const err = document.getElementById('submitError');
@@ -874,16 +878,21 @@ class Game {
         btn.disabled = true;
         btn.textContent = '...';
 
-        const termsAt = new Date().toISOString();
         const result = await this._lb.submitScore({
             nickname: nick,
-            score: this.score,
+            score: this.finalScore,
             characterId: this.char ? this.char.id || this.char.name.toLowerCase() : 'unknown',
             levelsCompleted: this._runStartLvl || 0
-        }, termsAt);
+        });
 
         btn.disabled = false;
         btn.textContent = 'ABSENDEN';
+
+        if (result === false) {
+            // Hard backend error — show message but let user retry or skip
+            err.textContent = 'Score konnte nicht gespeichert werden. Bitte erneut versuchen.';
+            return;
+        }
 
         if (result && result.contactEligible) {
             this._setState(S.EMAIL_CAPTURE);
@@ -941,11 +950,16 @@ class Game {
         btn.disabled = true;
         btn.textContent = '...';
 
-        await this._lb.submitEmail(email);
+        const ok = await this._lb.submitEmail(email);
 
         btn.disabled = false;
-        btn.textContent = 'GESPEICHERT ✓';
-        setTimeout(() => this._setState(S.LEADERBOARD), 800);
+        if (ok) {
+            btn.textContent = 'GESPEICHERT ✓';
+            setTimeout(() => this._setState(S.LEADERBOARD), 800);
+        } else {
+            btn.textContent = 'SPEICHERN';
+            err.textContent = 'E-Mail konnte nicht gespeichert werden. Bitte erneut versuchen.';
+        }
     }
 
     _aabb(a, b) {
