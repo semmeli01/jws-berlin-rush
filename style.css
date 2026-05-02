@@ -166,8 +166,9 @@ html, body {
 .highscore-wrap {
     margin-top: 16px;
     text-align: center;
-    max-height: clamp(80px, 22vh, 220px);
+    max-height: clamp(180px, 32vh, 420px);
     overflow-y: auto;
+    overscroll-behavior: contain;
 }
 .hs-title {
     font-family: 'Inter', sans-serif;
@@ -738,8 +739,6 @@ html, body {
     /* --- Start screen -------------------------------------------------- */
     .start-content { gap: clamp(10px, 3vh, 24px); }
     .start-keyvisual { object-position: center 30%; }
-    /* Collapse highscore list so CTA stays above the fold */
-    .highscore-wrap { max-height: clamp(60px, 12vh, 100px); }
 
     /* --- Character select ---------------------------------------------- */
     #charSelectScreen { flex-direction: column; }
@@ -832,7 +831,7 @@ html, body {
     #nameInputScreen { overflow-y: auto; }
 
     /* --- Leaderboard / highscore density -------------------------------- */
-    .highscore-wrap { max-height: clamp(60px, 14vh, 110px); }
+    .highscore-wrap { max-height: min(38vh, 520px); }
 
     .global-lb-list {
         max-height: min(52vh, 480px);

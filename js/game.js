@@ -879,7 +879,7 @@ class Game {
         const entries = await this._lb.fetchLeaderboard();
         if (entries.length > 0) {
             if (titleEl) titleEl.textContent = 'HIGHSCORES';
-            list.innerHTML = entries.slice(0, 10).map((e, i) => {
+            list.innerHTML = entries.slice(0, LEADERBOARD_LIMIT).map((e, i) => {
                 const rank = e.rank || (i + 1);
                 const nick = String(e.nickname || '?').toUpperCase();
                 return `<div class="hs-row">` +

@@ -2,6 +2,8 @@
 // JWS: BERLIN RUSH — Leaderboard Service
 // =============================================
 
+const LEADERBOARD_LIMIT = 100;
+
 class LeaderboardService {
     constructor(config) {
         this._apiUrl = (config && config.apiUrl) || '';
@@ -127,7 +129,7 @@ class LeaderboardService {
         if (!this._available) return [];
         try {
             const data = await this._get(
-                `/leaderboard?campaign_id=${encodeURIComponent(this._campaignId)}&limit=50`
+                `/leaderboard?campaign_id=${encodeURIComponent(this._campaignId)}&limit=${LEADERBOARD_LIMIT}`
             );
             return Array.isArray(data) ? data : (data.entries || []);
         } catch (e) {
