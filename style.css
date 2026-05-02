@@ -1341,24 +1341,40 @@ html, body {
     }
 
     /* ---- 4. EMAIL CAPTURE SCREEN ---- */
+
+    /* Keep screen centered (both axes) — same as leaderboard */
     #emailCaptureScreen {
-        justify-content: flex-start;
-        align-items: stretch;
+        justify-content: center;
+        align-items: center;
     }
 
     #emailCaptureScreen .screen-content {
-        height: 100%;
-        justify-content: flex-start;
+        /* Fill the full viewport width like the leaderboard content does */
+        width: 100%;
+        max-width: min(800px, 96vw);
+        height: 100dvh;
+        max-height: 100dvh;
+        /* Vertically center the form; fall back to scroll if it ever overflows */
+        justify-content: center;
         overflow-y: auto;
-        padding-block: clamp(8px, 2vh, 14px);
+        padding: clamp(8px, 2vh, 14px) clamp(24px, 5vw, 80px);
         gap: clamp(5px, 1.5vh, 10px);
     }
 
+    /* Info box: wider and more compact to match leaderboard rank-badge width */
     #emailCaptureScreen .email-capture-msg {
+        width: 100%;
+        max-width: none;
         font-size: clamp(11px, 2.8vh, 14px);
         line-height: 1.3;
-        padding: clamp(6px, 1.5vh, 11px) clamp(10px, 2vw, 18px);
-        margin: 0 auto;
+        padding: clamp(6px, 1.5vh, 11px) clamp(12px, 2.5vw, 24px);
+        margin: 0;
+    }
+
+    /* Email input full-width within the padded content area */
+    #emailCaptureScreen #emailInput {
+        max-width: none;
+        width: 100%;
     }
 
     #emailCaptureScreen .btn-primary,
