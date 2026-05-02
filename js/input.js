@@ -96,20 +96,25 @@ class InputManager {
 
         this.canvas.addEventListener('touchend', (e) => {
             e.preventDefault();
+            let anyRight = false;
             for (const touch of e.changedTouches) {
-                this._rightTouches.delete(touch.identifier);
+                if (this._rightTouches.delete(touch.identifier)) anyRight = true;
             }
-            if (this._rightTouches.size === 0) {
+            // Only clear duckHeld when a tracked right-side canvas touch ends.
+            // Left-side (jump) touchend must not clear duck — duckBtn in portrait
+            // sets duckHeld independently of _rightTouches.
+            if (anyRight && this._rightTouches.size === 0) {
                 this.duckHeld = false;
             }
         }, { passive: false });
 
         this.canvas.addEventListener('touchcancel', (e) => {
             e.preventDefault();
+            let anyRight = false;
             for (const touch of e.changedTouches) {
-                this._rightTouches.delete(touch.identifier);
+                if (this._rightTouches.delete(touch.identifier)) anyRight = true;
             }
-            if (this._rightTouches.size === 0) {
+            if (anyRight && this._rightTouches.size === 0) {
                 this.duckHeld = false;
             }
         }, { passive: false });

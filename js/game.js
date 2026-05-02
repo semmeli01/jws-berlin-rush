@@ -151,7 +151,12 @@ class Game {
         });
         $('charSelectBtn').onclick = () => this._setState(S.CHAR_SELECT);
         $('playAgainBtn').onclick = () => this._setState(S.CHAR_SELECT);
-        $('resumeBtn').onclick = () => { this.audio.resume(); this._setState(S.PLAYING); };
+        $('resumeBtn').onclick = () => {
+            this.audio.resume();
+            this.input.jumpJustPressed = false;
+            this.input.pauseJustPressed = false;
+            this._setState(S.PLAYING);
+        };
         $('quitBtn').onclick = () => this._setState(S.START);
 
         $('showHighscoresBtn').onclick = () => {
@@ -506,7 +511,12 @@ class Game {
             this.introTimer -= dt;
             if (this.introTimer <= 0) {
                 this._setState(S.PLAYING);
-                this.input.reset();
+                // Only clear one-shot flags; held state (_rightTouches / duckHeld)
+                // remains accurate — levelIntroScreen sits on top so canvas never
+                // received new touchstarts during the intro, meaning any duck hold
+                // that was active before the intro is still physically held.
+                this.input.jumpJustPressed = false;
+                this.input.pauseJustPressed = false;
             }
         }
 
