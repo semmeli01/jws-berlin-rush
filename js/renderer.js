@@ -1961,7 +1961,7 @@ class Renderer {
         ctx.restore();
 
         // Points / type label above collectible
-        ctx.font = 'bold 13px "Inter", sans-serif';
+        ctx.font = 'bold 17px "Inter", sans-serif';
         ctx.textAlign = 'center';
         if (col.type === 'shield') {
             ctx.fillStyle = '#00d4ffcc';

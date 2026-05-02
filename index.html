@@ -105,7 +105,7 @@
                 <div class="hs-overlay-box">
                     <div class="hs-title">HIGHSCORES</div>
                     <div id="highscoreListOverlay"><div class="hs-empty">Noch keine Einträge</div></div>
-                    <button id="closeHighscoresBtn" class="btn-secondary" style="margin-top:18px">✕ SCHLIESSEN</button>
+                    <button id="closeHighscoresBtn" class="btn-secondary">✕ SCHLIESSEN</button>
                 </div>
             </div>
             <!-- Keep old ids for JS compatibility -->
@@ -173,6 +173,62 @@
             </div>
         </div>
 
+        <!-- Score Submit Screen (S.SCORE_SUBMIT = 8) -->
+        <div id="scoreSubmitScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="screen-title">DEIN SCORE</div>
+                <div class="submit-score-display"><span id="submitFinalScore">0</span></div>
+                <div class="submit-contest-info">Reiche deinen Score ein und nimm am Gewinnspiel teil. Die Top 10 der Rangliste gewinnen je 1 Jahr oneplus. Dein Nickname erscheint öffentlich in der Rangliste.</div>
+                <div class="submit-field-label">DEIN NAME</div>
+                <input id="submitNickname" class="name-input-field" type="text" maxlength="20"
+                       placeholder="DEIN NAME" inputmode="text" autocapitalize="words"
+                       autocomplete="off" spellcheck="false">
+                <label class="submit-terms-label" for="submitTermsCheck">
+                    <input id="submitTermsCheck" class="submit-terms-check" type="checkbox">
+                    <span class="submit-terms-text">Ich akzeptiere die
+                        <a id="submitTermsLink" href="#" target="_blank" rel="noopener" class="submit-link">Teilnahmebedingungen</a>
+                        und
+                        <a id="submitPrivacyLink" href="#" target="_blank" rel="noopener" class="submit-link">Datenschutzhinweise</a>.
+                    </span>
+                </label>
+                <div id="submitError" class="submit-error" aria-live="polite"></div>
+                <button id="submitScoreBtn" class="btn-primary">ABSENDEN</button>
+                <button id="submitSkipBtn" class="btn-secondary">ÜBERSPRINGEN</button>
+            </div>
+        </div>
+
+        <!-- Leaderboard Screen (S.LEADERBOARD = 9) -->
+        <div id="leaderboardScreen" class="screen hidden">
+            <div class="screen-content leaderboard-content">
+                <div class="screen-title">RANGLISTE</div>
+                <div id="playerRankBadge" class="player-rank-badge hidden"></div>
+                <div id="globalLeaderboardList" class="global-lb-list"></div>
+                <div class="lb-buttons">
+                    <button id="lbRetryBtn" class="btn-secondary">NOCHMAL</button>
+                    <button id="lbCharBtn" class="btn-secondary">CHARAKTER</button>
+                </div>
+                <a href="https://www.oneplus.ch/detail/1649428" target="_blank" rel="noopener" class="oneplus-cta">
+                    JETZT AUF ONEPLUS ANSEHEN →
+                </a>
+            </div>
+        </div>
+
+        <!-- Email Capture Screen (S.EMAIL_CAPTURE = 10) -->
+        <div id="emailCaptureScreen" class="screen hidden">
+            <div class="screen-content">
+                <div class="screen-title">🏆 TOP-RANGLISTE</div>
+                <div class="email-capture-msg">Du bist aktuell weit oben in der Rangliste.
+                    Hinterlege deine E-Mail, damit wir dich nach Kampagnenende kontaktieren
+                    können, falls du gewinnst.</div>
+                <div class="submit-field-label">E-MAIL</div>
+                <input id="emailInput" class="name-input-field email-input" type="email"
+                       placeholder="deine@email.ch" inputmode="email" autocomplete="email">
+                <div id="emailError" class="submit-error" aria-live="polite"></div>
+                <button id="submitEmailBtn" class="btn-primary">SPEICHERN</button>
+                <button id="skipEmailBtn" class="btn-secondary">NEIN DANKE</button>
+            </div>
+        </div>
+
     </div>
 
     <script src="js/characters.js"></script>
@@ -180,6 +236,8 @@
     <script src="js/audio.js"></script>
     <script src="js/input.js"></script>
     <script src="js/renderer.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/leaderboard.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>

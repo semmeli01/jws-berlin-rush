@@ -15,10 +15,19 @@ const PLAYER_W = 40;
 const PLAYER_H_STAND = 74;
 const PLAYER_H_DUCK = 42;
 
+// Persistent player profile (nickname + email survive reloads)
+const PlayerProfileStore = {
+    getNickname() { return localStorage.getItem('jws.player.nickname') || ''; },
+    setNickname(v) { const c = String(v || '').trim(); if (c) localStorage.setItem('jws.player.nickname', c); },
+    getEmail()    { return localStorage.getItem('jws.player.email') || ''; },
+    setEmail(v)   { const c = String(v || '').trim().toLowerCase(); if (c) localStorage.setItem('jws.player.email', c); },
+};
+
 // State enum
 const S = {
     START: 0, CHAR_SELECT: 1, LEVEL_INTRO: 2,
-    PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7
+    PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7,
+    SCORE_SUBMIT: 8, LEADERBOARD: 9, EMAIL_CAPTURE: 10
 };
 
 class Game {
@@ -30,11 +39,16 @@ class Game {
         this._resizeCanvas();
         window.addEventListener('resize', () => {
             this._resizeCanvas();
-            if (this.state === S.CHAR_SELECT) requestAnimationFrame(() => this._resizeCharGrid());
+            if (this.state === S.CHAR_SELECT) requestAnimationFrame(() => {
+                this._resizeCharGrid();
+                this._fitCharacterNames();
+            });
         });
 
         this.audio = new AudioEngine();
         this.input = new InputManager(this.canvas);
+        this._lb = new LeaderboardService(typeof JWS_CONFIG !== 'undefined' ? JWS_CONFIG : {});
+        this._runStartLvl = 0;  // levels completed tracker for submission
 
         // Game state
         this.state = S.START;
@@ -42,6 +56,7 @@ class Game {
         this.playerName = '';    // entered player name
         this.lvlIdx = 0;         // current level index
         this.score = 0;
+        this.finalScore = 0;  // frozen at run end, safe to use during submit flow
         this.lives = 3;
         this.multi = 1;          // score multiplier
         this.shieldActive = false;
@@ -140,12 +155,30 @@ class Game {
         $('quitBtn').onclick = () => this._setState(S.START);
 
         $('showHighscoresBtn').onclick = () => {
-            this._renderHighscores('highscoreListOverlay');
             $('hsOverlay').classList.remove('hidden');
+            this._renderHighscores('highscoreListOverlay');
         };
         $('closeHighscoresBtn').onclick = () => {
             $('hsOverlay').classList.add('hidden');
         };
+
+        // Score submit screen
+        $('submitScoreBtn').onclick = () => this._submitScore();
+        $('submitSkipBtn').onclick = () => this._setState(S.LEADERBOARD);
+        $('submitNickname').addEventListener('keydown', e => {
+            if (e.key === 'Enter') this._submitScore();
+        });
+
+        // Leaderboard screen
+        $('lbRetryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('lbCharBtn').onclick = () => this._setState(S.CHAR_SELECT);
+
+        // Email capture screen
+        $('submitEmailBtn').onclick = () => this._submitEmail();
+        $('skipEmailBtn').onclick = () => this._setState(S.LEADERBOARD);
+        $('emailInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') this._submitEmail();
+        });
 
         // Mobile pause button (landscape touch)
         const mobilePauseBtn = $('mobilePauseBtn');
@@ -181,6 +214,7 @@ class Game {
         }
 
         this._buildCharGrid();
+        requestAnimationFrame(() => this._fitCharacterNames());
         this._renderHighscores();
     }
 
@@ -272,12 +306,25 @@ class Game {
         grid.style.gridTemplateColumns = `repeat(${bestCols}, ${bestTile}px)`;
         grid.style.gridAutoRows = `${bestTile}px`;
         grid.style.gap = `${GAP}px`;
+        this._fitCharacterNames();
+    }
+
+    _fitCharacterNames() {
+        document.querySelectorAll('.char-card-name').forEach(el => {
+            el.style.fontSize = '';
+            let size = parseFloat(getComputedStyle(el).fontSize);
+            while (el.scrollWidth > el.clientWidth && size > 10) {
+                size -= 1;
+                el.style.fontSize = `${size}px`;
+            }
+        });
     }
 
     _setState(s) {
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
-            null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen'];
+            null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen',
+            'scoreSubmitScreen', 'leaderboardScreen', 'emailCaptureScreen'];
         document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
 
         const screenId = screens[s];
@@ -290,7 +337,7 @@ class Game {
         if (s === S.CHAR_SELECT) {
             this.char = null;
             document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
-            requestAnimationFrame(() => this._resizeCharGrid());
+            requestAnimationFrame(() => { this._resizeCharGrid(); this._fitCharacterNames(); });
             // Reset desktop info panel
             const panel = document.getElementById('charInfoPanel');
             if (panel) {
@@ -312,16 +359,57 @@ class Game {
             }
         }
         if (s === S.GAME_OVER) {
-            document.getElementById('finalScore').textContent = this.score.toLocaleString();
+            this.finalScore = this.score;  // freeze before any reset
             this.audio.stopMusic();
             this.audio.playGameOver();
             this._saveScore();
+            this._runStartLvl = this.lvlIdx;
+            this._setState(S.SCORE_SUBMIT);  // go direct — no intermediate flash
+            return;
         }
         if (s === S.WIN) {
-            document.getElementById('winScore').textContent = this.score.toLocaleString();
+            this.finalScore = this.score;  // freeze before any reset
             this.audio.stopMusic();
             this.audio.playLevelComplete();
             this._saveScore();
+            this._runStartLvl = LEVELS.length;
+            this._setState(S.SCORE_SUBMIT);  // go direct — no intermediate flash
+            return;
+        }
+        if (s === S.SCORE_SUBMIT) {
+            const el = document.getElementById('submitFinalScore');
+            if (el) el.textContent = this.finalScore.toLocaleString();
+            const nick = document.getElementById('submitNickname');
+            if (nick) nick.value = this.playerName || PlayerProfileStore.getNickname();
+            const err = document.getElementById('submitError');
+            if (err) err.textContent = '';
+            const check = document.getElementById('submitTermsCheck');
+            if (check) check.checked = false;
+            // Wire terms links from config
+            if (typeof JWS_CONFIG !== 'undefined') {
+                const tl = document.getElementById('submitTermsLink');
+                const pl = document.getElementById('submitPrivacyLink');
+                if (tl) tl.href = JWS_CONFIG.termsUrl || '#';
+                if (pl) pl.href = JWS_CONFIG.privacyUrl || '#';
+            }
+            requestAnimationFrame(() => {
+                const n = document.getElementById('submitNickname');
+                if (n) n.focus();
+            });
+        }
+        if (s === S.LEADERBOARD) {
+            this._showLeaderboard();
+        }
+        if (s === S.EMAIL_CAPTURE) {
+            const err = document.getElementById('emailError');
+            if (err) err.textContent = '';
+            const inp = document.getElementById('emailInput');
+            if (inp) {
+                inp.value = PlayerProfileStore.getEmail();
+                requestAnimationFrame(() => inp.focus());
+            }
+            const btn = document.getElementById('submitEmailBtn');
+            if (btn) { btn.textContent = 'SPEICHERN'; btn.disabled = false; }
         }
         if (s === S.START) {
             this.audio.stopMusic();
@@ -333,6 +421,7 @@ class Game {
 
     _startGame() {
         this.audio.resume();
+        this._lb.startRun();  // fire-and-forget; sets _lb.runId if backend responds
         this.lvlIdx = 0;
         this.score = 0;
         this.multi = this.char.ability === 'score_boost' ? 2 : 1;
@@ -651,7 +740,7 @@ class Game {
                     const gy = this.renderer.getGroundY();
                     const PW = 40, PH = 16;
                     const isHigh = Math.random() < 0.5;
-                    const py = isHigh ? gy - PH - 60 : gy - PH;
+                    const py = isHigh ? gy - PH - 60 : gy - PH - 6;
                     this.bossProjectiles.push({
                         x: b.x, y: py, w: PW, h: PH,
                         speed: 400, high: isHigh, hit: false
@@ -776,25 +865,155 @@ class Game {
         try { localStorage.setItem(key, JSON.stringify(scores)); } catch (e) {}
     }
 
-    _renderHighscores(targetId = 'highscoreList') {
+    async _renderHighscores(targetId = 'highscoreList') {
         const list = document.getElementById(targetId);
         if (!list) return;
+
+        // Update the nearest title element while loading
+        const wrap = list.closest('.highscore-wrap, .hs-overlay-box');
+        const titleEl = wrap ? wrap.querySelector('.hs-title') : null;
+
+        list.innerHTML = '<div class="hs-empty">LADE…</div>';
+
+        // 1. Try global leaderboard
+        const entries = await this._lb.fetchLeaderboard();
+        if (entries.length > 0) {
+            if (titleEl) titleEl.textContent = 'HIGHSCORES';
+            list.innerHTML = entries.slice(0, LEADERBOARD_LIMIT).map((e, i) => {
+                const rank = e.rank || (i + 1);
+                const nick = String(e.nickname || '?').toUpperCase();
+                return `<div class="hs-row">` +
+                    `<span class="hs-rank">#${rank}</span>` +
+                    `<span class="hs-char">${nick}</span>` +
+                    `<span class="hs-score">${Number(e.score).toLocaleString()}</span>` +
+                    `</div>`;
+            }).join('');
+            return;
+        }
+
+        // 2. Fallback: localStorage personal bests
         let scores = [];
         try { scores = JSON.parse(localStorage.getItem('jws_highscores') || '[]'); } catch (e) {}
+        if (titleEl) titleEl.textContent = scores.length > 0 ? 'LOKALE HIGHSCORES' : 'HIGHSCORES';
         if (scores.length === 0) {
             list.innerHTML = '<div class="hs-empty">Noch keine Einträge</div>';
             return;
         }
         list.innerHTML = scores.slice(0, 10).map((s, i) => {
-            const label = s.player && s.player !== '?'
-                ? `${s.player} mit ${s.char}`
-                : s.char;
+            const label = s.player && s.player !== '?' ? s.player : s.char;
             return `<div class="hs-row">` +
                 `<span class="hs-rank">#${i + 1}</span>` +
                 `<span class="hs-char">${label.toUpperCase()}</span>` +
                 `<span class="hs-score">${s.score.toLocaleString()}</span>` +
                 `</div>`;
         }).join('');
+    }
+
+    async _submitScore() {
+        const nick = document.getElementById('submitNickname').value.trim();
+        const check = document.getElementById('submitTermsCheck');
+        const err = document.getElementById('submitError');
+        const btn = document.getElementById('submitScoreBtn');
+
+        if (!nick) {
+            err.textContent = 'Bitte gib einen Namen ein.';
+            return;
+        }
+        if (!check || !check.checked) {
+            err.textContent = 'Bitte akzeptiere die Teilnahmebedingungen.';
+            return;
+        }
+
+        // Update stored player name
+        this.playerName = nick;
+        PlayerProfileStore.setNickname(nick);
+        err.textContent = '';
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        const result = await this._lb.submitScore({
+            nickname: nick,
+            score: this.finalScore,
+            characterId: this.char ? this.char.id || this.char.name.toLowerCase() : 'unknown',
+            levelsCompleted: this._runStartLvl || 0
+        });
+
+        btn.disabled = false;
+        btn.textContent = 'ABSENDEN';
+
+        if (result === false) {
+            // Hard backend error — show message but let user retry or skip
+            err.textContent = 'Score konnte nicht gespeichert werden. Bitte erneut versuchen.';
+            return;
+        }
+
+        if (result && result.contactEligible) {
+            this._setState(S.EMAIL_CAPTURE);
+        } else {
+            this._setState(S.LEADERBOARD);
+        }
+    }
+
+    async _showLeaderboard() {
+        const list = document.getElementById('globalLeaderboardList');
+        const badge = document.getElementById('playerRankBadge');
+
+        // Show rank badge if we submitted successfully
+        if (this._lb.rank !== null) {
+            badge.textContent = `DEIN RANG: #${this._lb.rank}`;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+
+        list.innerHTML = '<div class="lb-loading">LADE RANGLISTE…</div>';
+
+        const entries = await this._lb.fetchLeaderboard();
+
+        if (entries.length === 0) {
+            list.innerHTML = '<div class="lb-empty">Keine Einträge verfügbar.</div>';
+            return;
+        }
+
+        list.innerHTML = entries.map((e, i) => {
+            const rank = e.rank || (i + 1);
+            const isPlayer = this._lb.scoreId && e.score_id === this._lb.scoreId;
+            const cls = isPlayer ? 'hs-row player-row' : 'hs-row';
+            const nick = String(e.nickname || '?').toUpperCase();
+            return `<div class="${cls}">` +
+                `<span class="hs-rank">#${rank}</span>` +
+                `<span class="hs-char">${nick}</span>` +
+                `<span class="hs-score">${Number(e.score).toLocaleString()}</span>` +
+                `</div>`;
+        }).join('');
+    }
+
+    async _submitEmail() {
+        const inp = document.getElementById('emailInput');
+        const err = document.getElementById('emailError');
+        const btn = document.getElementById('submitEmailBtn');
+        const email = (inp ? inp.value : '').trim();
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            err.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+            return;
+        }
+
+        err.textContent = '';
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        const ok = await this._lb.submitEmail(email);
+
+        btn.disabled = false;
+        if (ok) {
+            PlayerProfileStore.setEmail(email);
+            btn.textContent = 'GESPEICHERT ✓';
+            setTimeout(() => this._setState(S.LEADERBOARD), 800);
+        } else {
+            btn.textContent = 'SPEICHERN';
+            err.textContent = 'E-Mail konnte nicht gespeichert werden. Bitte erneut versuchen.';
+        }
     }
 
     _aabb(a, b) {
