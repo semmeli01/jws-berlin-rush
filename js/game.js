@@ -144,8 +144,8 @@ class Game {
         $('quitBtn').onclick = () => this._setState(S.START);
 
         $('showHighscoresBtn').onclick = () => {
-            this._renderHighscores('highscoreListOverlay');
             $('hsOverlay').classList.remove('hidden');
+            this._renderHighscores('highscoreListOverlay');
         };
         $('closeHighscoresBtn').onclick = () => {
             $('hsOverlay').classList.add('hidden');
@@ -836,19 +836,42 @@ class Game {
         try { localStorage.setItem(key, JSON.stringify(scores)); } catch (e) {}
     }
 
-    _renderHighscores(targetId = 'highscoreList') {
+    async _renderHighscores(targetId = 'highscoreList') {
         const list = document.getElementById(targetId);
         if (!list) return;
+
+        // Update the nearest title element while loading
+        const wrap = list.closest('.highscore-wrap, .hs-overlay-box');
+        const titleEl = wrap ? wrap.querySelector('.hs-title') : null;
+
+        list.innerHTML = '<div class="hs-empty">LADE…</div>';
+
+        // 1. Try global leaderboard
+        const entries = await this._lb.fetchLeaderboard();
+        if (entries.length > 0) {
+            if (titleEl) titleEl.textContent = 'HIGHSCORES';
+            list.innerHTML = entries.slice(0, 10).map((e, i) => {
+                const rank = e.rank || (i + 1);
+                const nick = String(e.nickname || '?').toUpperCase();
+                return `<div class="hs-row">` +
+                    `<span class="hs-rank">#${rank}</span>` +
+                    `<span class="hs-char">${nick}</span>` +
+                    `<span class="hs-score">${Number(e.score).toLocaleString()}</span>` +
+                    `</div>`;
+            }).join('');
+            return;
+        }
+
+        // 2. Fallback: localStorage personal bests
         let scores = [];
         try { scores = JSON.parse(localStorage.getItem('jws_highscores') || '[]'); } catch (e) {}
+        if (titleEl) titleEl.textContent = scores.length > 0 ? 'LOKALE HIGHSCORES' : 'HIGHSCORES';
         if (scores.length === 0) {
             list.innerHTML = '<div class="hs-empty">Noch keine Einträge</div>';
             return;
         }
         list.innerHTML = scores.slice(0, 10).map((s, i) => {
-            const label = s.player && s.player !== '?'
-                ? `${s.player} mit ${s.char}`
-                : s.char;
+            const label = s.player && s.player !== '?' ? s.player : s.char;
             return `<div class="hs-row">` +
                 `<span class="hs-rank">#${i + 1}</span>` +
                 `<span class="hs-char">${label.toUpperCase()}</span>` +

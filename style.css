@@ -222,6 +222,11 @@ html, body {
     letter-spacing: 3px;
     cursor: pointer;
     transition: background 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1;
 }
 .btn-secondary:hover  { background: #00d4ff22; }
 .btn-secondary:active { background: #00d4ff44; }
@@ -573,6 +578,16 @@ html, body {
 .name-input-field::placeholder { color: #ffffff33; }
 .name-input-field:focus { border-bottom-color: #ff0090; }
 
+/* Email inputs: smaller, no uppercase, no wide tracking */
+.email-input {
+    font-size: clamp(14px, 2.2vw, 20px);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    width: min(100%, 420px);
+    max-width: min(420px, 92vw);
+}
+.email-input::placeholder { letter-spacing: 0.04em; text-transform: none; }
+
 .screen-subtitle {
     font-size: 13px;
     color: #ffffff55;
@@ -737,16 +752,17 @@ html, body {
 
     .char-info-panel {
         width: 100%;
-        height: clamp(130px, 24vh, 210px);
+        min-height: clamp(150px, 28vh, 240px);
+        height: auto;
         flex-shrink: 0;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         border-left: none;
         border-top: 1px solid #ff009033;
-        padding: clamp(8px, 2vh, 14px) clamp(14px, 3vw, 24px);
-        gap: clamp(2px, 0.5vh, 6px);
-        overflow: hidden;
+        padding: clamp(6px, 1.5vh, 12px) clamp(14px, 3vw, 24px) clamp(8px, 2vh, 14px);
+        gap: clamp(2px, 0.5vh, 5px);
+        overflow: visible;
     }
 
     /* Photo not needed in portrait — char card already shows it */
@@ -781,8 +797,16 @@ html, body {
         letter-spacing: 2px;
     }
 
-    /* Hide highscores button in portrait (accessible via start screen) */
-    .hs-open-btn { display: none; }
+    /* Show highscores button in portrait below "LOS GEHT'S!" */
+    .hs-open-btn {
+        display: inline-flex;
+        width: 100%;
+        max-width: none;
+        font-size: clamp(11px, 3.5vw, 15px);
+        padding: clamp(6px, 1.2vh, 11px) clamp(10px, 2vw, 20px);
+        margin-top: clamp(2px, 0.5vh, 6px);
+        margin-bottom: 0;
+    }
 
     /* --- Level intro --------------------------------------------------- */
     .level-intro-wrap {
@@ -798,6 +822,33 @@ html, body {
 
     /* --- Name input ---------------------------------------------------- */
     #nameInputScreen { overflow-y: auto; }
+
+    /* --- Leaderboard / highscore density -------------------------------- */
+    .highscore-wrap { max-height: clamp(60px, 14vh, 110px); }
+
+    .global-lb-list {
+        max-height: min(52vh, 480px);
+    }
+
+    .global-lb-list .hs-row,
+    #highscoreListOverlay .hs-row {
+        padding: clamp(4px, 0.9vh, 8px) clamp(8px, 2.5vw, 14px);
+        min-height: auto;
+        gap: clamp(8px, 2vw, 12px);
+    }
+
+    .hs-row {
+        font-size: clamp(13px, 3.8vw, 18px);
+        line-height: 1.4;
+    }
+
+    .hs-rank { min-width: 22px; }
+    .hs-score { min-width: 58px; }
+
+    .hs-overlay-box {
+        padding: 24px 20px;
+        max-width: 96vw;
+    }
 }
 
 /* =============================================
