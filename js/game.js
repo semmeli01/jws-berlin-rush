@@ -36,6 +36,10 @@ class Game {
         this.ctx = this.canvas.getContext('2d');
         this.renderer = new Renderer(this.ctx, W, H);
 
+        // Debug mode — enable with ?debug=1 in URL
+        this._debug = new URLSearchParams(location.search).get('debug') === '1';
+        window.JWS_DEBUG = this._debug;
+
         this._resizeCanvas();
         window.addEventListener('resize', () => {
             this._resizeCanvas();
@@ -88,6 +92,7 @@ class Game {
 
         // Debug: rolling frame log (last 120 frames)
         this._dbg = [];
+        this._lastDt = 0;
         window.g = this; // expose game to console: g.player, g.input, glog()
         window.glog = () => {
             const rows = this._dbg.slice(-30).map(f =>
@@ -96,6 +101,17 @@ class Game {
             console.log('--- last frames ---\n' + rows);
             return this._dbg.slice(-30);
         };
+
+        // ---- Debug overlay / freeze detector state ----
+        this._dbgUpdateCount   = 0;   // increments every _update() call
+        this._dbgLastFrameNum  = -1;  // p.frame at previous overlay tick
+        this._dbgLastFrameT    = 0;   // RAF timestamp when frame# last changed
+        this._dbgFreezeLogged  = false;
+        this._dbgStuckDuckT    = 0;   // RAF timestamp when stuck-duck first detected
+        this._dbgStateChangeStr = '';  // last "FROM→TO" state transition label
+        this._dbgPrevState     = S.START;
+        this._dbgEl            = null;
+        if (this._debug) this._initDebugOverlay();
 
         this._setupUI();
         requestAnimationFrame(t => this._loop(t));
@@ -326,6 +342,14 @@ class Game {
     }
 
     _setState(s) {
+        if (this._debug) {
+            const N = ['START','CHAR_SELECT','LEVEL_INTRO','PLAYING','PAUSED','GAME_OVER','WIN','NAME_INPUT','SCORE_SUBMIT','LEADERBOARD','EMAIL_CAPTURE'];
+            const from = N[this._dbgPrevState] || this._dbgPrevState;
+            const to   = N[s] || s;
+            this._dbgStateChangeStr = `${from}→${to}`;
+            if (s !== this._dbgPrevState) console.log(`[JWS-DBG] state: ${from} → ${to}`);
+            this._dbgPrevState = s;
+        }
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
             null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen',
@@ -506,6 +530,7 @@ class Game {
     _loop(t) {
         const dt = Math.min((t - this.lastT) / 1000, 0.05);
         this.lastT = t;
+        this._lastDt = dt;
 
         if (this.state === S.LEVEL_INTRO) {
             this.introTimer -= dt;
@@ -539,6 +564,7 @@ class Game {
             if (this._dbg.length > 120) this._dbg.shift();
         }
 
+        if (this._debug) this._updateDebugOverlay(t);
         this._render();
         requestAnimationFrame(t2 => this._loop(t2));
     }
@@ -546,6 +572,7 @@ class Game {
     // ---- UPDATE ----
 
     _update(dt) {
+        this._dbgUpdateCount++;
         const p = this.player;
         const lvl = LEVELS[this.lvlIdx];
         const gy = this.renderer.getGroundY();
@@ -1163,6 +1190,141 @@ class Game {
             this._initLevel();
             this._showLevelIntro();
         }
+    }
+
+    // ---- DEBUG OVERLAY ----
+
+    _initDebugOverlay() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #jws-dbg {
+                position: fixed; top: 0; left: 0; z-index: 99999;
+                pointer-events: none; user-select: none;
+                font: 11px/1.45 monospace; color: #0f0;
+                background: rgba(0,0,0,0.80); padding: 6px 9px;
+                white-space: pre; border-left: 3px solid #0f0;
+                text-shadow: 0 0 4px #000; max-width: 340px;
+            }
+            #jws-dbg.freeze { border-left-color: #f00; color: #f00; }
+        `;
+        document.head.appendChild(style);
+        const el = document.createElement('div');
+        el.id = 'jws-dbg';
+        document.body.appendChild(el);
+        this._dbgEl = el;
+        console.log('[JWS-DBG] overlay active — glog() frame log  gdbg() overlay audit');
+        window.gdbg = () => this._dbgActiveOverlays();
+    }
+
+    _updateDebugOverlay(t) {
+        if (!this._dbgEl) return;
+        const p   = this.player;
+        const inp = this.input;
+        const gy  = this.renderer.getGroundY();
+        const onGround = p ? (p.y + p.h >= gy - 1) : false;
+        const SN  = ['START','CHAR_SELECT','LEVEL_INTRO','PLAYING','PAUSED','GAME_OVER',
+                     'WIN','NAME_INPUT','SCORE_SUBMIT','LEADERBOARD','EMAIL_CAPTURE'];
+
+        // ---- freeze detectors ----
+        let freezeTag = '';
+        if (this.state === S.PLAYING && p) {
+            // 1. Animation frame stopped advancing (means _update stopped running)
+            if (p.frame !== this._dbgLastFrameNum) {
+                this._dbgLastFrameNum = p.frame;
+                this._dbgLastFrameT   = t;
+                this._dbgFreezeLogged = false;
+            } else if (this._dbgLastFrameT > 0 && t - this._dbgLastFrameT > 700 && !this._dbgFreezeLogged) {
+                this._dbgFreezeLogged = true;
+                this._dbgLogFreeze(t, 'frame-stopped');
+            }
+            if (this._dbgLastFrameT > 0 && t - this._dbgLastFrameT > 700) freezeTag = 'FRAME-STOPPED';
+
+            // 2. Stuck duck: player visually duck but input says no duck
+            if (p.state === 'duck' && !inp.duckHeld) {
+                if (!this._dbgStuckDuckT) this._dbgStuckDuckT = t;
+                const dur = t - this._dbgStuckDuckT;
+                if (dur > 500 && !this._dbgFreezeLogged) {
+                    this._dbgFreezeLogged = true;
+                    this._dbgLogFreeze(t, 'stuck-duck');
+                }
+                if (dur > 500) freezeTag = 'STUCK-DUCK';
+            } else {
+                this._dbgStuckDuckT = 0;
+            }
+        } else {
+            this._dbgLastFrameT = 0; // reset so detector restarts fresh on PLAYING
+        }
+
+        const ago = (ts) => ts ? ((performance.now() - ts) / 1000).toFixed(1) + 's' : '─';
+
+        const lines = [
+            '─── JWS DEBUG ─────────────────────',
+            `state:     ${SN[this.state] || this.state}  (${this._dbgStateChangeStr || '─'})`,
+            `pState:    ${p ? p.state : '─'}`,
+            `frame:     ${p ? p.frame : '─'}  fTimer: ${p ? p.frameTimer.toFixed(3) : '─'}`,
+            `pos:       x=${p ? p.x.toFixed(0) : '─'} y=${p ? p.y.toFixed(1) : '─'}`,
+            `vy:        ${p ? p.vy.toFixed(1) : '─'}  onGround: ${onGround}`,
+            `duckHeld:  ${inp.duckHeld}   rightTouches: ${inp._rightTouches.size}`,
+            `jumpPr:    ${inp.jumpJustPressed}   pausePr: ${inp.pauseJustPressed}`,
+            `canvas→    count:${inp._dbgTouchCount} last:${inp._dbgLastType || '─'} ${ago(inp._dbgLastTime)} ago`,
+            `docTouch→  ${inp._dbgDocLastEl || '─'}  ${ago(inp._dbgDocLastTime)} ago`,
+            `dt: ${this._lastDt.toFixed(4)}   scrollX: ${this.scrollX.toFixed(0)}`,
+            `lvl: ${this.lvlIdx + 1}   obs: ${this.obstacles.length}   updN: ${this._dbgUpdateCount}`,
+            freezeTag ? `⚠ FREEZE: ${freezeTag}` : '─ no freeze',
+        ].join('\n');
+
+        this._dbgEl.textContent = lines;
+        this._dbgEl.classList.toggle('freeze', freezeTag !== '');
+    }
+
+    _dbgLogFreeze(t, reason) {
+        const p   = this.player;
+        const inp = this.input;
+        console.warn('[JWS FREEZE DETECTED]', {
+            reason,
+            t:             (t / 1000).toFixed(2) + 's',
+            gameState:     this.state,
+            playerState:   p?.state,
+            animFrame:     p?.frame,
+            frameTimer:    p?.frameTimer?.toFixed(3),
+            vy:            p?.vy?.toFixed(1),
+            onGround:      p ? (p.y + p.h >= this.renderer.getGroundY() - 1) : null,
+            duckHeld:      inp.duckHeld,
+            jumpJustPr:    inp.jumpJustPressed,
+            rightTouches:  inp._rightTouches.size,
+            activeTouches: inp._dbgTouchCount,
+            lastTouchType: inp._dbgLastType,
+            lastTouchAgo:  inp._dbgLastTime  ? ((performance.now() - inp._dbgLastTime)  / 1000).toFixed(2) + 's' : '─',
+            docTouchEl:    inp._dbgDocLastEl,
+            docTouchAgo:   inp._dbgDocLastTime ? ((performance.now() - inp._dbgDocLastTime) / 1000).toFixed(2) + 's' : '─',
+            scrollX:       this.scrollX.toFixed(0),
+            updateCount:   this._dbgUpdateCount,
+            lastStateChg:  this._dbgStateChangeStr,
+            activeScreens: [...document.querySelectorAll('.screen:not(.hidden)')].map(e => e.id),
+        });
+    }
+
+    _dbgActiveOverlays() {
+        const results = [];
+        document.querySelectorAll('#app *').forEach(el => {
+            const cs = getComputedStyle(el);
+            if (cs.display === 'none' || cs.visibility === 'hidden') return;
+            const z  = parseInt(cs.zIndex) || 0;
+            const pe = cs.pointerEvents;
+            if (z > 0 || pe === 'auto') {
+                const r = el.getBoundingClientRect();
+                if (r.width === 0 && r.height === 0) return;
+                results.push({
+                    el:      (el.id ? '#' + el.id : '') || ('.' + String(el.className).split(' ').filter(Boolean).join('.')),
+                    zIndex:  cs.zIndex,
+                    pEvents: pe,
+                    display: cs.display,
+                    size:    `${Math.round(r.width)}×${Math.round(r.height)}`,
+                });
+            }
+        });
+        console.table(results);
+        return results;
     }
 
     // ---- RENDER ----

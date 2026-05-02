@@ -18,8 +18,24 @@ class InputManager {
         // Track active right-side touches for duck
         this._rightTouches = new Set();
 
+        // ---- Debug telemetry (always maintained, ~zero overhead) ----
+        this._dbgTouchCount  = 0;   // e.touches.length from last canvas touch event
+        this._dbgLastType    = '';  // 'start' | 'end' | 'cancel'
+        this._dbgLastTime    = 0;   // performance.now() of last canvas touch event
+        this._dbgDocLastEl   = '';  // id/tag of last element touched outside canvas
+        this._dbgDocLastTime = 0;
+
         this._setupKeyboard();
         this._setupTouch();
+
+        // Track touches that land on elements OTHER than the canvas (passive, no perf cost)
+        document.addEventListener('touchstart', (e) => {
+            if (e.target !== this.canvas) {
+                const el = e.target;
+                this._dbgDocLastEl   = el.id || (el.className && String(el.className).split(' ')[0]) || el.tagName;
+                this._dbgDocLastTime = performance.now();
+            }
+        }, { passive: true });
     }
 
     _setupKeyboard() {
@@ -81,6 +97,9 @@ class InputManager {
 
         this.canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            this._dbgTouchCount = e.touches.length;
+            this._dbgLastType   = 'start';
+            this._dbgLastTime   = performance.now();
             for (const touch of e.changedTouches) {
                 const rx = getRelX(touch);
                 if (rx < 0.5) {
@@ -96,6 +115,9 @@ class InputManager {
 
         this.canvas.addEventListener('touchend', (e) => {
             e.preventDefault();
+            this._dbgTouchCount = e.touches.length;
+            this._dbgLastType   = 'end';
+            this._dbgLastTime   = performance.now();
             let anyRight = false;
             for (const touch of e.changedTouches) {
                 if (this._rightTouches.delete(touch.identifier)) anyRight = true;
@@ -110,6 +132,9 @@ class InputManager {
 
         this.canvas.addEventListener('touchcancel', (e) => {
             e.preventDefault();
+            this._dbgTouchCount = e.touches.length;
+            this._dbgLastType   = 'cancel';
+            this._dbgLastTime   = performance.now();
             let anyRight = false;
             for (const touch of e.changedTouches) {
                 if (this._rightTouches.delete(touch.identifier)) anyRight = true;
