@@ -18,7 +18,8 @@ const PLAYER_H_DUCK = 42;
 // State enum
 const S = {
     START: 0, CHAR_SELECT: 1, LEVEL_INTRO: 2,
-    PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7
+    PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7,
+    SCORE_SUBMIT: 8, LEADERBOARD: 9, EMAIL_CAPTURE: 10
 };
 
 class Game {
@@ -35,6 +36,8 @@ class Game {
 
         this.audio = new AudioEngine();
         this.input = new InputManager(this.canvas);
+        this._lb = new LeaderboardService(typeof JWS_CONFIG !== 'undefined' ? JWS_CONFIG : {});
+        this._runStartLvl = 0;  // levels completed tracker for submission
 
         // Game state
         this.state = S.START;
@@ -146,6 +149,24 @@ class Game {
         $('closeHighscoresBtn').onclick = () => {
             $('hsOverlay').classList.add('hidden');
         };
+
+        // Score submit screen
+        $('submitScoreBtn').onclick = () => this._submitScore();
+        $('submitSkipBtn').onclick = () => this._setState(S.LEADERBOARD);
+        $('submitNickname').addEventListener('keydown', e => {
+            if (e.key === 'Enter') this._submitScore();
+        });
+
+        // Leaderboard screen
+        $('lbRetryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('lbCharBtn').onclick = () => this._setState(S.CHAR_SELECT);
+
+        // Email capture screen
+        $('submitEmailBtn').onclick = () => this._submitEmail();
+        $('skipEmailBtn').onclick = () => this._setState(S.LEADERBOARD);
+        $('emailInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') this._submitEmail();
+        });
 
         // Mobile pause button (landscape touch)
         const mobilePauseBtn = $('mobilePauseBtn');
@@ -277,7 +298,8 @@ class Game {
     _setState(s) {
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
-            null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen'];
+            null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen',
+            'scoreSubmitScreen', 'leaderboardScreen', 'emailCaptureScreen'];
         document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
 
         const screenId = screens[s];
@@ -312,16 +334,49 @@ class Game {
             }
         }
         if (s === S.GAME_OVER) {
-            document.getElementById('finalScore').textContent = this.score.toLocaleString();
             this.audio.stopMusic();
             this.audio.playGameOver();
             this._saveScore();
+            this._runStartLvl = this.lvlIdx;
+            // Brief delay so the game-over screen flashes before submit form
+            setTimeout(() => this._setState(S.SCORE_SUBMIT), 900);
         }
         if (s === S.WIN) {
-            document.getElementById('winScore').textContent = this.score.toLocaleString();
             this.audio.stopMusic();
             this.audio.playLevelComplete();
             this._saveScore();
+            this._runStartLvl = LEVELS.length;
+            setTimeout(() => this._setState(S.SCORE_SUBMIT), 900);
+        }
+        if (s === S.SCORE_SUBMIT) {
+            const el = document.getElementById('submitFinalScore');
+            if (el) el.textContent = this.score.toLocaleString();
+            const nick = document.getElementById('submitNickname');
+            if (nick) nick.value = this.playerName || '';
+            const err = document.getElementById('submitError');
+            if (err) err.textContent = '';
+            const check = document.getElementById('submitTermsCheck');
+            if (check) check.checked = false;
+            // Wire terms links from config
+            if (typeof JWS_CONFIG !== 'undefined') {
+                const tl = document.getElementById('submitTermsLink');
+                const pl = document.getElementById('submitPrivacyLink');
+                if (tl) tl.href = JWS_CONFIG.termsUrl || '#';
+                if (pl) pl.href = JWS_CONFIG.privacyUrl || '#';
+            }
+            requestAnimationFrame(() => {
+                const n = document.getElementById('submitNickname');
+                if (n) n.focus();
+            });
+        }
+        if (s === S.LEADERBOARD) {
+            this._showLeaderboard();
+        }
+        if (s === S.EMAIL_CAPTURE) {
+            const err = document.getElementById('emailError');
+            if (err) err.textContent = '';
+            const inp = document.getElementById('emailInput');
+            if (inp) { inp.value = ''; requestAnimationFrame(() => inp.focus()); }
         }
         if (s === S.START) {
             this.audio.stopMusic();
@@ -333,6 +388,7 @@ class Game {
 
     _startGame() {
         this.audio.resume();
+        this._lb.startRun();  // fire-and-forget; sets _lb.runId if backend responds
         this.lvlIdx = 0;
         this.score = 0;
         this.multi = this.char.ability === 'score_boost' ? 2 : 1;
@@ -795,6 +851,101 @@ class Game {
                 `<span class="hs-score">${s.score.toLocaleString()}</span>` +
                 `</div>`;
         }).join('');
+    }
+
+    async _submitScore() {
+        const nick = document.getElementById('submitNickname').value.trim();
+        const check = document.getElementById('submitTermsCheck');
+        const err = document.getElementById('submitError');
+        const btn = document.getElementById('submitScoreBtn');
+
+        if (!nick) {
+            err.textContent = 'Bitte gib einen Namen ein.';
+            return;
+        }
+        if (!check || !check.checked) {
+            err.textContent = 'Bitte akzeptiere die Teilnahmebedingungen.';
+            return;
+        }
+
+        // Update stored player name
+        this.playerName = nick;
+        err.textContent = '';
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        const termsAt = new Date().toISOString();
+        const result = await this._lb.submitScore({
+            nickname: nick,
+            score: this.score,
+            characterId: this.char ? this.char.id || this.char.name.toLowerCase() : 'unknown',
+            levelsCompleted: this._runStartLvl || 0
+        }, termsAt);
+
+        btn.disabled = false;
+        btn.textContent = 'ABSENDEN';
+
+        if (result && result.contactEligible) {
+            this._setState(S.EMAIL_CAPTURE);
+        } else {
+            this._setState(S.LEADERBOARD);
+        }
+    }
+
+    async _showLeaderboard() {
+        const list = document.getElementById('globalLeaderboardList');
+        const badge = document.getElementById('playerRankBadge');
+
+        // Show rank badge if we submitted successfully
+        if (this._lb.rank !== null) {
+            badge.textContent = `DEIN RANG: #${this._lb.rank}`;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+
+        list.innerHTML = '<div class="lb-loading">LADE RANGLISTE…</div>';
+
+        const entries = await this._lb.fetchLeaderboard();
+
+        if (entries.length === 0) {
+            list.innerHTML = '<div class="lb-empty">Keine Einträge verfügbar.</div>';
+            return;
+        }
+
+        list.innerHTML = entries.map((e, i) => {
+            const rank = e.rank || (i + 1);
+            const isPlayer = this._lb.scoreId && e.score_id === this._lb.scoreId;
+            const cls = isPlayer ? 'hs-row player-row' : 'hs-row';
+            const nick = String(e.nickname || '?').toUpperCase();
+            return `<div class="${cls}">` +
+                `<span class="hs-rank">#${rank}</span>` +
+                `<span class="hs-char">${nick}</span>` +
+                `<span class="hs-score">${Number(e.score).toLocaleString()}</span>` +
+                `</div>`;
+        }).join('');
+    }
+
+    async _submitEmail() {
+        const inp = document.getElementById('emailInput');
+        const err = document.getElementById('emailError');
+        const btn = document.getElementById('submitEmailBtn');
+        const email = (inp ? inp.value : '').trim();
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            err.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+            return;
+        }
+
+        err.textContent = '';
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        await this._lb.submitEmail(email);
+
+        btn.disabled = false;
+        btn.textContent = 'GESPEICHERT ✓';
+        setTimeout(() => this._setState(S.LEADERBOARD), 800);
     }
 
     _aabb(a, b) {
