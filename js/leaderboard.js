@@ -120,7 +120,7 @@ class LeaderboardService {
     async submitEmail(email) {
         if (!this._available || !this.scoreId) return false;
         try {
-            await this._post(`/scores/${this.scoreId}/contact`, { email });
+            await this._post(`/contact-score`, { score_id: this.scoreId, email });
             return true;
         } catch (e) {
             console.warn('[LB] submitEmail failed:', e.message);
