@@ -528,13 +528,18 @@ html, body {
 }
 
 .hs-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background: rgba(5, 0, 16, 0.92);
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
-    z-index: 30;
+    padding: max(env(safe-area-inset-top, 0px), 16px)
+             max(env(safe-area-inset-right, 0px), 16px)
+             max(env(safe-area-inset-bottom, 0px), 16px)
+             max(env(safe-area-inset-left, 0px), 16px);
+    z-index: 100;
+    overflow: hidden;
 }
 .hs-overlay.hidden { display: none; }
 
@@ -542,12 +547,38 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 36px 48px;
+    justify-content: flex-start;
+    gap: 0;
+    width: min(560px, 100%);
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    padding: clamp(20px, 3vh, 36px) clamp(16px, 3vw, 40px);
+    box-sizing: border-box;
     background: rgba(255, 0, 144, 0.06);
     border: 1px solid #ff009033;
-    max-width: 480px;
+}
+
+/* Title: fixed at top */
+.hs-overlay-box .hs-title {
+    flex: 0 0 auto;
+    margin-bottom: clamp(10px, 1.5vh, 20px);
+}
+
+/* List: fills remaining space and scrolls */
+#highscoreListOverlay {
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Close button: pinned at bottom */
+.hs-overlay-box #closeHighscoresBtn {
+    flex: 0 0 auto;
+    margin-top: clamp(12px, 2vh, 24px) !important;
 }
 
 /* ---- NAME INPUT ---- */
@@ -852,9 +883,16 @@ html, body {
     .hs-rank { min-width: 22px; }
     .hs-score { min-width: 58px; }
 
+    .hs-overlay {
+        padding: max(env(safe-area-inset-top, 0px), 12px)
+                 12px
+                 max(env(safe-area-inset-bottom, 0px), 12px)
+                 12px;
+    }
+
     .hs-overlay-box {
-        padding: 24px 20px;
-        max-width: 96vw;
+        width: 100%;
+        padding: 20px 16px;
     }
 }
 
