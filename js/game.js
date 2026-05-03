@@ -14,6 +14,7 @@ const PLAYER_X = 80;
 const PLAYER_W = 40;
 const PLAYER_H_STAND = 74;
 const PLAYER_H_DUCK = 42;
+const GROUND_EPS = 2; // tolerance that closes the onGround/landing dead-zone
 
 // Persistent player profile (nickname + email survive reloads)
 const PlayerProfileStore = {
@@ -560,7 +561,7 @@ class Game {
 
         // Duck
         const wantDuck = this.input.isDucking;
-        const onGround = (p.y + p.h >= gy - 1);
+        const onGround = (p.y + p.h >= gy - GROUND_EPS);
 
         if (wantDuck && onGround && p.state !== 'jump') {
             p.state = 'duck';
@@ -578,12 +579,23 @@ class Game {
             p.y += p.vy * dt;
         }
 
-        // Land
-        if (p.y + p.h >= gy) {
+        // Land — GROUND_EPS closes the dead-zone where onGround=true (gravity stops)
+        // but the exact >= gy check never fires, leaving state==='jump' permanently.
+        // p.vy >= 0 prevents snapping while still moving upward through the zone.
+        if (p.y + p.h >= gy - GROUND_EPS && p.vy >= 0) {
             p.y = gy - p.h;
             p.vy = 0;
             p.jumpsLeft = p.maxJumps;
-            if (p.state === 'jump') p.state = 'run';
+            if (p.state === 'jump') {
+                p.state = wantDuck ? 'duck' : 'run';
+            }
+        }
+
+        // Failsafe: grounded + stopped but still in jump state → force correction.
+        const groundedNow = (p.y + p.h >= gy - GROUND_EPS);
+        if (groundedNow && p.vy === 0 && p.state === 'jump') {
+            p.state = wantDuck ? 'duck' : 'run';
+            p.jumpsLeft = p.maxJumps;
         }
 
         // Hurt cooldown
