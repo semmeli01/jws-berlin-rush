@@ -66,14 +66,19 @@ class InputManager {
             }
         });
 
-        // When the window loses focus, key-up events are missed → keys get stuck.
-        // Clear all held state so the next keydown is always recognized.
+        // When the window loses focus, key-up events are missed → keyboard keys get stuck.
+        // Only clear keyboard-driven duck; touch-driven duck must NOT be cleared here.
+        // Brief Android focus-loss events (notification shade, address bar reveal) do
+        // not fire touchcancel, so clearing duckHeld would strand a physically-held
+        // touch with no way to recover until the finger is lifted and re-pressed.
+        // Real app-switch interruptions DO fire touchcancel, which cleans up correctly.
         window.addEventListener('blur', () => {
+            const duckFromKey = this._keys.has('ArrowDown') || this._keys.has('KeyS');
             this._keys.clear();
-            this.duckHeld = false;
+            if (duckFromKey) this.duckHeld = false;
             this.jumpJustPressed = false;
             this.pauseJustPressed = false;
-            this._rightTouches.clear();
+            // _rightTouches and touch-driven duckHeld intentionally preserved
         });
 
         // Also reset on tab visibility change (mobile background, Alt+Tab, etc.)

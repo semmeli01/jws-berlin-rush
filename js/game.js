@@ -14,6 +14,9 @@ const PLAYER_X = 80;
 const PLAYER_W = 40;
 const PLAYER_H_STAND = 74;
 const PLAYER_H_DUCK = 42;
+// Tolerance for ground detection: wide enough to close the dead-zone between
+// the onGround gate (stops gravity) and the landing snap (gy exact).
+const GROUND_EPS = 2;
 
 // Persistent player profile (nickname + email survive reloads)
 const PlayerProfileStore = {
@@ -108,6 +111,7 @@ class Game {
         this._dbgLastFrameT    = 0;   // RAF timestamp when frame# last changed
         this._dbgFreezeLogged  = false;
         this._dbgStuckDuckT    = 0;   // RAF timestamp when stuck-duck first detected
+        this._dbgStuckJumpT    = 0;   // RAF timestamp when stuck-jump first detected
         this._dbgStateChangeStr = '';  // last "FROM→TO" state transition label
         this._dbgPrevState     = S.START;
         this._dbgEl            = null;
@@ -597,7 +601,7 @@ class Game {
 
         // Duck
         const wantDuck = this.input.isDucking;
-        const onGround = (p.y + p.h >= gy - 1);
+        const onGround = (p.y + p.h >= gy - GROUND_EPS);
 
         if (wantDuck && onGround && p.state !== 'jump') {
             p.state = 'duck';
@@ -609,18 +613,42 @@ class Game {
             p.y = gy - p.h;
         }
 
-        // Gravity
+        // Gravity — apply while ascending OR above ground tolerance
         if (!onGround || p.vy < 0) {
             p.vy += GRAVITY * dt;
             p.y += p.vy * dt;
         }
 
-        // Land
-        if (p.y + p.h >= gy) {
+        // Land — snap when within GROUND_EPS and falling (or stationary).
+        // Using GROUND_EPS here closes the dead-zone where onGround=true (stops
+        // gravity) but p.y+p.h < gy (exact check) would never fire, leaving the
+        // player frozen in jump state with jumpsLeft=0.
+        if (p.y + p.h >= gy - GROUND_EPS && p.vy >= 0) {
+            if (this._debug && p.state === 'jump' && p.vy < 1) {
+                console.warn('[JWS] landing snap caught near-miss', {
+                    bottom: (p.y + p.h).toFixed(2), gy, vy: p.vy.toFixed(2),
+                    jumpsLeft: p.jumpsLeft
+                });
+            }
             p.y = gy - p.h;
             p.vy = 0;
             p.jumpsLeft = p.maxJumps;
-            if (p.state === 'jump') p.state = 'run';
+            if (p.state === 'jump') {
+                p.state = wantDuck ? 'duck' : 'run';
+                if (p.state === 'duck') { p.h = PLAYER_H_DUCK; p.y = gy - p.h; }
+            }
+        }
+
+        // Failsafe: if somehow grounded with vy=0 but still in jump state, force exit.
+        if (p.y + p.h >= gy - GROUND_EPS && p.vy === 0 && p.state === 'jump') {
+            if (this._debug) {
+                console.warn('[JWS] stuck-jump failsafe triggered', {
+                    bottom: (p.y + p.h).toFixed(2), gy, jumpsLeft: p.jumpsLeft
+                });
+            }
+            p.state = wantDuck ? 'duck' : 'run';
+            p.jumpsLeft = p.maxJumps;
+            if (p.state === 'duck') { p.h = PLAYER_H_DUCK; p.y = gy - p.h; }
         }
 
         // Hurt cooldown
@@ -1221,7 +1249,7 @@ class Game {
         const p   = this.player;
         const inp = this.input;
         const gy  = this.renderer.getGroundY();
-        const onGround = p ? (p.y + p.h >= gy - 1) : false;
+        const onGround = p ? (p.y + p.h >= gy - GROUND_EPS) : false;
         const SN  = ['START','CHAR_SELECT','LEVEL_INTRO','PLAYING','PAUSED','GAME_OVER',
                      'WIN','NAME_INPUT','SCORE_SUBMIT','LEADERBOARD','EMAIL_CAPTURE'];
 
@@ -1250,6 +1278,20 @@ class Game {
                 if (dur > 500) freezeTag = 'STUCK-DUCK';
             } else {
                 this._dbgStuckDuckT = 0;
+            }
+
+            // 3. Stuck jump: grounded but still in jump state (jumpsLeft stuck at 0)
+            const bottom = p.y + p.h;
+            if (p.state === 'jump' && Math.abs(bottom - gy) <= GROUND_EPS && Math.abs(p.vy) < 1) {
+                if (!this._dbgStuckJumpT) this._dbgStuckJumpT = t;
+                const dur = t - this._dbgStuckJumpT;
+                if (dur > 200 && !this._dbgFreezeLogged) {
+                    this._dbgFreezeLogged = true;
+                    this._dbgLogFreeze(t, 'stuck-jump');
+                }
+                if (dur > 200) freezeTag = 'STUCK-JUMP';
+            } else {
+                this._dbgStuckJumpT = 0;
             }
         } else {
             this._dbgLastFrameT = 0; // reset so detector restarts fresh on PLAYING
