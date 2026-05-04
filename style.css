@@ -1423,12 +1423,12 @@ html, body {
 
 .submit-contest-info {
     font-family: 'Inter', sans-serif;
-    font-size: clamp(11px, 2.2vw, 13px);
-    color: #ffffffaa;
+    font-size: clamp(15px, 1.45vw, 22px);
+    color: #ffffffcc;
     text-align: center;
-    line-height: 1.5;
+    line-height: 1.35;
     margin-bottom: clamp(10px, 2vh, 18px);
-    max-width: 340px;
+    max-width: min(720px, 90vw);
 }
 
 .submit-field-label {
@@ -1618,8 +1618,9 @@ html, body {
     }
 
     #scoreSubmitScreen .submit-contest-info {
-        font-size: clamp(10px, 2.5vh, 13px);
-        line-height: 1.3;
+        font-size: clamp(13px, 3vh, 17px);
+        line-height: 1.25;
+        max-width: min(640px, 88vw);
         margin-bottom: clamp(2px, 0.8vh, 6px);
     }
 
