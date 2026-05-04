@@ -1,15 +1,16 @@
 -- =============================================
 -- JWS Berlin Rush — Internal Test Campaign Setup
--- Run once in Supabase SQL Editor to create the
--- campaign row for the internal test (May 2026).
--- Already applied on 2026-05-04.
+-- Campaign row already applied and active (2026-05-04).
+-- starts_at set to now()-1h so campaign is immediately testable;
+-- update it to '2026-05-05 00:00:00+02' before the real test week.
 -- =============================================
 
+-- Create / update campaign row (safe to re-run)
 insert into public.campaigns (id, name, starts_at, ends_at, terms_version, is_active)
 values (
   'jws-berlin-rush-internal-2026-05',
   'JWS Berlin Rush Internal Test May 2026',
-  '2026-05-05 00:00:00+02',
+  now() - interval '1 hour',   -- set to '2026-05-05 00:00:00+02' for real launch
   '2026-05-12 23:59:59+02',
   'internal-v1',
   true
@@ -20,6 +21,10 @@ on conflict (id) do update set
   ends_at       = excluded.ends_at,
   terms_version = excluded.terms_version,
   is_active     = excluded.is_active;
+
+-- To reset starts_at for real test week:
+-- update public.campaigns set starts_at = '2026-05-05 00:00:00+02'
+-- where id = 'jws-berlin-rush-internal-2026-05';
 
 
 -- =============================================

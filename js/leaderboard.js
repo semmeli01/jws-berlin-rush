@@ -127,17 +127,26 @@ class LeaderboardService {
         }
     }
 
-    /** Fetch global leaderboard. Returns [] on failure. */
+    /**
+     * Fetch global leaderboard.
+     * Returns [] on success with no entries (campaign active but empty).
+     * Returns null on failure (network error, campaign inactive, backend down).
+     * Callers must distinguish null (show local fallback) from [] (show "no scores yet").
+     */
     async fetchLeaderboard() {
-        if (!this._available) return [];
+        if (!this._available) {
+            console.warn('[LB] fetchLeaderboard skipped — backend not configured. campaign:', this._campaignId);
+            return null;
+        }
+        const url = `/leaderboard?campaign_id=${encodeURIComponent(this._campaignId)}&limit=${LEADERBOARD_LIMIT}`;
         try {
-            const data = await this._get(
-                `/leaderboard?campaign_id=${encodeURIComponent(this._campaignId)}&limit=${LEADERBOARD_LIMIT}`
-            );
-            return Array.isArray(data) ? data : (data.entries || []);
+            const data = await this._get(url);
+            const entries = Array.isArray(data) ? data : (data.entries || []);
+            console.log('[LB] fetchLeaderboard ok — entries:', entries.length, 'campaign:', this._campaignId);
+            return entries;
         } catch (e) {
-            console.warn('[LB] fetchLeaderboard failed:', e.message);
-            return [];
+            console.warn('[LB] fetchLeaderboard failed — campaign:', this._campaignId, 'url:', this._apiUrl + url, 'error:', e.message);
+            return null;
         }
     }
 

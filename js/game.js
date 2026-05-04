@@ -954,22 +954,29 @@ class Game {
         list.innerHTML = '<div class="hs-empty">LADE…</div>';
 
         // 1. Try global leaderboard
+        // null  = request failed  → fall back to local scores
+        // []    = request ok, no entries yet  → show "Noch keine Scores"
+        // [...] = request ok, has entries  → show them
         const entries = await this._lb.fetchLeaderboard();
-        if (entries.length > 0) {
+        if (entries !== null) {
             if (titleEl) titleEl.textContent = 'HIGHSCORES';
-            list.innerHTML = entries.slice(0, LEADERBOARD_LIMIT).map((e, i) => {
-                const rank = e.rank || (i + 1);
-                const nick = String(e.nickname || '?').toUpperCase();
-                return `<div class="hs-row">` +
-                    `<span class="hs-rank">#${rank}</span>` +
-                    `<span class="hs-char">${nick}</span>` +
-                    `<span class="hs-score">${Number(e.score).toLocaleString()}</span>` +
-                    `</div>`;
-            }).join('');
+            if (entries.length === 0) {
+                list.innerHTML = '<div class="hs-empty">Noch keine Scores</div>';
+            } else {
+                list.innerHTML = entries.slice(0, LEADERBOARD_LIMIT).map((e, i) => {
+                    const rank = e.rank || (i + 1);
+                    const nick = String(e.nickname || '?').toUpperCase();
+                    return `<div class="hs-row">` +
+                        `<span class="hs-rank">#${rank}</span>` +
+                        `<span class="hs-char">${nick}</span>` +
+                        `<span class="hs-score">${Number(e.score).toLocaleString()}</span>` +
+                        `</div>`;
+                }).join('');
+            }
             return;
         }
 
-        // 2. Fallback: localStorage personal bests
+        // 2. Fallback: request failed → localStorage personal bests
         let scores = [];
         try { scores = JSON.parse(localStorage.getItem('jws_highscores') || '[]'); } catch (e) {}
         if (titleEl) titleEl.textContent = scores.length > 0 ? 'LOKALE HIGHSCORES' : 'HIGHSCORES';
@@ -1048,8 +1055,12 @@ class Game {
 
         const entries = await this._lb.fetchLeaderboard();
 
+        if (entries === null) {
+            list.innerHTML = '<div class="lb-empty">Rangliste konnte nicht geladen werden.</div>';
+            return;
+        }
         if (entries.length === 0) {
-            list.innerHTML = '<div class="lb-empty">Keine Einträge verfügbar.</div>';
+            list.innerHTML = '<div class="lb-empty">Noch keine Scores — sei der Erste!</div>';
             return;
         }
 
