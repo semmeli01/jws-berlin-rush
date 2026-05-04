@@ -1,6 +1,9 @@
 // =============================================
 // JWS: BERLIN RUSH — Renderer
 // All drawing/rendering functions
+// Copyright © 2026 Yanick Semmler. All rights reserved.
+// Game created by Yanick Semmler.
+// Publicly visible, not open source.
 // =============================================
 
 const PX = 4; // base pixel size for 8-bit look

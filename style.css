@@ -1,5 +1,6 @@
 /* =============================================
    JWS: BERLIN RUSH — Stylesheet (Desktop)
+   Copyright © 2026 Yanick Semmler. All rights reserved.
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800;900&display=swap');
@@ -160,6 +161,27 @@ html, body {
     font-size: 12px;
     color: #ffffff33;
     letter-spacing: 3px;
+}
+
+.legal-bar {
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: #ffffff44;
+    text-align: center;
+    letter-spacing: 0.4px;
+    line-height: 1.6;
+}
+.legal-bar a {
+    color: #ffffff55;
+    text-decoration: none;
+}
+.legal-bar a:hover,
+.legal-bar a:focus {
+    color: #ffffffcc;
+    text-decoration: underline;
+    outline: 1px dotted #ffffff66;
+    outline-offset: 2px;
 }
 
 /* ---- Highscore ---- */

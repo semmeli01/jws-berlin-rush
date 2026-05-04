@@ -1,6 +1,9 @@
 // =============================================
 // JWS: BERLIN RUSH — Input Manager
 // Keyboard + Touch (Mobile-First)
+// Copyright © 2026 Yanick Semmler. All rights reserved.
+// Game created by Yanick Semmler.
+// Publicly visible, not open source.
 // =============================================
 
 class InputManager {

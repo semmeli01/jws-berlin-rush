@@ -1,5 +1,8 @@
 // =============================================
 // JWS: BERLIN RUSH — Cast Characters (Staffel 8)
+// Copyright © 2026 Yanick Semmler. All rights reserved.
+// Game created by Yanick Semmler.
+// Publicly visible, not open source.
 // =============================================
 
 const CHARACTERS = [

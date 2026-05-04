@@ -1,5 +1,8 @@
 // =============================================
 // JWS: BERLIN RUSH — Leaderboard Service
+// Copyright © 2026 Yanick Semmler. All rights reserved.
+// Game created by Yanick Semmler.
+// Publicly visible, not open source.
 // =============================================
 
 const LEADERBOARD_LIMIT = 100;

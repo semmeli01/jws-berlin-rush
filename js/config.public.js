@@ -2,6 +2,9 @@
 // JWS: BERLIN RUSH — Public API Configuration
 // Safe to commit — contains only the Supabase
 // anon (publishable) key, never the service_role key.
+// Copyright © 2026 Yanick Semmler. All rights reserved.
+// Game created by Yanick Semmler.
+// Publicly visible, not open source.
 // =============================================
 
 const JWS_CONFIG = {
