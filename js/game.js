@@ -197,6 +197,25 @@ class Game {
             if (e.key === 'Enter') this._submitEmail();
         });
 
+        // Legal modals
+        const openLegal = id => {
+            const m = $(id);
+            if (m) { m.classList.remove('hidden'); m.focus(); }
+        };
+        const closeLegal = id => { const m = $(id); if (m) m.classList.add('hidden'); };
+
+        $('footerTermsBtn').addEventListener('click', () => openLegal('termsModal'));
+        $('footerPrivacyBtn').addEventListener('click', () => openLegal('privacyModal'));
+        $('submitTermsLink').addEventListener('click', e => { e.preventDefault(); openLegal('termsModal'); });
+        $('submitPrivacyLink').addEventListener('click', e => { e.preventDefault(); openLegal('privacyModal'); });
+        $('termsModalClose').addEventListener('click', () => closeLegal('termsModal'));
+        $('privacyModalClose').addEventListener('click', () => closeLegal('privacyModal'));
+        $('termsModal').addEventListener('click', e => { if (e.target === $('termsModal')) closeLegal('termsModal'); });
+        $('privacyModal').addEventListener('click', e => { if (e.target === $('privacyModal')) closeLegal('privacyModal'); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeLegal('termsModal'); closeLegal('privacyModal'); }
+        });
+
         // Mobile pause button (landscape touch)
         const mobilePauseBtn = $('mobilePauseBtn');
         if (mobilePauseBtn) {
@@ -410,13 +429,6 @@ class Game {
             if (err) err.textContent = '';
             const check = document.getElementById('submitTermsCheck');
             if (check) check.checked = false;
-            // Wire terms links from config
-            if (typeof JWS_CONFIG !== 'undefined') {
-                const tl = document.getElementById('submitTermsLink');
-                const pl = document.getElementById('submitPrivacyLink');
-                if (tl) tl.href = JWS_CONFIG.termsUrl || '#';
-                if (pl) pl.href = JWS_CONFIG.privacyUrl || '#';
-            }
             requestAnimationFrame(() => {
                 const n = document.getElementById('submitNickname');
                 if (n) n.focus();

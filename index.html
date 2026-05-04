@@ -98,9 +98,9 @@
                 </div>
                 <div class="oneplus-badge">Ein oneplus Original</div>
                 <div class="legal-bar">Created by Yanick Semmler
-                    &nbsp;·&nbsp;<a href="https://www.oneplus.ch/nutzungsbedingungen" target="_blank" rel="noopener noreferrer">Nutzungsbedingungen</a>
+                    &nbsp;·&nbsp;<button type="button" class="legal-bar-btn" id="footerTermsBtn">Teilnahmebedingungen</button>
                     &nbsp;·&nbsp;<a href="https://www.oneplus.ch/impressum" target="_blank" rel="noopener noreferrer">Impressum</a>
-                    &nbsp;·&nbsp;<a href="https://www.oneplus.ch/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutz</a>
+                    &nbsp;·&nbsp;<button type="button" class="legal-bar-btn" id="footerPrivacyBtn">Datenschutz</button>
                 </div>
             </div>
         </div>
@@ -209,9 +209,9 @@
                 <label class="submit-terms-label" for="submitTermsCheck">
                     <input id="submitTermsCheck" class="submit-terms-check" type="checkbox">
                     <span class="submit-terms-text">Ich akzeptiere die
-                        <a id="submitTermsLink" href="#" target="_blank" rel="noopener" class="submit-link">Teilnahmebedingungen</a>
+                        <a id="submitTermsLink" href="#" class="submit-link">Teilnahmebedingungen</a>
                         und
-                        <a id="submitPrivacyLink" href="#" target="_blank" rel="noopener" class="submit-link">Datenschutzhinweise</a>.
+                        <a id="submitPrivacyLink" href="#" class="submit-link">Datenschutzhinweise</a>.
                     </span>
                 </label>
                 <div id="submitError" class="submit-error" aria-live="polite"></div>
@@ -316,6 +316,150 @@
                 <div id="emailError" class="submit-error" aria-live="polite"></div>
                 <button id="submitEmailBtn" class="btn-primary">SPEICHERN</button>
                 <button id="skipEmailBtn" class="btn-secondary">NEIN DANKE</button>
+            </div>
+        </div>
+
+        <!-- Legal Modal: Teilnahmebedingungen -->
+        <div id="termsModal" class="legal-modal hidden" role="dialog" aria-modal="true" aria-labelledby="termsModalTitle" tabindex="-1">
+            <div class="legal-modal-box">
+                <div class="legal-modal-header">
+                    <h2 id="termsModalTitle" class="legal-modal-title">TEILNAHMEBEDINGUNGEN</h2>
+                    <button type="button" class="legal-modal-close" id="termsModalClose" aria-label="Schliessen">✕</button>
+                </div>
+                <div class="legal-modal-body">
+                    <p class="legal-subtitle">JWS Berlin Rush – oneplus Gewinnspiel</p>
+
+                    <h3 class="legal-h3">1. Veranstalter</h3>
+                    <p>CH Media TV AG<br>Thurgauerstrasse 80<br>8050 Zürich<br>Schweiz</p>
+                    <p>Kontakt: <a href="mailto:support@oneplus.ch" class="legal-link">support@oneplus.ch</a></p>
+                    <p>Das Gewinnspiel steht im Zusammenhang mit oneplus und dem Browsergame «JWS Berlin Rush».</p>
+
+                    <h3 class="legal-h3">2. Teilnahme</h3>
+                    <p>Die Teilnahme erfolgt durch das Spielen von «JWS Berlin Rush» und das Absenden eines Scores über das im Spiel vorgesehene Formular.</p>
+                    <p>Für die Teilnahme muss ein Nickname angegeben und diesen Teilnahmebedingungen sowie den Datenschutzhinweisen zugestimmt werden.</p>
+                    <p>Nur korrekt übermittelte Scores werden für das Gewinnspiel berücksichtigt.</p>
+
+                    <h3 class="legal-h3">3. Teilnahmezeitraum</h3>
+                    <p>Das Gewinnspiel läuft im im Spiel oder in der Kampagnenkommunikation angegebenen Zeitraum.</p>
+                    <p>Nach Ablauf des Teilnahmezeitraums eingereichte Scores werden für die Gewinnermittlung nicht berücksichtigt.</p>
+
+                    <h3 class="legal-h3">4. Teilnahmeberechtigung</h3>
+                    <p>Teilnahmeberechtigt sind natürliche Personen mit Wohnsitz in der Schweiz.</p>
+                    <p>Mitarbeitende von CH Media, direkt an der Durchführung beteiligte Dienstleister sowie deren Angehörige können von der Teilnahme ausgeschlossen werden.</p>
+                    <p>Pro Person sind mehrere Spielrunden möglich. Für die Rangliste zählt der jeweils gültig übermittelte Score.</p>
+
+                    <h3 class="legal-h3">5. Gewinnmechanik</h3>
+                    <p>Die Gewinnerinnen und Gewinner werden anhand der globalen Rangliste ermittelt.</p>
+                    <p>Die Top 10 der gültigen Scores gewinnen je 1 Jahr oneplus.</p>
+                    <p>Massgeblich ist die Rangliste zum Ende des Teilnahmezeitraums. Bei Punktegleichstand entscheidet der frühere Zeitpunkt der Score-Übermittlung.</p>
+                    <p>Manipulierte, technisch fehlerhafte, automatisiert erzeugte oder anderweitig missbräuchliche Scores können ausgeschlossen werden.</p>
+
+                    <h3 class="legal-h3">6. Kontaktaufnahme</h3>
+                    <p>Personen mit einem hohen Ranglistenplatz können im Spiel freiwillig eine E-Mail-Adresse hinterlegen.</p>
+                    <p>Die E-Mail-Adresse wird verwendet, um potenzielle Gewinnerinnen und Gewinner nach Ende des Gewinnspiels zu kontaktieren.</p>
+                    <p>Falls eine Gewinnerin oder ein Gewinner nicht innerhalb der in der Gewinnbenachrichtigung genannten Frist reagiert, kann der Gewinn verfallen und an eine nachrückende Person vergeben werden.</p>
+
+                    <h3 class="legal-h3">7. Gewinn</h3>
+                    <p>Der Gewinn umfasst ein oneplus Jahresabo für 1 Jahr.</p>
+                    <p>Eine Barauszahlung, ein Umtausch oder eine Übertragung des Gewinns ist ausgeschlossen.</p>
+
+                    <h3 class="legal-h3">8. Ausschluss bei Missbrauch</h3>
+                    <p>Die Veranstalterin behält sich vor, Teilnehmende auszuschliessen, wenn der Verdacht auf Manipulation, technische Umgehung, Mehrfachmissbrauch, automatisierte Teilnahme oder sonstige unfaire Nutzung besteht.</p>
+
+                    <h3 class="legal-h3">9. Änderungen und Abbruch</h3>
+                    <p>Die Veranstalterin behält sich vor, das Gewinnspiel aus wichtigen Gründen anzupassen, zu unterbrechen oder abzubrechen, insbesondere bei technischen Problemen, Manipulationen oder Umständen ausserhalb ihres Einflussbereichs.</p>
+
+                    <h3 class="legal-h3">10. Verhältnis zu oneplus Nutzungsbedingungen</h3>
+                    <p>Für die Nutzung von oneplus gelten ergänzend die offiziellen Nutzungsbedingungen von oneplus:<br>
+                    <a href="https://www.oneplus.ch/nutzungsbedingungen" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/nutzungsbedingungen</a></p>
+
+                    <h3 class="legal-h3">11. Datenschutz</h3>
+                    <p>Informationen zur Bearbeitung von Personendaten im Zusammenhang mit dem Gewinnspiel finden sich in den Datenschutzhinweisen zum Spiel sowie in der offiziellen Datenschutzerklärung von oneplus:<br>
+                    <a href="https://www.oneplus.ch/datenschutz" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/datenschutz</a></p>
+
+                    <h3 class="legal-h3">12. Anwendbares Recht</h3>
+                    <p>Es gilt Schweizer Recht.</p>
+                    <p>Der Rechtsweg ist ausgeschlossen, soweit gesetzlich zulässig.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal Modal: Datenschutzhinweise -->
+        <div id="privacyModal" class="legal-modal hidden" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle" tabindex="-1">
+            <div class="legal-modal-box">
+                <div class="legal-modal-header">
+                    <h2 id="privacyModalTitle" class="legal-modal-title">DATENSCHUTZHINWEISE</h2>
+                    <button type="button" class="legal-modal-close" id="privacyModalClose" aria-label="Schliessen">✕</button>
+                </div>
+                <div class="legal-modal-body">
+                    <p class="legal-subtitle">JWS Berlin Rush – oneplus Gewinnspiel</p>
+
+                    <h3 class="legal-h3">1. Verantwortliche Stelle</h3>
+                    <p>CH Media TV AG<br>Thurgauerstrasse 80<br>8050 Zürich<br>Schweiz</p>
+                    <p>Kontakt: <a href="mailto:support@oneplus.ch" class="legal-link">support@oneplus.ch</a><br>
+                    Datenschutzanfragen: <a href="mailto:datenschutz@chmedia.ch" class="legal-link">datenschutz@chmedia.ch</a></p>
+
+                    <h3 class="legal-h3">2. Zweck der Datenbearbeitung</h3>
+                    <p>Wir bearbeiten die im Spiel erfassten Daten, um:</p>
+                    <ul class="legal-list">
+                        <li>deinen Score in der globalen Rangliste anzuzeigen,</li>
+                        <li>das Gewinnspiel durchzuführen,</li>
+                        <li>potenzielle Gewinnerinnen und Gewinner zu kontaktieren,</li>
+                        <li>missbräuchliche oder manipulierte Teilnahmen zu erkennen,</li>
+                        <li>technische Fehler zu analysieren und die Funktion des Spiels sicherzustellen.</li>
+                    </ul>
+
+                    <h3 class="legal-h3">3. Welche Daten werden bearbeitet?</h3>
+                    <p>Beim Absenden eines Scores können insbesondere folgende Daten bearbeitet werden:</p>
+                    <ul class="legal-list">
+                        <li>Nickname</li>
+                        <li>Score</li>
+                        <li>gewählter Charakter</li>
+                        <li>Zeitpunkt der Teilnahme</li>
+                        <li>technische Spiel-/Session-ID</li>
+                        <li>technische Metadaten zur Missbrauchsprävention</li>
+                        <li>Bestätigung der Teilnahmebedingungen und Datenschutzhinweise</li>
+                    </ul>
+                    <p>Wenn du weit oben in der Rangliste bist und deine E-Mail-Adresse freiwillig hinterlegst, bearbeiten wir zusätzlich:</p>
+                    <ul class="legal-list">
+                        <li>E-Mail-Adresse</li>
+                        <li>Zeitpunkt der E-Mail-Übermittlung</li>
+                    </ul>
+                    <p>Deine E-Mail-Adresse wird nicht öffentlich in der Rangliste angezeigt.</p>
+
+                    <h3 class="legal-h3">4. Öffentliche Rangliste</h3>
+                    <p>In der öffentlichen Rangliste werden nur der Nickname, der Score, der Rang und gegebenenfalls der gewählte Charakter angezeigt.</p>
+                    <p>Bitte verwende keinen Nickname, der unnötig persönliche Informationen enthält.</p>
+
+                    <h3 class="legal-h3">5. Freiwillige E-Mail-Adresse</h3>
+                    <p>Die Angabe der E-Mail-Adresse ist für die Anzeige deines Scores in der Rangliste nicht erforderlich.</p>
+                    <p>Wenn du jedoch gewinnen möchtest, benötigen wir eine Kontaktmöglichkeit, um dich im Gewinnfall zu informieren.</p>
+                    <p>Die E-Mail-Adresse wird nur für die Durchführung dieses Gewinnspiels und die Kontaktaufnahme im Gewinnfall verwendet.</p>
+
+                    <h3 class="legal-h3">6. Lokale Speicherung im Browser</h3>
+                    <p>Das Spiel kann deinen Nickname und deine E-Mail-Adresse lokal im Browser speichern, damit du diese Angaben bei späteren Spielrunden auf demselben Gerät nicht erneut eingeben musst.</p>
+                    <p>Diese lokale Speicherung erfolgt auf deinem Gerät. Du kannst sie jederzeit löschen, indem du die Browserdaten beziehungsweise den lokalen Speicher der Website löschst.</p>
+
+                    <h3 class="legal-h3">7. Speicherdauer</h3>
+                    <p>Die Daten werden nur so lange gespeichert, wie es für die Durchführung und Nachbearbeitung des Gewinnspiels erforderlich ist.</p>
+                    <p>Nach Abschluss des Gewinnspiels und Ablauf allfälliger notwendiger Nachbearbeitungs- oder Nachweisfristen werden die Daten gelöscht oder anonymisiert, soweit keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
+
+                    <h3 class="legal-h3">8. Weitergabe an Dritte</h3>
+                    <p>Personendaten werden nicht verkauft.</p>
+                    <p>Eine Weitergabe kann erfolgen, soweit dies für den technischen Betrieb des Spiels, die Bereitstellung der Rangliste, die Durchführung des Gewinnspiels oder die Zustellung beziehungsweise Aktivierung des Gewinns erforderlich ist.</p>
+
+                    <h3 class="legal-h3">9. Deine Rechte</h3>
+                    <p>Du kannst im Rahmen der anwendbaren Datenschutzbestimmungen Auskunft über deine Personendaten verlangen sowie Berichtigung, Löschung oder Einschränkung der Bearbeitung verlangen.</p>
+                    <p>Für Datenschutzanfragen kannst du dich an <a href="mailto:datenschutz@chmedia.ch" class="legal-link">datenschutz@chmedia.ch</a> wenden.</p>
+
+                    <h3 class="legal-h3">10. Weitere Informationen</h3>
+                    <p>Weitere Informationen zur Bearbeitung von Personendaten findest du in der offiziellen Datenschutzerklärung von oneplus:<br>
+                    <a href="https://www.oneplus.ch/datenschutz" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/datenschutz</a></p>
+                    <p>Impressum:<br>
+                    <a href="https://www.oneplus.ch/impressum" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/impressum</a></p>
+                    <p>Nutzungsbedingungen:<br>
+                    <a href="https://www.oneplus.ch/nutzungsbedingungen" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/nutzungsbedingungen</a></p>
+                </div>
             </div>
         </div>
 
