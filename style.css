@@ -1010,10 +1010,6 @@ html, body {
     /* Canvas anchored to top, sized by JS (full vw × 9/16) */
     #gameCanvas { flex-shrink: 0; }
 
-    /* Show portrait-only elements */
-    .portrait-hud  { display: flex; }
-    .touch-controls { display: flex; }
-
     /* --- Start screen -------------------------------------------------- */
     .start-content { gap: clamp(10px, 3vh, 24px); }
     .start-keyvisual { object-position: center 30%; }
@@ -1141,6 +1137,13 @@ html, body {
         width: 100%;
         padding: 20px 16px;
     }
+}
+
+/* Touch controls and portrait HUD only on touch/coarse-pointer devices.
+   A desktop browser resized to portrait must not show mobile controls. */
+@media (orientation: portrait) and (pointer: coarse) {
+    .portrait-hud  { display: flex; }
+    .touch-controls { display: flex; }
 }
 
 /* =============================================
@@ -1395,6 +1398,11 @@ html, body {
     #app.gameplay-active .desktop-control-hints {
         display: block;
     }
+}
+
+/* Explicitly suppress desktop hints on touch/coarse devices */
+@media (pointer: coarse) {
+    .desktop-control-hints { display: none !important; }
 }
 
 /* =============================================
