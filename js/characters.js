@@ -328,7 +328,7 @@ const CHARACTERS = [
         bodyColor: '#1abc9c',
         ability: 'shot_double',
         abilityName: 'PARTY-BOOST',
-        abilityDesc: 'Bier geben doppelte Punkte',
+        abilityDesc: 'Bier-Gläser geben doppelte Punkte',
         maxJumps: 2,
         photoSrc: 'img/chars/ermioni.jpg',
         sprite: {
