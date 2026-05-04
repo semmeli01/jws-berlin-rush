@@ -157,9 +157,9 @@ const CHARACTERS = [
         age: 21,
         origin: 'Oltingen BL',
         bodyColor: '#e91e8c',
-        ability: 'double_jump',
-        abilityName: 'DOPPELSPRUNG',
-        abilityDesc: 'Kann einmal in der Luft nochmal springen',
+        ability: 'long_invincibility',
+        abilityName: 'DRAMA-SCHUTZ',
+        abilityDesc: 'Nach einem Treffer deutlich länger unverwundbar',
         maxJumps: 2,
         photoSrc: 'img/chars/martha.jpg',
         sprite: {
@@ -328,7 +328,7 @@ const CHARACTERS = [
         bodyColor: '#1abc9c',
         ability: 'shot_double',
         abilityName: 'PARTY-BOOST',
-        abilityDesc: 'Shot-Gläser geben doppelte Punkte',
+        abilityDesc: 'Shots geben doppelte Punkte',
         maxJumps: 2,
         photoSrc: 'img/chars/ermioni.jpg',
         sprite: {

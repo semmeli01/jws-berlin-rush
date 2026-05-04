@@ -733,12 +733,22 @@ class Game {
             return c.x + c.w > -40;
         });
 
-        // Magnet ability
+        // Magnet ability — 2D vector attraction
         if (this.char.ability === 'magnet') {
+            const MAGNET_RANGE = 200;
+            const MAGNET_STRENGTH = 1.8;
+            const px = p.x + p.w * 0.5;
+            const py = p.y + p.h * 0.5;
             for (const c of this.collectibles) {
-                const dx = c.x - p.x;
-                if (dx > 0 && dx < 180) {
-                    c.x -= (180 - dx) * 1.8 * dt;
+                const cx = c.x + c.w * 0.5;
+                const cy = c.baseY + c.h * 0.5;
+                const dx = cx - px;
+                const dy = cy - py;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > 0 && dist < MAGNET_RANGE) {
+                    const force = (MAGNET_RANGE - dist) * MAGNET_STRENGTH * dt;
+                    c.x    -= (dx / dist) * force;
+                    c.baseY -= (dy / dist) * force;
                 }
             }
         }
@@ -755,7 +765,7 @@ class Game {
                         this._addFx(o.x, o.y, 'SHIELD!', '#00d4ff');
                     } else {
                         this.lives--;
-                        p.hurtTimer = 1.8;
+                        p.hurtTimer = this.char.ability === 'long_invincibility' ? 3.0 : 1.8;
                         this.audio.playHit();
                         this._addFx(p.x, p.y, '-1', '#ff3300');
                         if (this.lives <= 0) {
@@ -832,7 +842,7 @@ class Game {
                         this._addFx(proj.x, proj.y, 'SHIELD!', '#00d4ff');
                     } else {
                         this.lives--;
-                        p.hurtTimer = 1.8;
+                        p.hurtTimer = this.char.ability === 'long_invincibility' ? 3.0 : 1.8;
                         this.audio.playHit();
                         this._addFx(p.x, p.y - 20, '💄 -1', '#ff3300');
                         if (this.lives <= 0) {
@@ -857,7 +867,7 @@ class Game {
                     this.levelDist = lvl.levelGoalDistance; // end level
                 } else {
                     this.lives--;
-                    p.hurtTimer = 1.8;
+                    p.hurtTimer = this.char.ability === 'long_invincibility' ? 3.0 : 1.8;
                     this.audio.playHit();
                     this._addFx(p.x, p.y, '-1', '#ff3300');
                     this._addFx(b.x, b.y - 18, `NOCH ${3 - this.vipStickers} VIP`, '#ffd700');
