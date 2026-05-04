@@ -99,7 +99,7 @@
                 <div class="oneplus-badge">Ein oneplus Original</div>
                 <div class="legal-bar">Created by Yanick Semmler
                     &nbsp;·&nbsp;<button type="button" class="legal-bar-btn" id="footerTermsBtn">Teilnahmebedingungen</button>
-                    &nbsp;·&nbsp;<a href="https://www.oneplus.ch/impressum" target="_blank" rel="noopener noreferrer">Impressum</a>
+                    &nbsp;·&nbsp;<button type="button" class="legal-bar-btn" id="footerImprintBtn">Impressum</button>
                     &nbsp;·&nbsp;<button type="button" class="legal-bar-btn" id="footerPrivacyBtn">Datenschutz</button>
                 </div>
             </div>
@@ -316,6 +316,37 @@
                 <div id="emailError" class="submit-error" aria-live="polite"></div>
                 <button id="submitEmailBtn" class="btn-primary">SPEICHERN</button>
                 <button id="skipEmailBtn" class="btn-secondary">NEIN DANKE</button>
+            </div>
+        </div>
+
+        <!-- Legal Modal: Impressum -->
+        <div id="imprintModal" class="legal-modal hidden" role="dialog" aria-modal="true" aria-labelledby="imprintModalTitle" tabindex="-1">
+            <div class="legal-modal-box">
+                <div class="legal-modal-header">
+                    <h2 id="imprintModalTitle" class="legal-modal-title">IMPRESSUM</h2>
+                    <button type="button" class="legal-modal-close" id="imprintModalClose" aria-label="Impressum schliessen">✕</button>
+                </div>
+                <div class="legal-modal-body">
+                    <p class="legal-subtitle">Angaben gemäss offizieller oneplus Website</p>
+
+                    <h3 class="legal-h3">Betreiber</h3>
+                    <p>CH Media TV AG<br>Thurgauerstrasse 80<br>CH-8050 Zürich</p>
+                    <p>Web: <a href="https://www.oneplus.ch" target="_blank" rel="noopener noreferrer" class="legal-link">www.oneplus.ch</a><br>
+                    Kontakt: <a href="mailto:support@oneplus.ch" class="legal-link">support@oneplus.ch</a></p>
+
+                    <h3 class="legal-h3">Dieses Browsergame</h3>
+                    <p>«JWS Berlin Rush» wurde von Yanick Semmler erstellt.</p>
+                    <p>Game created by Yanick Semmler. Copyright © 2026 Yanick Semmler. All rights reserved.</p>
+                    <p>Dieses Projekt steht im Zusammenhang mit oneplus. Die oneplus Marke, rechtlichen Informationen, Datenschutzbestimmungen, Nutzungsbedingungen, Impressum, Markenrechte und damit verbundenen Unternehmensinformationen bleiben Gegenstand der offiziellen oneplus Dokumentation.</p>
+
+                    <h3 class="legal-h3">Offizielle oneplus Links</h3>
+                    <p>Nutzungsbedingungen:<br>
+                    <a href="https://www.oneplus.ch/nutzungsbedingungen" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/nutzungsbedingungen</a></p>
+                    <p>Impressum:<br>
+                    <a href="https://www.oneplus.ch/impressum" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/impressum</a></p>
+                    <p>Datenschutz:<br>
+                    <a href="https://www.oneplus.ch/datenschutz" target="_blank" rel="noopener noreferrer" class="legal-link">oneplus.ch/datenschutz</a></p>
+                </div>
             </div>
         </div>
 

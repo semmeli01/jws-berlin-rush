@@ -205,15 +205,18 @@ class Game {
         const closeLegal = id => { const m = $(id); if (m) m.classList.add('hidden'); };
 
         $('footerTermsBtn').addEventListener('click', () => openLegal('termsModal'));
+        $('footerImprintBtn').addEventListener('click', () => openLegal('imprintModal'));
         $('footerPrivacyBtn').addEventListener('click', () => openLegal('privacyModal'));
         $('submitTermsLink').addEventListener('click', e => { e.preventDefault(); openLegal('termsModal'); });
         $('submitPrivacyLink').addEventListener('click', e => { e.preventDefault(); openLegal('privacyModal'); });
         $('termsModalClose').addEventListener('click', () => closeLegal('termsModal'));
+        $('imprintModalClose').addEventListener('click', () => closeLegal('imprintModal'));
         $('privacyModalClose').addEventListener('click', () => closeLegal('privacyModal'));
         $('termsModal').addEventListener('click', e => { if (e.target === $('termsModal')) closeLegal('termsModal'); });
+        $('imprintModal').addEventListener('click', e => { if (e.target === $('imprintModal')) closeLegal('imprintModal'); });
         $('privacyModal').addEventListener('click', e => { if (e.target === $('privacyModal')) closeLegal('privacyModal'); });
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { closeLegal('termsModal'); closeLegal('privacyModal'); }
+            if (e.key === 'Escape') { closeLegal('termsModal'); closeLegal('imprintModal'); closeLegal('privacyModal'); }
         });
 
         // Mobile pause button (landscape touch)
