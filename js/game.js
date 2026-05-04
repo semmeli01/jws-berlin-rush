@@ -101,8 +101,30 @@ class Game {
             return this._dbg.slice(-30);
         };
 
+        this._setupInternalDisclaimer();
         this._setupUI();
         requestAnimationFrame(t => this._loop(t));
+    }
+
+    _setupInternalDisclaimer() {
+        const modal = document.getElementById('internalDisclaimerModal');
+        const btn   = document.getElementById('internalDisclaimerAcceptBtn');
+        if (!modal || !btn) return;
+
+        const key = 'jws.internal.disclaimer.seen';
+
+        if (sessionStorage.getItem(key)) {
+            modal.classList.add('hidden');
+            return;
+        }
+
+        modal.classList.remove('hidden');
+        modal.focus();
+
+        btn.addEventListener('click', () => {
+            sessionStorage.setItem(key, '1');
+            modal.classList.add('hidden');
+        });
     }
 
     _resizeCanvas() {

@@ -1745,6 +1745,67 @@ html, body {
 }
 
 /* =============================================
+   INTERNAL DISCLAIMER (internal campaign only)
+   ============================================= */
+
+.internal-disclaimer-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(env(safe-area-inset-top), 18px)
+             max(env(safe-area-inset-right), 18px)
+             max(env(safe-area-inset-bottom), 18px)
+             max(env(safe-area-inset-left), 18px);
+    background: rgba(5, 0, 12, 0.88);
+    backdrop-filter: blur(6px);
+}
+
+.internal-disclaimer-modal.hidden {
+    display: none;
+}
+
+.internal-disclaimer-box {
+    width: min(520px, 92vw);
+    border: 2px solid rgba(0, 212, 255, 0.75);
+    border-radius: 4px;
+    background: rgba(10, 8, 24, 0.97);
+    box-shadow:
+        0 0 24px rgba(0, 212, 255, 0.28),
+        0 0 34px rgba(255, 0, 144, 0.18);
+    padding: clamp(22px, 5vw, 38px);
+    text-align: center;
+}
+
+.internal-disclaimer-box h2 {
+    font-family: 'Zuume', 'Anton', sans-serif;
+    color: #ff0090;
+    font-size: clamp(24px, 5vw, 42px);
+    line-height: 1.05;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 16px rgba(255, 0, 144, 0.75);
+    margin: 0 0 clamp(14px, 3vh, 22px);
+}
+
+.internal-disclaimer-box p {
+    font-family: 'Zuume', monospace, sans-serif;
+    color: #ffffff;
+    font-size: clamp(17px, 3vw, 24px);
+    line-height: 1.35;
+    margin: 0 0 clamp(10px, 2vh, 16px);
+    letter-spacing: 0.02em;
+}
+
+.internal-disclaimer-ps {
+    color: rgba(255, 255, 255, 0.74);
+    font-size: clamp(13px, 2.4vw, 18px) !important;
+    margin-bottom: clamp(20px, 4vh, 30px) !important;
+}
+
+/* =============================================
    LEGAL MODALS
    ============================================= */
 
