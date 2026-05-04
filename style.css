@@ -530,6 +530,231 @@ html, body {
 }
 .oneplus-cta:hover { box-shadow: 0 0 30px #ff3300aa; }
 
+/* =============================================
+   TUTORIAL SCREEN
+   ============================================= */
+.tutorial-content {
+    width: min(1100px, 94vw);
+    max-width: none;
+    max-height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(14px, 3vh, 28px);
+    padding: clamp(18px, 4vh, 42px) clamp(16px, 4vw, 48px);
+    text-align: center;
+}
+
+.tutorial-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(28px, 5vw, 60px);
+    color: #ff0090;
+    letter-spacing: 4px;
+    text-shadow: 0 0 18px rgba(255, 0, 144, 0.75);
+    text-transform: uppercase;
+}
+
+.tutorial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(12px, 2vw, 24px);
+    width: 100%;
+}
+
+.tutorial-card {
+    border: 2px solid rgba(0, 212, 255, 0.45);
+    background: rgba(10, 8, 24, 0.72);
+    padding: clamp(12px, 2vw, 22px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.tutorial-card-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(14px, 1.8vw, 24px);
+    color: #ffd700;
+    letter-spacing: 0.14em;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.55);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.tutorial-card-text {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(12px, 1.3vw, 17px);
+    color: #ffffffcc;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.tutorial-icons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(6px, 1vw, 14px);
+    margin: clamp(6px, 1.5vh, 12px) 0;
+    font-size: clamp(22px, 2.8vw, 38px);
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.tutorial-icons span {
+    flex: 0 1 auto;
+    line-height: 1;
+}
+
+.tutorial-vip {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(11px, 1.4vw, 20px);
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.18);
+    border: 2px solid #ffd700;
+    padding: 2px clamp(4px, 0.6vw, 8px);
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+    white-space: nowrap;
+    max-width: 100%;
+    flex-shrink: 1;
+}
+
+.tutorial-avoid-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    width: 100%;
+}
+
+.tutorial-avoid-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.9vw, 12px);
+    color: #ffffffaa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.tutorial-avoid-arrow {
+    font-size: clamp(14px, 1.5vw, 20px) !important;
+    line-height: 1 !important;
+}
+
+.tutorial-controls {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(10px, 2vw, 20px);
+    margin: clamp(6px, 1.5vh, 12px) 0;
+}
+
+.tutorial-control-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.tutorial-ctrl-arrow {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 52px);
+    line-height: 1;
+    color: #ff0090;
+    text-shadow: 0 0 14px currentColor;
+}
+
+.tutorial-ctrl-duck {
+    color: #00d4ff;
+}
+
+.tutorial-ctrl-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(8px, 0.85vw, 11px);
+    color: #ffffffaa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Portrait: stack cards vertically */
+@media (orientation: portrait) {
+    .tutorial-content {
+        width: 100%;
+        min-height: 100dvh;
+        justify-content: center;
+        padding: clamp(18px, 5vw, 32px);
+    }
+    .tutorial-grid {
+        grid-template-columns: 1fr;
+    }
+    .tutorial-card {
+        padding: clamp(10px, 3vw, 16px);
+    }
+}
+
+/* Mobile landscape / small height: compact everything to fit */
+@media (orientation: landscape) and (max-height: 520px) {
+    .tutorial-content {
+        height: 100dvh;
+        max-height: 100dvh;
+        justify-content: center;
+        gap: clamp(6px, 2vh, 10px);
+        padding: clamp(8px, 2vh, 12px) clamp(20px, 5vw, 56px);
+    }
+    .tutorial-title {
+        font-size: clamp(20px, 6vh, 36px);
+        line-height: 1;
+    }
+    .tutorial-grid {
+        gap: clamp(6px, 1.5vw, 12px);
+    }
+    .tutorial-card {
+        padding: clamp(6px, 1.8vh, 10px);
+        gap: 3px;
+    }
+    .tutorial-card-title {
+        font-size: clamp(11px, 2.8vh, 16px);
+    }
+    .tutorial-card-text {
+        font-size: clamp(10px, 2.4vh, 13px);
+        line-height: 1.2;
+    }
+    .tutorial-icons {
+        font-size: clamp(18px, 4.5vh, 30px);
+        margin: 2px 0;
+    }
+    .tutorial-controls {
+        margin: 2px 0;
+        gap: clamp(6px, 1.5vw, 12px);
+    }
+    .tutorial-ctrl-arrow {
+        font-size: clamp(20px, 5vh, 32px);
+    }
+    .tutorial-ctrl-label {
+        font-size: clamp(7px, 1.6vh, 10px);
+    }
+    #tutorialContinueBtn {
+        min-height: clamp(32px, 7vh, 44px);
+        font-size: clamp(12px, 3vh, 16px);
+        padding: 0 clamp(18px, 4vw, 36px);
+    }
+}
+
 /* ---- SCREEN TITLE (generic) ---- */
 .screen-title {
     font-family: 'Inter', sans-serif;
@@ -785,10 +1010,6 @@ html, body {
     /* Canvas anchored to top, sized by JS (full vw × 9/16) */
     #gameCanvas { flex-shrink: 0; }
 
-    /* Show portrait-only elements */
-    .portrait-hud  { display: flex; }
-    .touch-controls { display: flex; }
-
     /* --- Start screen -------------------------------------------------- */
     .start-content { gap: clamp(10px, 3vh, 24px); }
     .start-keyvisual { object-position: center 30%; }
@@ -916,6 +1137,13 @@ html, body {
         width: 100%;
         padding: 20px 16px;
     }
+}
+
+/* Touch controls and portrait HUD only on touch/coarse-pointer devices.
+   A desktop browser resized to portrait must not show mobile controls. */
+@media (orientation: portrait) and (pointer: coarse) {
+    .portrait-hud  { display: flex; }
+    .touch-controls { display: flex; }
 }
 
 /* =============================================
@@ -1170,6 +1398,11 @@ html, body {
     #app.gameplay-active .desktop-control-hints {
         display: block;
     }
+}
+
+/* Explicitly suppress desktop hints on touch/coarse devices */
+@media (pointer: coarse) {
+    .desktop-control-hints { display: none !important; }
 }
 
 /* =============================================

@@ -31,7 +31,7 @@ const PlayerProfileStore = {
 const S = {
     START: 0, CHAR_SELECT: 1, LEVEL_INTRO: 2,
     PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7,
-    SCORE_SUBMIT: 8, LEADERBOARD: 9, EMAIL_CAPTURE: 10
+    SCORE_SUBMIT: 8, LEADERBOARD: 9, EMAIL_CAPTURE: 10, TUTORIAL: 11
 };
 
 class Game {
@@ -139,18 +139,31 @@ class Game {
             this.audio.resume();
             this._setState(S.CHAR_SELECT);
         };
-        $('confirmCharBtn').onclick = () => { if (this.char) this._setState(S.NAME_INPUT); };
-        $('retryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('confirmCharBtn').onclick = () => {
+            if (!this.char) return;
+            this._goAfterCharacterSelection();
+        };
+        $('tutorialContinueBtn').onclick = () => {
+            sessionStorage.setItem('jws.tutorial.seen', '1');
+            this._startGame();
+        };
+        $('retryBtn').onclick = () => this._goAfterCharacterSelection();
         $('confirmNameBtn').onclick = () => {
             const val = $('playerNameInput').value.trim();
             if (!val) return;
             this.playerName = val;
-            this._startGame();
+            PlayerProfileStore.setNickname(val);
+            sessionStorage.setItem('jws.nickname.screen.seen', '1');
+            this._goAfterNickname();
         };
         $('playerNameInput').addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 const val = $('playerNameInput').value.trim();
-                if (val) { this.playerName = val; this._startGame(); }
+                if (!val) return;
+                this.playerName = val;
+                PlayerProfileStore.setNickname(val);
+                sessionStorage.setItem('jws.nickname.screen.seen', '1');
+                this._goAfterNickname();
             }
         });
         $('charSelectBtn').onclick = () => this._setState(S.CHAR_SELECT);
@@ -174,7 +187,7 @@ class Game {
         });
 
         // Leaderboard screen
-        $('lbRetryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('lbRetryBtn').onclick = () => this._goAfterCharacterSelection();
         $('lbCharBtn').onclick = () => this._setState(S.CHAR_SELECT);
 
         // Email capture screen
@@ -338,7 +351,7 @@ class Game {
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
             null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen',
-            'scoreSubmitScreen', 'leaderboardScreen', 'emailCaptureScreen'];
+            'scoreSubmitScreen', 'leaderboardScreen', 'emailCaptureScreen', 'tutorialScreen'];
         document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
 
         const screenId = screens[s];
@@ -364,11 +377,9 @@ class Game {
             }
         }
         if (s === S.NAME_INPUT) {
-            const charLabel = document.getElementById('nameInputChar');
-            if (charLabel && this.char) charLabel.textContent = this.char.name.toUpperCase();
             const input = document.getElementById('playerNameInput');
             if (input) {
-                input.value = this.playerName || '';
+                input.value = this.playerName || PlayerProfileStore.getNickname() || '';
                 requestAnimationFrame(() => input.focus());
             }
         }
@@ -432,6 +443,33 @@ class Game {
     }
 
     // ---- GAME INIT ----
+
+    _shouldShowNicknameScreen() {
+        return !sessionStorage.getItem('jws.nickname.screen.seen')
+            && !PlayerProfileStore.getNickname();
+    }
+
+    _shouldShowTutorial() {
+        return !sessionStorage.getItem('jws.tutorial.seen');
+    }
+
+    _goAfterCharacterSelection() {
+        const stored = PlayerProfileStore.getNickname();
+        if (stored) this.playerName = stored;
+        if (this._shouldShowNicknameScreen()) {
+            this._setState(S.NAME_INPUT);
+        } else {
+            this._goAfterNickname();
+        }
+    }
+
+    _goAfterNickname() {
+        if (this._shouldShowTutorial()) {
+            this._setState(S.TUTORIAL);
+        } else {
+            this._startGame();
+        }
+    }
 
     _startGame() {
         this.audio.resume();

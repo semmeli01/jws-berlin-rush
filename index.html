@@ -144,9 +144,8 @@
         <!-- Name Input Screen -->
         <div id="nameInputScreen" class="screen hidden">
             <div class="screen-content">
-                <div class="screen-title">WIE HEISST DU?</div>
-                <div class="name-input-char" id="nameInputChar"></div>
-                <input id="playerNameInput" class="name-input-field" type="text" maxlength="20" placeholder="DEIN NAME" autocomplete="off" spellcheck="false" inputmode="text" autocapitalize="words">
+                <div class="screen-title">DEIN NICKNAME</div>
+                <input id="playerNameInput" class="name-input-field" type="text" maxlength="20" placeholder="NICKNAME" autocomplete="off" spellcheck="false" inputmode="text" autocapitalize="words">
                 <button id="confirmNameBtn" class="btn-primary">LOS GEHT'S!</button>
             </div>
         </div>
@@ -234,6 +233,73 @@
                 <a href="https://www.oneplus.ch/detail/1649428" target="_blank" rel="noopener" class="oneplus-cta">
                     JETZT AUF ONEPLUS ANSEHEN →
                 </a>
+            </div>
+        </div>
+
+        <!-- Tutorial Screen (S.TUTORIAL = 11) — shown once per session after character select -->
+        <div id="tutorialScreen" class="screen hidden">
+            <div class="screen-content tutorial-content">
+                <h1 class="tutorial-title">SO FUNKTIONIERT'S</h1>
+                <div class="tutorial-grid">
+                    <section class="tutorial-card">
+                        <h2 class="tutorial-card-title">SAMMELN</h2>
+                        <div class="tutorial-icons tutorial-collectibles">
+                            <span title="Bier-Becher (+10 Punkte)">🍺</span>
+                            <span title="Herz (gibt ein Leben)">❤️</span>
+                            <span title="Döner (×Multiplikator)">🌯</span>
+                            <span class="tutorial-vip" title="JWS VIP-Sticker (+50 Punkte)">JWS VIP</span>
+                            <span title="Schild (Schutz vor Hindernissen)">🛡️</span>
+                        </div>
+                        <p class="tutorial-card-text">Sammle Bier, Herzen, Döner und weitere Bonus-Items für Punkte, Leben und Spezialeffekte.</p>
+                    </section>
+                    <section class="tutorial-card">
+                        <h2 class="tutorial-card-title">AUSWEICHEN</h2>
+                        <div class="tutorial-avoid-group">
+                            <div class="tutorial-avoid-label">
+                                <span class="tutorial-ctrl-arrow tutorial-avoid-arrow">↑</span>
+                                <span>SPRINGEN</span>
+                            </div>
+                            <div class="tutorial-icons">
+                                <span title="Isabelle (Tourist mit Koffer)">👩</span>
+                                <span title="Luca (Boombox auf Rädern)">🎵</span>
+                                <span title="Biggie (tanzender Bouncer)">🕺</span>
+                                <span title="Levin (Paparazzi mit Kamera)">📸</span>
+                                <span title="Jeremy (Ex mit gebrochenem Herz)">💔</span>
+                                <span title="Krankenwagen">🚑</span>
+                            </div>
+                        </div>
+                        <div class="tutorial-avoid-group">
+                            <div class="tutorial-avoid-label">
+                                <span class="tutorial-ctrl-duck tutorial-avoid-arrow">↓</span>
+                                <span>DUCKEN</span>
+                            </div>
+                            <div class="tutorial-icons">
+                                <span title="Stinkende Socke (schwebt in der Luft)">🧦</span>
+                                <span title="Drama-Bubble (schwebt in der Luft)">💬</span>
+                            </div>
+                        </div>
+                        <p class="tutorial-card-text">Springe über Charaktere und Fahrzeuge. Ducke dich unter Socken und Drama-Bubbles durch.</p>
+                    </section>
+                    <section class="tutorial-card">
+                        <h2 class="tutorial-card-title">STEUERUNG</h2>
+                        <div class="tutorial-controls">
+                            <div class="tutorial-control-item">
+                                <span class="tutorial-ctrl-arrow">↑</span>
+                                <span class="tutorial-ctrl-label">SPRINGEN</span>
+                            </div>
+                            <div class="tutorial-control-item">
+                                <span class="tutorial-ctrl-arrow">↑↑</span>
+                                <span class="tutorial-ctrl-label">DOPPELSPRUNG</span>
+                            </div>
+                            <div class="tutorial-control-item">
+                                <span class="tutorial-ctrl-arrow tutorial-ctrl-duck">↓</span>
+                                <span class="tutorial-ctrl-label">DUCKEN</span>
+                            </div>
+                        </div>
+                        <p class="tutorial-card-text">Springen, Doppelspringen und Ducken.</p>
+                    </section>
+                </div>
+                <button id="tutorialContinueBtn" class="btn-primary">LOS GEHT'S!</button>
             </div>
         </div>
 
