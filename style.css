@@ -1430,6 +1430,14 @@ html, body {
     margin-bottom: clamp(10px, 2vh, 18px);
     max-width: min(720px, 90vw);
 }
+.submit-contest-info span,
+.submit-contest-info strong {
+    display: block;
+}
+.submit-contest-info strong {
+    font-weight: 900;
+    color: #ffffff;
+}
 
 .submit-field-label {
     font-family: 'Inter', sans-serif;
