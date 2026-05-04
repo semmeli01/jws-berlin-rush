@@ -144,24 +144,30 @@ class Game {
             if (!sessionStorage.getItem('jws.tutorial.seen')) {
                 this._setState(S.TUTORIAL);
             } else {
-                this._setState(S.NAME_INPUT);
+                this._goAfterCharacterSelection();
             }
         };
         $('tutorialContinueBtn').onclick = () => {
             sessionStorage.setItem('jws.tutorial.seen', '1');
-            this._setState(S.NAME_INPUT);
+            this._goAfterCharacterSelection();
         };
-        $('retryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('retryBtn').onclick = () => this._goAfterCharacterSelection();
         $('confirmNameBtn').onclick = () => {
             const val = $('playerNameInput').value.trim();
             if (!val) return;
             this.playerName = val;
+            PlayerProfileStore.setNickname(val);
+            sessionStorage.setItem('jws.nickname.screen.seen', '1');
             this._startGame();
         };
         $('playerNameInput').addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 const val = $('playerNameInput').value.trim();
-                if (val) { this.playerName = val; this._startGame(); }
+                if (!val) return;
+                this.playerName = val;
+                PlayerProfileStore.setNickname(val);
+                sessionStorage.setItem('jws.nickname.screen.seen', '1');
+                this._startGame();
             }
         });
         $('charSelectBtn').onclick = () => this._setState(S.CHAR_SELECT);
@@ -185,7 +191,7 @@ class Game {
         });
 
         // Leaderboard screen
-        $('lbRetryBtn').onclick = () => this._setState(S.NAME_INPUT);
+        $('lbRetryBtn').onclick = () => this._goAfterCharacterSelection();
         $('lbCharBtn').onclick = () => this._setState(S.CHAR_SELECT);
 
         // Email capture screen
@@ -375,11 +381,9 @@ class Game {
             }
         }
         if (s === S.NAME_INPUT) {
-            const charLabel = document.getElementById('nameInputChar');
-            if (charLabel && this.char) charLabel.textContent = this.char.name.toUpperCase();
             const input = document.getElementById('playerNameInput');
             if (input) {
-                input.value = this.playerName || '';
+                input.value = this.playerName || PlayerProfileStore.getNickname() || '';
                 requestAnimationFrame(() => input.focus());
             }
         }
@@ -443,6 +447,21 @@ class Game {
     }
 
     // ---- GAME INIT ----
+
+    _shouldShowNicknameScreen() {
+        return !sessionStorage.getItem('jws.nickname.screen.seen')
+            && !PlayerProfileStore.getNickname();
+    }
+
+    _goAfterCharacterSelection() {
+        if (this._shouldShowNicknameScreen()) {
+            this._setState(S.NAME_INPUT);
+        } else {
+            const stored = PlayerProfileStore.getNickname();
+            if (stored) this.playerName = stored;
+            this._startGame();
+        }
+    }
 
     _startGame() {
         this.audio.resume();
