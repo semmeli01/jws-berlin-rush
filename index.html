@@ -27,6 +27,24 @@
         <!-- Mobile pause button — shown only on touch/coarse landscape during gameplay -->
         <button id="mobilePauseBtn" class="mobile-pause-btn" type="button" aria-label="Pause game">PAUSE</button>
 
+        <!-- Desktop persistent control hints — shown on pointer:fine devices during gameplay -->
+        <div class="desktop-control-hints">
+            <div class="desktop-control-hint desktop-control-jump" aria-hidden="true">
+                <div class="control-arrow">↑</div>
+                <div class="control-label">SPRINGEN</div>
+                <div class="control-key">SPACE / ↑</div>
+            </div>
+            <button id="desktopPauseBtn" class="desktop-control-pause" type="button" aria-label="Pause game">
+                <div class="control-label">PAUSE</div>
+                <div class="control-key">P / ESC</div>
+            </button>
+            <div class="desktop-control-hint desktop-control-duck" aria-hidden="true">
+                <div class="control-arrow">↓</div>
+                <div class="control-label">DUCKEN</div>
+                <div class="control-key">↓ / S</div>
+            </div>
+        </div>
+
         <!-- Portrait HUD strip — score/lives/level outside canvas in portrait -->
         <div id="portraitHUD" class="portrait-hud">
             <span id="phScore" class="ph-score">0</span>
