@@ -2072,55 +2072,6 @@ class Renderer {
         ctx.fillRect(this.W - 6, barY - 2, 6, 8);
     }
 
-    drawKeyboardHints(alpha) {
-        if (alpha <= 0) return;
-        const ctx = this.ctx;
-        ctx.save();
-        ctx.globalAlpha = alpha;
-
-        const gy = this.getGroundY();
-        const hints = [
-            { key: 'SPACE / ↑', label: 'JUMP',  color: '#00d4ff' },
-            { key: '↓  /  S',   label: 'DUCK',  color: '#ff0090' },
-            { key: 'P / ESC',   label: 'PAUSE', color: '#ffd700' },
-        ];
-
-        const bw = 160, bh = 44, gap = 14;
-        const totalW = hints.length * bw + (hints.length - 1) * gap;
-        let bx = (this.W - totalW) / 2;
-        const by = gy + 8;
-
-        // Dark backdrop behind all tiles
-        ctx.fillStyle = 'rgba(0,0,0,0.72)';
-        ctx.fillRect(bx - 12, by - 6, totalW + 24, bh + 12);
-
-        hints.forEach(h => {
-            // Tile background
-            ctx.fillStyle = h.color + '33';
-            ctx.fillRect(bx, by, bw, bh);
-            // Solid border
-            ctx.strokeStyle = h.color;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(bx, by, bw, bh);
-
-            // Action label (big, colored)
-            ctx.fillStyle = h.color;
-            ctx.font = 'bold 18px "Zuume", monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'alphabetic';
-            ctx.fillText(h.label, bx + bw / 2, by + 20);
-
-            // Key label (smaller, white)
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '13px "Zuume", monospace';
-            ctx.fillText(`[ ${h.key} ]`, bx + bw / 2, by + 37);
-
-            bx += bw + gap;
-        });
-
-        ctx.restore();
-    }
-
     drawDarkBg() {
         this.ctx.fillStyle = '#050010';
         this.ctx.fillRect(0, 0, this.W, this.H);
@@ -2167,7 +2118,6 @@ class Renderer {
     }
 
     getGroundY() {
-        // Desktop: ground at 76% of height (leaves room for ground + keyboard hints below)
         return Math.floor(this.H * 0.76);
     }
 }

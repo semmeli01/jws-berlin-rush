@@ -194,6 +194,16 @@ class Game {
             });
         }
 
+        // Desktop persistent pause hint button
+        const desktopPauseBtn = $('desktopPauseBtn');
+        if (desktopPauseBtn) {
+            desktopPauseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.state === S.PLAYING) this._setState(S.PAUSED);
+            });
+        }
+
         // Portrait HUD element refs
         this._phScore = $('phScore');
         this._phLevel = $('phLevel');
@@ -1224,12 +1234,6 @@ class Game {
             r.drawProgressBar(this.levelDist / lvl.levelGoalDistance, lvl.accentColor);
             this._updatePortraitHUD();
 
-            // Keyboard hints (level 1 only, desktop only, fade out after 10s)
-            if (this.lvlIdx === 0 && !window.matchMedia('(pointer: coarse)').matches) {
-                const elapsed = (Date.now() - this.levelStartTime) / 1000;
-                const hintAlpha = elapsed < 10 ? 1.0 : Math.max(0, 1 - (elapsed - 10) / 2);
-                r.drawKeyboardHints(hintAlpha);
-            }
         } else {
             r.drawDarkBg();
         }

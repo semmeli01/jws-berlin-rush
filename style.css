@@ -1078,6 +1078,101 @@ html, body {
 }
 
 /* =============================================
+   DESKTOP PERSISTENT CONTROL HINTS
+   Shown only on pointer:fine (mouse/trackpad) devices during gameplay.
+   Mirrors the mobile landscape design: positioned in the floor strip.
+   ============================================= */
+.desktop-control-hints {
+    display: none; /* hidden by default; enabled via media query below */
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9;
+}
+
+.desktop-control-hint {
+    position: absolute;
+    bottom: calc(var(--landscape-floor-h) / 2);
+    transform: translateY(50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.72;
+}
+
+.desktop-control-jump { left: 22%; color: #ff0090; }
+.desktop-control-duck { right: 22%; color: #00d4ff; }
+
+.desktop-control-hints .control-arrow {
+    font-size: clamp(32px, 4vw, 60px);
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 0 12px currentColor, 0 0 28px currentColor;
+}
+
+.desktop-control-hints .control-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: clamp(10px, 1.1vw, 16px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.desktop-control-hints .control-key {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.75vw, 12px);
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+}
+
+.desktop-control-pause {
+    position: absolute;
+    bottom: calc(var(--landscape-floor-h) / 2);
+    left: 50%;
+    transform: translate(-50%, 50%);
+    pointer-events: auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    min-width: clamp(110px, 11vw, 170px);
+    min-height: clamp(44px, 5.5vh, 64px);
+    padding: 0 clamp(18px, 2.5vw, 32px);
+
+    border: 2px solid rgba(220, 220, 220, 0.85);
+    background: rgba(120, 120, 130, 0.24);
+    color: #f2f2f2;
+    font: inherit;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(220, 220, 220, 0.35),
+                inset 0 0 12px rgba(255, 255, 255, 0.10);
+    opacity: 0.72;
+}
+
+.desktop-control-pause:hover,
+.desktop-control-pause:focus {
+    opacity: 1;
+    background: rgba(160, 160, 170, 0.36);
+    outline: none;
+}
+
+.desktop-control-pause:active {
+    transform: translate(-50%, 50%) scale(0.96);
+    background: rgba(180, 180, 190, 0.42);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #app.gameplay-active .desktop-control-hints {
+        display: block;
+    }
+}
+
+/* =============================================
    LEADERBOARD / SCORE SUBMIT SCREENS
    ============================================= */
 
