@@ -141,15 +141,11 @@ class Game {
         };
         $('confirmCharBtn').onclick = () => {
             if (!this.char) return;
-            if (!sessionStorage.getItem('jws.tutorial.seen')) {
-                this._setState(S.TUTORIAL);
-            } else {
-                this._goAfterCharacterSelection();
-            }
+            this._goAfterCharacterSelection();
         };
         $('tutorialContinueBtn').onclick = () => {
             sessionStorage.setItem('jws.tutorial.seen', '1');
-            this._goAfterCharacterSelection();
+            this._startGame();
         };
         $('retryBtn').onclick = () => this._goAfterCharacterSelection();
         $('confirmNameBtn').onclick = () => {
@@ -158,7 +154,7 @@ class Game {
             this.playerName = val;
             PlayerProfileStore.setNickname(val);
             sessionStorage.setItem('jws.nickname.screen.seen', '1');
-            this._startGame();
+            this._goAfterNickname();
         };
         $('playerNameInput').addEventListener('keydown', e => {
             if (e.key === 'Enter') {
@@ -167,7 +163,7 @@ class Game {
                 this.playerName = val;
                 PlayerProfileStore.setNickname(val);
                 sessionStorage.setItem('jws.nickname.screen.seen', '1');
-                this._startGame();
+                this._goAfterNickname();
             }
         });
         $('charSelectBtn').onclick = () => this._setState(S.CHAR_SELECT);
@@ -453,12 +449,24 @@ class Game {
             && !PlayerProfileStore.getNickname();
     }
 
+    _shouldShowTutorial() {
+        return !sessionStorage.getItem('jws.tutorial.seen');
+    }
+
     _goAfterCharacterSelection() {
+        const stored = PlayerProfileStore.getNickname();
+        if (stored) this.playerName = stored;
         if (this._shouldShowNicknameScreen()) {
             this._setState(S.NAME_INPUT);
         } else {
-            const stored = PlayerProfileStore.getNickname();
-            if (stored) this.playerName = stored;
+            this._goAfterNickname();
+        }
+    }
+
+    _goAfterNickname() {
+        if (this._shouldShowTutorial()) {
+            this._setState(S.TUTORIAL);
+        } else {
             this._startGame();
         }
     }
