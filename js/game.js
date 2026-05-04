@@ -31,7 +31,7 @@ const PlayerProfileStore = {
 const S = {
     START: 0, CHAR_SELECT: 1, LEVEL_INTRO: 2,
     PLAYING: 3, PAUSED: 4, GAME_OVER: 5, WIN: 6, NAME_INPUT: 7,
-    SCORE_SUBMIT: 8, LEADERBOARD: 9, EMAIL_CAPTURE: 10
+    SCORE_SUBMIT: 8, LEADERBOARD: 9, EMAIL_CAPTURE: 10, TUTORIAL: 11
 };
 
 class Game {
@@ -139,7 +139,18 @@ class Game {
             this.audio.resume();
             this._setState(S.CHAR_SELECT);
         };
-        $('confirmCharBtn').onclick = () => { if (this.char) this._setState(S.NAME_INPUT); };
+        $('confirmCharBtn').onclick = () => {
+            if (!this.char) return;
+            if (!sessionStorage.getItem('jws.tutorial.seen')) {
+                this._setState(S.TUTORIAL);
+            } else {
+                this._setState(S.NAME_INPUT);
+            }
+        };
+        $('tutorialContinueBtn').onclick = () => {
+            sessionStorage.setItem('jws.tutorial.seen', '1');
+            this._setState(S.NAME_INPUT);
+        };
         $('retryBtn').onclick = () => this._setState(S.NAME_INPUT);
         $('confirmNameBtn').onclick = () => {
             const val = $('playerNameInput').value.trim();
@@ -338,7 +349,7 @@ class Game {
         this.state = s;
         const screens = ['startScreen', 'charSelectScreen', 'levelIntroScreen',
             null, 'pauseScreen', 'gameOverScreen', 'winScreen', 'nameInputScreen',
-            'scoreSubmitScreen', 'leaderboardScreen', 'emailCaptureScreen'];
+            'scoreSubmitScreen', 'leaderboardScreen', 'emailCaptureScreen', 'tutorialScreen'];
         document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
 
         const screenId = screens[s];

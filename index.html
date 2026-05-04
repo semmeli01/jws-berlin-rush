@@ -237,6 +237,54 @@
             </div>
         </div>
 
+        <!-- Tutorial Screen (S.TUTORIAL = 11) — shown once per session after character select -->
+        <div id="tutorialScreen" class="screen hidden">
+            <div class="screen-content tutorial-content">
+                <h1 class="tutorial-title">SO FUNKTIONIERT'S</h1>
+                <div class="tutorial-grid">
+                    <section class="tutorial-card">
+                        <h2 class="tutorial-card-title">SAMMELN</h2>
+                        <div class="tutorial-icons tutorial-collectibles">
+                            <span title="Shot-Glas">🥃</span>
+                            <span title="Herz">❤️</span>
+                            <span title="Stern">⭐</span>
+                            <span class="tutorial-vip" title="VIP-Sticker">VIP</span>
+                        </div>
+                        <p class="tutorial-card-text">Sammle Shot-Gläser, Herzen, Sterne und VIP-Sticker.</p>
+                    </section>
+                    <section class="tutorial-card">
+                        <h2 class="tutorial-card-title">AUSWEICHEN</h2>
+                        <div class="tutorial-icons tutorial-obstacles">
+                            <span title="Koffer">🧳</span>
+                            <span title="Paparazzi">📸</span>
+                            <span title="Security">🛡️</span>
+                            <span title="Drama">💬</span>
+                        </div>
+                        <p class="tutorial-card-text">Weiche Koffern, Paparazzi, Security, Drama und anderen Hindernissen aus.</p>
+                    </section>
+                    <section class="tutorial-card">
+                        <h2 class="tutorial-card-title">STEUERUNG</h2>
+                        <div class="tutorial-controls">
+                            <div class="tutorial-control-item">
+                                <span class="tutorial-ctrl-arrow">↑</span>
+                                <span class="tutorial-ctrl-label">SPRINGEN</span>
+                            </div>
+                            <div class="tutorial-control-item">
+                                <span class="tutorial-ctrl-arrow">↑↑</span>
+                                <span class="tutorial-ctrl-label">DOPPELSPRUNG</span>
+                            </div>
+                            <div class="tutorial-control-item">
+                                <span class="tutorial-ctrl-arrow tutorial-ctrl-duck">↓</span>
+                                <span class="tutorial-ctrl-label">DUCKEN</span>
+                            </div>
+                        </div>
+                        <p class="tutorial-card-text">Springen, Doppelspringen und Ducken.</p>
+                    </section>
+                </div>
+                <button id="tutorialContinueBtn" class="btn-primary">LOS GEHT'S!</button>
+            </div>
+        </div>
+
         <!-- Email Capture Screen (S.EMAIL_CAPTURE = 10) -->
         <div id="emailCaptureScreen" class="screen hidden">
             <div class="screen-content">
