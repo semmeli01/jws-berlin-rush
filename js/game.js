@@ -1065,7 +1065,7 @@ class Game {
 
         list.innerHTML = entries.map((e, i) => {
             const rank = e.rank || (i + 1);
-            const isPlayer = this._lb.scoreId && e.score_id === this._lb.scoreId;
+            const isPlayer = this._lb.rank !== null && rank === this._lb.rank;
             const cls = isPlayer ? 'hs-row player-row' : 'hs-row';
             const nick = String(e.nickname || '?').toUpperCase();
             return `<div class="${cls}">` +
@@ -1100,7 +1100,11 @@ class Game {
             setTimeout(() => this._setState(S.LEADERBOARD), 800);
         } else {
             btn.textContent = 'SPEICHERN';
-            err.textContent = 'E-Mail konnte nicht gespeichert werden. Bitte erneut versuchen.';
+            if (this._lb.lastEmailErrorCode === 'token') {
+                err.textContent = 'Deine Kontakt-Berechtigung ist abgelaufen. Bitte spiele nochmals eine Runde und reiche deinen Score erneut ein.';
+            } else {
+                err.textContent = 'E-Mail konnte nicht gespeichert werden. Bitte erneut versuchen.';
+            }
         }
     }
 
