@@ -17,6 +17,9 @@ class LeaderboardService {
         this.scoreId = null;
         this.rank = null;
         this.contactEligible = false;
+        this.claimToken = null;
+        this.claimExpiresAt = null;
+        this.lastEmailErrorCode = null; // 'token' | 'network' | null
         this._available = !!(
             this._apiUrl &&
             this._anonKey &&
@@ -39,29 +42,32 @@ class LeaderboardService {
 
     async _post(path, body) {
         const url = this._apiUrl + path;
-        console.log('[LB] POST', url, JSON.stringify(body));
         const res = await fetch(url, {
             method: 'POST',
             headers: this._headers(),
             body: JSON.stringify(body),
         });
         const text = await res.text();
-        console.log('[LB] POST', url, '→', res.status, text);
         if (!res.ok) {
             let msg = text;
             try { msg = JSON.parse(text).error || text; } catch (_) {}
-            throw new Error(`${res.status}: ${msg}`);
+            const err = new Error(`${res.status}: ${msg}`);
+            err.status = res.status;
+            err.body = msg;
+            throw err;
         }
         return JSON.parse(text);
     }
 
     async _get(path) {
         const url = this._apiUrl + path;
-        console.log('[LB] GET', url);
         const res = await fetch(url, { method: 'GET', headers: this._headers() });
         const text = await res.text();
-        console.log('[LB] GET', url, '→', res.status, text.slice(0, 200));
-        if (!res.ok) throw new Error(`${res.status}: ${text}`);
+        if (!res.ok) {
+            const err = new Error(`${res.status}: ${text}`);
+            err.status = res.status;
+            throw err;
+        }
         return JSON.parse(text);
     }
 
@@ -71,12 +77,14 @@ class LeaderboardService {
         this.scoreId = null;
         this.rank = null;
         this.contactEligible = false;
+        this.claimToken = null;
+        this.claimExpiresAt = null;
+        this.lastEmailErrorCode = null;
         this._runStartTime = Date.now();
         if (!this._available) return;
         try {
             const data = await this._post('/run-start', { campaign_id: this._campaignId });
             this.runId = data.run_id || null;
-            console.log('[LB] run started:', this.runId);
         } catch (e) {
             console.warn('[LB] startRun failed:', e.message);
         }
@@ -88,7 +96,6 @@ class LeaderboardService {
      */
     async submitScore(payload) {
         if (!this._available) {
-            console.log('[LB] Offline mode — skipping score submit.');
             return null;
         }
 
@@ -119,7 +126,8 @@ class LeaderboardService {
             this.scoreId = data.score_id || null;
             this.rank = data.rank ?? null;
             this.contactEligible = !!data.contact_eligible;
-            console.log('[LB] score submitted — rank:', this.rank, 'eligible:', this.contactEligible);
+            this.claimToken = data.claim_token || null;
+            this.claimExpiresAt = data.claim_expires_at || null;
             return { rank: this.rank, contactEligible: this.contactEligible };
         } catch (e) {
             console.error('[LB] submitScore failed:', e.message);
@@ -141,18 +149,44 @@ class LeaderboardService {
         }
     }
 
-    /** Store contact email for top-ranked players. Returns true on success. */
+    /**
+     * Store contact email for top-ranked players.
+     * Returns true on success, false on failure.
+     * On token failure, sets this.lastEmailErrorCode = 'token' so the UI can
+     * show a specific message ("Berechtigung abgelaufen, bitte nochmals spielen").
+     */
     async submitEmail(email) {
+        this.lastEmailErrorCode = null;
         if (!this._available || !this.scoreId) {
             console.warn('[LB] submitEmail skipped — not available or no scoreId.');
+            this.lastEmailErrorCode = 'network';
+            return false;
+        }
+        if (!this.claimToken) {
+            console.warn('[LB] submitEmail skipped — no claim token.');
+            this.lastEmailErrorCode = 'token';
+            return false;
+        }
+        // Client-side TTL check — same gate the server applies.
+        if (this.claimExpiresAt && new Date(this.claimExpiresAt).getTime() < Date.now()) {
+            console.warn('[LB] submitEmail skipped — claim token expired.');
+            this.lastEmailErrorCode = 'token';
             return false;
         }
         try {
-            await this._post('/contact-score', { score_id: this.scoreId, email });
-            console.log('[LB] email stored for score:', this.scoreId);
+            await this._post('/contact-score', {
+                score_id: this.scoreId,
+                claim_token: this.claimToken,
+                email,
+            });
             return true;
         } catch (e) {
-            console.error('[LB] submitEmail failed:', e.message);
+            console.error('[LB] submitEmail failed:', e.status || '', e.message);
+            if (e.status === 403 || e.status === 401) {
+                this.lastEmailErrorCode = 'token';
+            } else {
+                this.lastEmailErrorCode = 'network';
+            }
             return false;
         }
     }
