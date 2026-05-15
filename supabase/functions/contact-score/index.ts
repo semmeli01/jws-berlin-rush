@@ -17,7 +17,11 @@ const DEFAULT_ALLOWED_ORIGINS = [
 
 const CONTACT_ELIGIBLE_RANK = 50;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RATE_LIMIT = { limit: 2, windowSeconds: 60 };
+// Limit matches submit-score (5/min). A contact-eligible player who submits
+// multiple scores in a session shouldn't hit a stricter cap on the email step
+// than on the score step. Claim-token binding (Phase 1) already prevents
+// hijacking, so a higher per-IP cap here is acceptable.
+const RATE_LIMIT = { limit: 5, windowSeconds: 60 };
 
 function allowedOrigins(): Set<string> {
     const env = Deno.env.get('ALLOWED_ORIGINS') ?? '';

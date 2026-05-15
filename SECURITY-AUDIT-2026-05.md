@@ -47,7 +47,7 @@ Severity legend:
 |----|----------|-------|--------|
 | C1 | Critical | Contact-email hijack via leaderboard `score_id` | **Fixed** (PR #24) |
 | H1 | High | CORS `*` on all Edge Functions | **Fixed** (PR #24) |
-| H2 | High | No rate-limiting | **Deferred to Phase 2** |
+| H2 | High | No rate-limiting | **Fixed** (PR #25, shipped 2026-05-15) |
 | H3 | High | Anti-cheat thresholds 7× real top score | **Fixed** (PR #24) |
 | M2 | Medium | `run-start` leaked internal errors on 500 | **Fixed** (PR #24) |
 | M3 | Medium | Stale internal test campaign `is_active = true` | **Fixed** (SQL 2026-05-14) |
@@ -175,16 +175,20 @@ These items were identified in the audit but are not launch-blocking. They are t
 - Any prize-claim-related abuse pattern detected, or
 - Routine hardening 1-2 weeks post-launch
 
-### Phase 2b — Rate-limiting on `run-start`, `submit-score`, `contact-score`
+### Phase 2b — Rate-limiting on `run-start`, `submit-score`, `contact-score`, `leaderboard`
 
-**What**: Per-IP-hash rolling-window counter. Proposed defaults: 30 runs/min, 5 submits/min, 2 contact-claims/min.
+**Status update (2026-05-15)**: Shipped via PR #25. Deployed limits per IP-hash per 60-second window:
 
-**Why it can wait**: Same reasoning as Phase 2a. CORS lock-down prevents browser-side weaponization from third-party sites. Curl-based spam is bounded by the suspicious-flag filter and by Supabase's invocation quota (currently nowhere near the cap).
+| Endpoint | Limit | Fail mode |
+|----------|-------|-----------|
+| `run-start` | 30 / min | fail-closed |
+| `submit-score` | 5 / min | fail-closed |
+| `contact-score` | 5 / min | fail-closed |
+| `leaderboard` | 120 / min | fail-open |
 
-**Trigger to ship**:
-- More than 5 000 abandoned runs per day (3× the current rate), or
-- Any flood pattern detected, or
-- Routine hardening 1-2 weeks post-launch
+`contact-score` was originally proposed at 2 / min but raised to 5 / min to match `submit-score`: a contact-eligible player who submits multiple scores in a session shouldn't hit a stricter cap on the email step than on the score step. The Phase 1 claim-token binding already prevents email-claim hijacking, so a higher per-IP cap here is acceptable.
+
+**Why it was the right time to ship**: CORS lock-down (Phase 1) blocks browser-side weaponization from third-party sites, but curl/script-based flooding was still possible. Rate-limit caps the attacker's per-IP throughput; the suspicious-flag pipeline filters anything they get through.
 
 ### Other deferred items
 
@@ -198,7 +202,7 @@ These items were identified in the audit but are not launch-blocking. They are t
 
 After Phase 1, the realistic remaining risks are:
 
-1. **High-volume scripted spam** (no rate limit). Mitigated by Supabase invocation quotas and the suspicious-flag filter. Worst case: the public board fills with junk nicknames, requiring SQL cleanup. **No prize theft is possible.**
+1. **High-volume scripted spam** (Phase 2 rate-limit caps each IP-hash at ≤5 score submits / min). Mitigated by the new per-IP rate-limit, Supabase invocation quotas, and the suspicious-flag filter. Worst case: a distributed botnet across many IPs floods the board with junk nicknames, requiring SQL cleanup. **No prize theft is possible.**
 2. **Sophisticated cheating** within the new envelope (a skilled attacker reverse-engineers the game and submits scores within the 30k score / 400-per-second / 15-second-minimum thresholds). Mitigated by the multi-factor plausibility checks. Worst case: a fabricated top-50 entry that's hard to detect automatically. **Action**: manual review of the top-10 contact emails before prize distribution.
 3. **Offensive nickname** on the public board. Mitigated by post-hoc SQL edit. The schema CHECK enforces 2-24 character length.
 
