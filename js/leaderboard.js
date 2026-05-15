@@ -19,7 +19,12 @@ class LeaderboardService {
         this.contactEligible = false;
         this.claimToken = null;
         this.claimExpiresAt = null;
-        this.lastEmailErrorCode = null; // 'token' | 'network' | null
+        // Error codes surfaced to the UI:
+        //   'rateLimit' = server returned 429
+        //   'token'     = claim_token rejected / expired
+        //   'network'   = any other failure
+        this.lastSubmitErrorCode = null;
+        this.lastEmailErrorCode = null;
         this._available = !!(
             this._apiUrl &&
             this._anonKey &&
@@ -79,14 +84,17 @@ class LeaderboardService {
         this.contactEligible = false;
         this.claimToken = null;
         this.claimExpiresAt = null;
+        this.lastSubmitErrorCode = null;
         this.lastEmailErrorCode = null;
         this._runStartTime = Date.now();
+        this._runStartStatus = null;
         if (!this._available) return;
         try {
             const data = await this._post('/run-start', { campaign_id: this._campaignId });
             this.runId = data.run_id || null;
         } catch (e) {
-            console.warn('[LB] startRun failed:', e.message);
+            console.warn('[LB] startRun failed:', e.status || '', e.message);
+            this._runStartStatus = e.status || null;
         }
     }
 
@@ -95,17 +103,18 @@ class LeaderboardService {
      * Returns { rank, contactEligible } on success, null if offline, false on hard error.
      */
     async submitScore(payload) {
+        this.lastSubmitErrorCode = null;
         if (!this._available) {
             return null;
         }
 
-        // If startRun() failed earlier, retry now before submitting
         if (!this.runId) {
             console.warn('[LB] runId missing — retrying startRun before submit...');
             await this.startRun();
         }
         if (!this.runId) {
             console.error('[LB] runId still null — cannot submit score.');
+            this.lastSubmitErrorCode = (this._runStartStatus === 429) ? 'rateLimit' : 'network';
             return false;
         }
 
@@ -118,10 +127,10 @@ class LeaderboardService {
                 run_id: this.runId,
                 nickname: payload.nickname,
                 score: payload.score,
-                character: payload.characterId,        // backend field: character
-                level_reached: payload.levelsCompleted, // backend field: level_reached
-                duration_ms: durationMs,                // backend field: duration_ms
-                terms_accepted: true,                   // backend validates this boolean
+                character: payload.characterId,
+                level_reached: payload.levelsCompleted,
+                duration_ms: durationMs,
+                terms_accepted: true,
             });
             this.scoreId = data.score_id || null;
             this.rank = data.rank ?? null;
@@ -130,12 +139,13 @@ class LeaderboardService {
             this.claimExpiresAt = data.claim_expires_at || null;
             return { rank: this.rank, contactEligible: this.contactEligible };
         } catch (e) {
-            console.error('[LB] submitScore failed:', e.message);
+            console.error('[LB] submitScore failed:', e.status || '', e.message);
+            this.lastSubmitErrorCode = (e.status === 429) ? 'rateLimit' : 'network';
             return false;
         }
     }
 
-    /** Fetch global leaderboard. Returns [] on failure. */
+    /** Fetch global leaderboard. Returns [] on failure (incl. rate-limit — silent). */
     async fetchLeaderboard() {
         if (!this._available) return [];
         try {
@@ -144,7 +154,7 @@ class LeaderboardService {
             );
             return Array.isArray(data) ? data : (data.entries || []);
         } catch (e) {
-            console.warn('[LB] fetchLeaderboard failed:', e.message);
+            console.warn('[LB] fetchLeaderboard failed:', e.status || '', e.message);
             return [];
         }
     }
@@ -152,8 +162,7 @@ class LeaderboardService {
     /**
      * Store contact email for top-ranked players.
      * Returns true on success, false on failure.
-     * On token failure, sets this.lastEmailErrorCode = 'token' so the UI can
-     * show a specific message ("Berechtigung abgelaufen, bitte nochmals spielen").
+     * Sets lastEmailErrorCode to 'token' | 'rateLimit' | 'network' on failure.
      */
     async submitEmail(email) {
         this.lastEmailErrorCode = null;
@@ -167,7 +176,6 @@ class LeaderboardService {
             this.lastEmailErrorCode = 'token';
             return false;
         }
-        // Client-side TTL check — same gate the server applies.
         if (this.claimExpiresAt && new Date(this.claimExpiresAt).getTime() < Date.now()) {
             console.warn('[LB] submitEmail skipped — claim token expired.');
             this.lastEmailErrorCode = 'token';
@@ -182,7 +190,9 @@ class LeaderboardService {
             return true;
         } catch (e) {
             console.error('[LB] submitEmail failed:', e.status || '', e.message);
-            if (e.status === 403 || e.status === 401) {
+            if (e.status === 429) {
+                this.lastEmailErrorCode = 'rateLimit';
+            } else if (e.status === 403 || e.status === 401) {
                 this.lastEmailErrorCode = 'token';
             } else {
                 this.lastEmailErrorCode = 'network';

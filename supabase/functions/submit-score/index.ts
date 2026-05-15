@@ -1,17 +1,10 @@
 // JWS Berlin Rush — submit-score
 // Persists a single score for a completed game run.
 //
-// Phase-1 security changes:
-//   • Tightened anti-cheat thresholds (real top score is ~21k, was 150k).
-//   • Server cross-checks duration_ms vs (now - run.started_at).
-//   • Character allow-list, level cap, integer score, score-per-second cap.
-//   • Suspicious scores keep being persisted (audit trail) but are excluded
-//     from leaderboard, rank, and contact eligibility.
-//   • Eligible scores are returned with a signed HMAC `claim_token` so the
-//     player can later attach their email via `contact-score`. The token is
-//     bound to {score_id, expires_at} and signed with CLAIM_SECRET.
+// Phase-1 security: tightened anti-cheat, server cross-checks, HMAC claim_token issuance.
+// Phase-2 security: per-IP-hash rolling-window rate limit, fail-closed on storage error.
 
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 const DEFAULT_ALLOWED_ORIGINS = [
     'https://www.oneplus.ch',
@@ -30,6 +23,8 @@ const MAX_LEVEL_REACHED = 5;
 const CONTACT_ELIGIBLE_RANK = 50;
 const CLAIM_TTL_MS = 10 * 60 * 1000;
 const SERVER_DURATION_TOLERANCE_MS = 60 * 1000;
+
+const RATE_LIMIT = { limit: 5, windowSeconds: 60 };
 
 const KNOWN_CHARACTERS = new Set([
     'diego', 'nils', 'anastasia', 'eric', 'timmo', 'alexander', 'martha',
@@ -64,7 +59,101 @@ function handlePreflight(req: Request, methods: string): Response | null {
     return new Response('ok', { headers: corsHeaders(req, methods) });
 }
 
-function json(req: Request, body: unknown, status = 200): Response {
+function getClientIp(req: Request): string {
+    const cf = req.headers.get('cf-connecting-ip');
+    if (cf) return cf;
+    const xff = req.headers.get('x-forwarded-for');
+    if (xff) return xff.split(',')[0].trim();
+    const xreal = req.headers.get('x-real-ip');
+    if (xreal) return xreal;
+    return 'unknown';
+}
+
+async function sha256Hex(s: string): Promise<string> {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+interface RateInfo {
+    allowed: boolean;
+    limit: number;
+    remaining: number;
+    resetAt: number;
+    retryAfter: number;
+    storageOk: boolean;
+}
+
+async function checkRateLimit(
+    req: Request,
+    db: SupabaseClient,
+    action: string,
+    limit: number,
+    windowSeconds: number,
+): Promise<RateInfo> {
+    const secret = Deno.env.get('RATE_LIMIT_SECRET') ?? '';
+    const windowMs = windowSeconds * 1000;
+    const windowStartMs = Math.floor(Date.now() / windowMs) * windowMs;
+    const resetAtMs = windowStartMs + windowMs;
+    const retryAfter = Math.max(1, Math.ceil((resetAtMs - Date.now()) / 1000));
+
+    if (!secret) {
+        console.error('[rate-limit] RATE_LIMIT_SECRET not configured');
+        return { allowed: false, limit, remaining: 0, resetAt: resetAtMs, retryAfter, storageOk: false };
+    }
+
+    const ip = getClientIp(req);
+    const ipHash = await sha256Hex(ip + secret);
+    const windowStart = new Date(windowStartMs).toISOString();
+
+    try {
+        const { data, error } = await db.rpc('increment_rate_limit', {
+            p_ip_hash: ipHash,
+            p_action: action,
+            p_window_start: windowStart,
+        });
+        if (error) throw error;
+        const count = typeof data === 'number' ? data : Number(data);
+        const remaining = Math.max(0, limit - count);
+        return {
+            allowed: count <= limit,
+            limit,
+            remaining,
+            resetAt: resetAtMs,
+            retryAfter,
+            storageOk: true,
+        };
+    } catch (e) {
+        console.error('[rate-limit] storage error for', action, ':', e);
+        return { allowed: false, limit, remaining: 0, resetAt: resetAtMs, retryAfter, storageOk: false };
+    }
+}
+
+function rateLimitHeaders(info: RateInfo): Record<string, string> {
+    return {
+        'X-RateLimit-Limit': String(info.limit),
+        'X-RateLimit-Remaining': String(info.remaining),
+        'X-RateLimit-Reset': String(Math.floor(info.resetAt / 1000)),
+    };
+}
+
+function tooManyResponse(req: Request, info: RateInfo): Response {
+    const origin = req.headers.get('origin');
+    const headers: Record<string, string> = {
+        'Vary': 'Origin',
+        'Content-Type': 'application/json',
+        'Retry-After': String(info.retryAfter),
+        ...rateLimitHeaders(info),
+    };
+    if (origin && allowedOrigins().has(origin)) {
+        headers['Access-Control-Allow-Origin'] = origin;
+    }
+    return new Response(
+        JSON.stringify({ error: 'Too many requests. Please wait a moment and try again.' }),
+        { status: 429, headers },
+    );
+}
+
+function json(req: Request, body: unknown, status = 200, rateInfo?: RateInfo): Response {
     const origin = req.headers.get('origin');
     const headers: Record<string, string> = {
         'Vary': 'Origin',
@@ -73,6 +162,7 @@ function json(req: Request, body: unknown, status = 200): Response {
     if (origin && allowedOrigins().has(origin)) {
         headers['Access-Control-Allow-Origin'] = origin;
     }
+    if (rateInfo) Object.assign(headers, rateLimitHeaders(rateInfo));
     return new Response(JSON.stringify(body), { status, headers });
 }
 
@@ -89,9 +179,6 @@ async function hmacHex(message: string, secret: string): Promise<string> {
     return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Token payload uses Unix-seconds for the expiry so the `.` delimiter never
-// collides with the `.` inside an ISO-8601 millisecond fragment. The response
-// to the browser still includes a human-readable ISO `claim_expires_at`.
 async function issueClaimToken(score_id: string): Promise<{ token: string; expires_at_iso: string }> {
     const secret = Deno.env.get('CLAIM_SECRET') ?? '';
     if (!secret) throw new Error('CLAIM_SECRET not configured');
@@ -116,10 +203,21 @@ Deno.serve(async (req: Request) => {
     if (pre) return pre;
     if (req.method !== 'POST') return json(req, { error: 'Method not allowed' }, 405);
 
+    const db = adminClient();
+
+    // Rate limit: fail-closed
+    const rate = await checkRateLimit(req, db, 'submit-score', RATE_LIMIT.limit, RATE_LIMIT.windowSeconds);
+    if (!rate.allowed) {
+        if (!rate.storageOk) {
+            return json(req, { error: 'Service temporarily unavailable' }, 503);
+        }
+        return tooManyResponse(req, rate);
+    }
+
     try {
         const body = await req.json().catch(() => null);
         if (!body || typeof body !== 'object') {
-            return json(req, { error: 'Invalid JSON body' }, 400);
+            return json(req, { error: 'Invalid JSON body' }, 400, rate);
         }
 
         const {
@@ -133,41 +231,39 @@ Deno.serve(async (req: Request) => {
         } = body as Record<string, unknown>;
 
         if (!run_id || typeof run_id !== 'string') {
-            return json(req, { error: 'run_id required' }, 400);
+            return json(req, { error: 'run_id required' }, 400, rate);
         }
         if (!nickname || typeof nickname !== 'string') {
-            return json(req, { error: 'nickname required' }, 400);
+            return json(req, { error: 'nickname required' }, 400, rate);
         }
         const nick = nickname.trim();
         if (nick.length < 2 || nick.length > 24) {
-            return json(req, { error: 'Nickname must be 2–24 characters' }, 400);
+            return json(req, { error: 'Nickname must be 2–24 characters' }, 400, rate);
         }
         if (typeof score !== 'number' || !Number.isFinite(score) || !Number.isInteger(score) || score < 0) {
-            return json(req, { error: 'score must be a non-negative integer' }, 400);
+            return json(req, { error: 'score must be a non-negative integer' }, 400, rate);
         }
         if (duration_ms != null && (typeof duration_ms !== 'number' || !Number.isFinite(duration_ms))) {
-            return json(req, { error: 'duration_ms must be a number' }, 400);
+            return json(req, { error: 'duration_ms must be a number' }, 400, rate);
         }
         if (level_reached != null && (typeof level_reached !== 'number' || !Number.isInteger(level_reached))) {
-            return json(req, { error: 'level_reached must be an integer' }, 400);
+            return json(req, { error: 'level_reached must be an integer' }, 400, rate);
         }
         if (character != null && typeof character !== 'string') {
-            return json(req, { error: 'character must be a string' }, 400);
+            return json(req, { error: 'character must be a string' }, 400, rate);
         }
         if (!terms_accepted) {
-            return json(req, { error: 'terms_accepted required' }, 400);
+            return json(req, { error: 'terms_accepted required' }, 400, rate);
         }
-
-        const db = adminClient();
 
         const { data: run, error: runErr } = await db
             .from('game_runs')
             .select('id, campaign_id, started_at, submitted_at, campaigns(starts_at, ends_at, is_active, terms_version)')
             .eq('id', run_id)
             .single();
-        if (runErr || !run) return json(req, { error: 'Run not found' }, 404);
+        if (runErr || !run) return json(req, { error: 'Run not found' }, 404, rate);
         if (run.submitted_at) {
-            return json(req, { error: 'Score already submitted for this run' }, 409);
+            return json(req, { error: 'Score already submitted for this run' }, 409, rate);
         }
 
         const campaign = (run as { campaigns: { starts_at: string; ends_at: string; is_active: boolean; terms_version: string } }).campaigns;
@@ -177,7 +273,7 @@ Deno.serve(async (req: Request) => {
             now < new Date(campaign.starts_at) ||
             now > new Date(campaign.ends_at)
         ) {
-            return json(req, { error: 'Campaign is not active' }, 403);
+            return json(req, { error: 'Campaign is not active' }, 403, rate);
         }
 
         // Plausibility checks — flag, don't reject (audit trail matters)
@@ -242,10 +338,10 @@ Deno.serve(async (req: Request) => {
         if (scoreErr || !scoreRow) {
             const code = (scoreErr as { code?: string } | null)?.code;
             if (code === '23505') {
-                return json(req, { error: 'Score already submitted for this run' }, 409);
+                return json(req, { error: 'Score already submitted for this run' }, 409, rate);
             }
             console.error('[submit-score] insert error:', scoreErr);
-            return json(req, { error: 'Failed to save score' }, 500);
+            return json(req, { error: 'Failed to save score' }, 500, rate);
         }
 
         await db
@@ -275,7 +371,6 @@ Deno.serve(async (req: Request) => {
                     claim_expires_at = issued.expires_at_iso;
                 } catch (e) {
                     console.error('[submit-score] claim token issue failed:', e);
-                    // Score is still saved; player cannot register an email this run.
                     contact_eligible = false;
                 }
             }
@@ -290,7 +385,7 @@ Deno.serve(async (req: Request) => {
         if (claim_token) response.claim_token = claim_token;
         if (claim_expires_at) response.claim_expires_at = claim_expires_at;
 
-        return json(req, response);
+        return json(req, response, 200, rate);
     } catch (e) {
         console.error('[submit-score] error:', e);
         return json(req, { error: 'Internal server error' }, 500);
