@@ -1031,7 +1031,11 @@ class Game {
 
         if (result === false) {
             // Hard backend error — show message but let user retry or skip
-            err.textContent = 'Score konnte nicht gespeichert werden. Bitte erneut versuchen.';
+            if (this._lb.lastSubmitErrorCode === 'rateLimit') {
+                err.textContent = 'Score konnte gerade nicht gespeichert werden. Bitte warte kurz und versuche es nochmals.';
+            } else {
+                err.textContent = 'Score konnte nicht gespeichert werden. Bitte erneut versuchen.';
+            }
             return;
         }
 
@@ -1102,6 +1106,8 @@ class Game {
             btn.textContent = 'SPEICHERN';
             if (this._lb.lastEmailErrorCode === 'token') {
                 err.textContent = 'Deine Kontakt-Berechtigung ist abgelaufen. Bitte spiele nochmals eine Runde und reiche deinen Score erneut ein.';
+            } else if (this._lb.lastEmailErrorCode === 'rateLimit') {
+                err.textContent = 'E-Mail konnte gerade nicht gespeichert werden. Bitte warte kurz und versuche es nochmals.';
             } else {
                 err.textContent = 'E-Mail konnte nicht gespeichert werden. Bitte erneut versuchen.';
             }

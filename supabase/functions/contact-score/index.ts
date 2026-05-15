@@ -1,15 +1,10 @@
 // JWS Berlin Rush — contact-score
-// Attaches a player-supplied email to a previously submitted, contact-eligible
-// score. Phase-1 security: requires a `claim_token` issued by submit-score.
+// Attaches a player-supplied email to a previously submitted, contact-eligible score.
 //
-// Token format: `${score_id}.${expires_at_unix_seconds}.${hmac_sha256_hex}`
-//   signed with CLAIM_SECRET, payload = `${score_id}.${expires_at_unix_seconds}`.
-// Unix-seconds is used (not ISO) so the `.` delimiter never collides with the
-// `.` inside an ISO millisecond fragment.
-// Token is bound to a specific score_id and expires after 10 minutes.
-// Replay is bounded by the one-time `contact_email already set` check.
+// Phase-1 security: requires HMAC claim_token bound to {score_id, expires_at}.
+// Phase-2 security: per-IP-hash rolling-window rate limit, fail-closed on storage error.
 
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient, type SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 const DEFAULT_ALLOWED_ORIGINS = [
     'https://www.oneplus.ch',
@@ -22,6 +17,7 @@ const DEFAULT_ALLOWED_ORIGINS = [
 
 const CONTACT_ELIGIBLE_RANK = 50;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RATE_LIMIT = { limit: 2, windowSeconds: 60 };
 
 function allowedOrigins(): Set<string> {
     const env = Deno.env.get('ALLOWED_ORIGINS') ?? '';
@@ -51,7 +47,101 @@ function handlePreflight(req: Request, methods: string): Response | null {
     return new Response('ok', { headers: corsHeaders(req, methods) });
 }
 
-function json(req: Request, body: unknown, status = 200): Response {
+function getClientIp(req: Request): string {
+    const cf = req.headers.get('cf-connecting-ip');
+    if (cf) return cf;
+    const xff = req.headers.get('x-forwarded-for');
+    if (xff) return xff.split(',')[0].trim();
+    const xreal = req.headers.get('x-real-ip');
+    if (xreal) return xreal;
+    return 'unknown';
+}
+
+async function sha256Hex(s: string): Promise<string> {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+interface RateInfo {
+    allowed: boolean;
+    limit: number;
+    remaining: number;
+    resetAt: number;
+    retryAfter: number;
+    storageOk: boolean;
+}
+
+async function checkRateLimit(
+    req: Request,
+    db: SupabaseClient,
+    action: string,
+    limit: number,
+    windowSeconds: number,
+): Promise<RateInfo> {
+    const secret = Deno.env.get('RATE_LIMIT_SECRET') ?? '';
+    const windowMs = windowSeconds * 1000;
+    const windowStartMs = Math.floor(Date.now() / windowMs) * windowMs;
+    const resetAtMs = windowStartMs + windowMs;
+    const retryAfter = Math.max(1, Math.ceil((resetAtMs - Date.now()) / 1000));
+
+    if (!secret) {
+        console.error('[rate-limit] RATE_LIMIT_SECRET not configured');
+        return { allowed: false, limit, remaining: 0, resetAt: resetAtMs, retryAfter, storageOk: false };
+    }
+
+    const ip = getClientIp(req);
+    const ipHash = await sha256Hex(ip + secret);
+    const windowStart = new Date(windowStartMs).toISOString();
+
+    try {
+        const { data, error } = await db.rpc('increment_rate_limit', {
+            p_ip_hash: ipHash,
+            p_action: action,
+            p_window_start: windowStart,
+        });
+        if (error) throw error;
+        const count = typeof data === 'number' ? data : Number(data);
+        const remaining = Math.max(0, limit - count);
+        return {
+            allowed: count <= limit,
+            limit,
+            remaining,
+            resetAt: resetAtMs,
+            retryAfter,
+            storageOk: true,
+        };
+    } catch (e) {
+        console.error('[rate-limit] storage error for', action, ':', e);
+        return { allowed: false, limit, remaining: 0, resetAt: resetAtMs, retryAfter, storageOk: false };
+    }
+}
+
+function rateLimitHeaders(info: RateInfo): Record<string, string> {
+    return {
+        'X-RateLimit-Limit': String(info.limit),
+        'X-RateLimit-Remaining': String(info.remaining),
+        'X-RateLimit-Reset': String(Math.floor(info.resetAt / 1000)),
+    };
+}
+
+function tooManyResponse(req: Request, info: RateInfo): Response {
+    const origin = req.headers.get('origin');
+    const headers: Record<string, string> = {
+        'Vary': 'Origin',
+        'Content-Type': 'application/json',
+        'Retry-After': String(info.retryAfter),
+        ...rateLimitHeaders(info),
+    };
+    if (origin && allowedOrigins().has(origin)) {
+        headers['Access-Control-Allow-Origin'] = origin;
+    }
+    return new Response(
+        JSON.stringify({ error: 'Too many requests. Please wait a moment and try again.' }),
+        { status: 429, headers },
+    );
+}
+
+function json(req: Request, body: unknown, status = 200, rateInfo?: RateInfo): Response {
     const origin = req.headers.get('origin');
     const headers: Record<string, string> = {
         'Vary': 'Origin',
@@ -60,6 +150,7 @@ function json(req: Request, body: unknown, status = 200): Response {
     if (origin && allowedOrigins().has(origin)) {
         headers['Access-Control-Allow-Origin'] = origin;
     }
+    if (rateInfo) Object.assign(headers, rateLimitHeaders(rateInfo));
     return new Response(JSON.stringify(body), { status, headers });
 }
 
@@ -93,7 +184,6 @@ async function verifyClaimToken(
     if (expSec * 1000 < Date.now()) return { ok: false, reason: 'expired' };
     const expectedSig = await hmacHex(`${score_id}.${expSec}`, secret);
     if (expectedSig.length !== sig.length) return { ok: false, reason: 'invalid signature' };
-    // Constant-time compare
     let diff = 0;
     for (let i = 0; i < expectedSig.length; i++) {
         diff |= expectedSig.charCodeAt(i) ^ sig.charCodeAt(i);
@@ -115,21 +205,32 @@ Deno.serve(async (req: Request) => {
     if (pre) return pre;
     if (req.method !== 'POST') return json(req, { error: 'Method not allowed' }, 405);
 
+    const db = adminClient();
+
+    // Rate limit: fail-closed
+    const rate = await checkRateLimit(req, db, 'contact-score', RATE_LIMIT.limit, RATE_LIMIT.windowSeconds);
+    if (!rate.allowed) {
+        if (!rate.storageOk) {
+            return json(req, { error: 'Service temporarily unavailable' }, 503);
+        }
+        return tooManyResponse(req, rate);
+    }
+
     try {
         const body = await req.json().catch(() => null);
         if (!body || typeof body !== 'object') {
-            return json(req, { error: 'Invalid JSON body' }, 400);
+            return json(req, { error: 'Invalid JSON body' }, 400, rate);
         }
         const { score_id, claim_token, email } = body as Record<string, unknown>;
 
         if (!score_id || typeof score_id !== 'string') {
-            return json(req, { error: 'score_id required' }, 400);
+            return json(req, { error: 'score_id required' }, 400, rate);
         }
         if (!claim_token || typeof claim_token !== 'string') {
-            return json(req, { error: 'claim_token required' }, 400);
+            return json(req, { error: 'claim_token required' }, 400, rate);
         }
         if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim())) {
-            return json(req, { error: 'Valid email required' }, 400);
+            return json(req, { error: 'Valid email required' }, 400, rate);
         }
 
         const secret = Deno.env.get('CLAIM_SECRET') ?? '';
@@ -141,20 +242,18 @@ Deno.serve(async (req: Request) => {
         const verdict = await verifyClaimToken(claim_token, score_id, secret);
         if (!verdict.ok) {
             console.warn('[contact-score] token reject:', verdict.reason);
-            return json(req, { error: 'Invalid or expired claim token' }, 403);
+            return json(req, { error: 'Invalid or expired claim token' }, 403, rate);
         }
-
-        const db = adminClient();
 
         const { data: score, error: scoreErr } = await db
             .from('scores')
             .select('id, campaign_id, score, suspicious, contact_email')
             .eq('id', score_id)
             .single();
-        if (scoreErr || !score) return json(req, { error: 'Score not found' }, 404);
-        if (score.suspicious) return json(req, { error: 'Score is not eligible' }, 403);
+        if (scoreErr || !score) return json(req, { error: 'Score not found' }, 404, rate);
+        if (score.suspicious) return json(req, { error: 'Score is not eligible' }, 403, rate);
         if (score.contact_email) {
-            return json(req, { error: 'Contact email already submitted' }, 409);
+            return json(req, { error: 'Contact email already submitted' }, 409, rate);
         }
 
         const { count } = await db
@@ -165,7 +264,7 @@ Deno.serve(async (req: Request) => {
             .gt('score', score.score);
         const rank = (count ?? 0) + 1;
         if (rank > CONTACT_ELIGIBLE_RANK) {
-            return json(req, { error: `Score is not in top ${CONTACT_ELIGIBLE_RANK}` }, 403);
+            return json(req, { error: `Score is not in top ${CONTACT_ELIGIBLE_RANK}` }, 403, rate);
         }
 
         const { error: upErr } = await db
@@ -178,10 +277,10 @@ Deno.serve(async (req: Request) => {
             .eq('id', score_id);
         if (upErr) {
             console.error('[contact-score] update error:', upErr);
-            return json(req, { error: 'Failed to save contact' }, 500);
+            return json(req, { error: 'Failed to save contact' }, 500, rate);
         }
 
-        return json(req, { success: true });
+        return json(req, { success: true }, 200, rate);
     } catch (e) {
         console.error('[contact-score] error:', e);
         return json(req, { error: 'Internal server error' }, 500);
