@@ -170,8 +170,10 @@ These items were identified in the audit but are not launch-blocking. They are t
 
 **Why it can wait**: With C1 fixed and CORS locked down, the realistic attack vector is curl-based spam from a single attacker. The single-submission-per-run constraint, the new anti-cheat suspicious-flag pipeline, and the closed claim-token flow together make this an inefficient attack: it cannot steal prizes, and any junk submissions are filtered from the public leaderboard.
 
-**Trigger to ship**:
-- More than 50 suspicious submissions per day in production, or
+**Trigger to ship** (calibrated 2026-05-15 against actual `public.game_runs` data):
+- More than **50 suspicious submissions / day** in production, or
+- More than **500 abandoned `game_runs` / day in the public campaign** (busiest internal-test day was 467; the public campaign so far averages ~5/day, so 500/day in public traffic would be clear abuse), or
+- More than **100 abandoned `game_runs` / day from a single IP-hash** (the per-IP rate-limit already caps run-start at 30/min, so sustained 100+ from one IP means determined abuse worth a Turnstile gate), or
 - Any prize-claim-related abuse pattern detected, or
 - Routine hardening 1-2 weeks post-launch
 
