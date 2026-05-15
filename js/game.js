@@ -101,8 +101,32 @@ class Game {
             return this._dbg.slice(-30);
         };
 
+        this._setupPrelaunchDisclaimer();
         this._setupUI();
         requestAnimationFrame(t => this._loop(t));
+    }
+
+    // Pre-launch test-mode disclaimer. Shown once per browser session while the
+    // game is live but not officially launched. Only closes via the CTA button:
+    // no backdrop click, no Escape key.
+    _setupPrelaunchDisclaimer() {
+        const modal = document.getElementById('prelaunchDisclaimerModal');
+        const btn   = document.getElementById('prelaunchDisclaimerAcceptBtn');
+        if (!modal || !btn) return;
+
+        const key = 'jws.prelaunch.disclaimer.seen';
+        if (sessionStorage.getItem(key)) {
+            modal.classList.add('hidden');
+            return;
+        }
+
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => modal.focus());
+
+        btn.addEventListener('click', () => {
+            sessionStorage.setItem(key, '1');
+            modal.classList.add('hidden');
+        });
     }
 
     _resizeCanvas() {

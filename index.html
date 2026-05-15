@@ -201,7 +201,11 @@
             <div class="screen-content">
                 <div class="screen-title">DEIN SCORE</div>
                 <div class="submit-score-display"><span id="submitFinalScore">0</span></div>
-                <div class="submit-contest-info">Reiche deinen Score ein und nimm am Gewinnspiel teil. Die Top 10 der Rangliste gewinnen je 1 Jahr oneplus. Dein Nickname erscheint öffentlich in der Rangliste.</div>
+                <div class="submit-contest-info">
+                    <span>🧪 Testmodus: Reiche deinen Score ein und hilf uns beim Testen.</span>
+                    <strong>Aktuell gibt es nichts zu gewinnen.</strong>
+                    <span>Dein Nickname erscheint in der Rangliste.</span>
+                </div>
                 <div class="submit-field-label">DEIN NAME</div>
                 <input id="submitNickname" class="name-input-field" type="text" maxlength="20"
                        placeholder="DEIN NAME" inputmode="text" autocapitalize="words"
@@ -319,6 +323,16 @@
             </div>
         </div>
 
+        <!-- Pre-launch test-mode disclaimer — shown once per browser session, always on main while game is unlisted. -->
+        <div id="prelaunchDisclaimerModal" class="prelaunch-disclaimer-modal" role="dialog" aria-modal="true" aria-labelledby="prelaunchDisclaimerTitle" tabindex="-1">
+            <div class="prelaunch-disclaimer-box">
+                <h2 id="prelaunchDisclaimerTitle">Interner Testmodus</h2>
+                <p>Dieses Game ist noch in Entwicklung und noch nicht offiziell veröffentlicht. Bitte den Link nicht extern teilen.</p>
+                <p class="prelaunch-disclaimer-ps">Aktuell gibt es nichts zu gewinnen – alle Scores dienen nur zum Testen.</p>
+                <button id="prelaunchDisclaimerAcceptBtn" class="btn-primary" type="button">Verstanden</button>
+            </div>
+        </div>
+
         <!-- Legal Modal: Impressum -->
         <div id="imprintModal" class="legal-modal hidden" role="dialog" aria-modal="true" aria-labelledby="imprintModalTitle" tabindex="-1">
             <div class="legal-modal-box">
@@ -358,7 +372,13 @@
                     <button type="button" class="legal-modal-close" id="termsModalClose" aria-label="Schliessen">✕</button>
                 </div>
                 <div class="legal-modal-body">
-                    <p class="legal-subtitle">JWS Berlin Rush – oneplus Gewinnspiel</p>
+                    <p class="legal-subtitle">JWS Berlin Rush – Testmodus (Pre-Launch)</p>
+                    <div class="legal-testmode-highlight">
+                        <strong>TESTMODUS – NOCH NICHT OFFIZIELL VERÖFFENTLICHT</strong>
+                        <p>Dieses Browsergame befindet sich aktuell in Entwicklung. Die Teilnahme erfolgt ausschliesslich zu Testzwecken.</p>
+                        <p>Es gibt aktuell nichts zu gewinnen. Scores können jederzeit zu Test- oder Wartungszwecken gelöscht, angepasst oder zurückgesetzt werden.</p>
+                        <p>Bitte teile den Link nicht extern.</p>
+                    </div>
 
                     <h3 class="legal-h3">1. Veranstalter</h3>
                     <p>CH Media TV AG<br>Thurgauerstrasse 80<br>8050 Zürich<br>Schweiz</p>
@@ -371,8 +391,7 @@
                     <p>Nur korrekt übermittelte Scores werden für das Gewinnspiel berücksichtigt.</p>
 
                     <h3 class="legal-h3">3. Teilnahmezeitraum</h3>
-                    <p>Das Gewinnspiel läuft im im Spiel oder in der Kampagnenkommunikation angegebenen Zeitraum.</p>
-                    <p>Nach Ablauf des Teilnahmezeitraums eingereichte Scores werden für die Gewinnermittlung nicht berücksichtigt.</p>
+                    <p>Solange sich das Game im Testmodus befindet, kann der Test jederzeit angepasst, unterbrochen oder beendet werden.</p>
 
                     <h3 class="legal-h3">4. Teilnahmeberechtigung</h3>
                     <p>Teilnahmeberechtigt sind natürliche Personen mit Wohnsitz in der Schweiz.</p>
@@ -380,19 +399,14 @@
                     <p>Pro Person sind mehrere Spielrunden möglich. Für die Rangliste zählt der jeweils gültig übermittelte Score.</p>
 
                     <h3 class="legal-h3">5. Gewinnmechanik</h3>
-                    <p>Die Gewinnerinnen und Gewinner werden anhand der globalen Rangliste ermittelt.</p>
-                    <p>Die Top 10 der gültigen Scores gewinnen je 1 Jahr oneplus.</p>
-                    <p>Massgeblich ist die Rangliste zum Ende des Teilnahmezeitraums. Bei Punktegleichstand entscheidet der frühere Zeitpunkt der Score-Übermittlung.</p>
-                    <p>Manipulierte, technisch fehlerhafte, automatisiert erzeugte oder anderweitig missbräuchliche Scores können ausgeschlossen werden.</p>
+                    <p>Aktuell findet kein öffentliches Gewinnspiel statt.</p>
+                    <p>Die Rangliste dient im Testmodus ausschliesslich zur technischen und spielerischen Überprüfung des Games. Aus einem Ranglistenplatz entsteht kein Anspruch auf einen Gewinn.</p>
 
                     <h3 class="legal-h3">6. Kontaktaufnahme</h3>
-                    <p>Personen mit einem hohen Ranglistenplatz können im Spiel freiwillig eine E-Mail-Adresse hinterlegen.</p>
-                    <p>Die E-Mail-Adresse wird verwendet, um potenzielle Gewinnerinnen und Gewinner nach Ende des Gewinnspiels zu kontaktieren.</p>
-                    <p>Falls eine Gewinnerin oder ein Gewinner nicht innerhalb der in der Gewinnbenachrichtigung genannten Frist reagiert, kann der Gewinn verfallen und an eine nachrückende Person vergeben werden.</p>
+                    <p>Falls im Testmodus eine E-Mail-Adresse hinterlegt wird, dient diese ausschliesslich der Prüfung des Kontakt- und Ranglistenflows. Es erfolgt daraus kein Gewinnanspruch.</p>
 
                     <h3 class="legal-h3">7. Gewinn</h3>
-                    <p>Der Gewinn umfasst ein oneplus Jahresabo für 1 Jahr.</p>
-                    <p>Eine Barauszahlung, ein Umtausch oder eine Übertragung des Gewinns ist ausgeschlossen.</p>
+                    <p>Im Testmodus ist kein Gewinn ausgeschrieben.</p>
 
                     <h3 class="legal-h3">8. Ausschluss bei Missbrauch</h3>
                     <p>Die Veranstalterin behält sich vor, Teilnehmende auszuschliessen, wenn der Verdacht auf Manipulation, technische Umgehung, Mehrfachmissbrauch, automatisierte Teilnahme oder sonstige unfaire Nutzung besteht.</p>
@@ -423,7 +437,12 @@
                     <button type="button" class="legal-modal-close" id="privacyModalClose" aria-label="Schliessen">✕</button>
                 </div>
                 <div class="legal-modal-body">
-                    <p class="legal-subtitle">JWS Berlin Rush – oneplus Gewinnspiel</p>
+                    <p class="legal-subtitle">JWS Berlin Rush – Testmodus (Pre-Launch)</p>
+                    <div class="legal-testmode-highlight">
+                        <strong>TESTMODUS – NOCH NICHT OFFIZIELL VERÖFFENTLICHT</strong>
+                        <p>Im Testmodus werden Nickname, Score, gewählter Charakter, technische Spiel-/Sessiondaten und gegebenenfalls eine freiwillig hinterlegte E-Mail-Adresse verarbeitet, um die Funktion des Games, der Rangliste und des Kontaktflows zu testen.</p>
+                        <p>Testdaten können vor dem offiziellen Launch gelöscht, anonymisiert oder zurückgesetzt werden.</p>
+                    </div>
 
                     <h3 class="legal-h3">1. Verantwortliche Stelle</h3>
                     <p>CH Media TV AG<br>Thurgauerstrasse 80<br>8050 Zürich<br>Schweiz</p>
@@ -464,8 +483,7 @@
 
                     <h3 class="legal-h3">5. Freiwillige E-Mail-Adresse</h3>
                     <p>Die Angabe der E-Mail-Adresse ist für die Anzeige deines Scores in der Rangliste nicht erforderlich.</p>
-                    <p>Wenn du jedoch gewinnen möchtest, benötigen wir eine Kontaktmöglichkeit, um dich im Gewinnfall zu informieren.</p>
-                    <p>Die E-Mail-Adresse wird nur für die Durchführung dieses Gewinnspiels und die Kontaktaufnahme im Gewinnfall verwendet.</p>
+                    <p>Im Testmodus dient eine freiwillig hinterlegte E-Mail-Adresse ausschliesslich der Prüfung des Kontakt- und Ranglistenflows. Es erfolgt daraus kein Gewinnanspruch.</p>
 
                     <h3 class="legal-h3">6. Lokale Speicherung im Browser</h3>
                     <p>Das Spiel kann deinen Nickname und deine E-Mail-Adresse lokal im Browser speichern, damit du diese Angaben bei späteren Spielrunden auf demselben Gerät nicht erneut eingeben musst.</p>
